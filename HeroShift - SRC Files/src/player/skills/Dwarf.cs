@@ -1,6 +1,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
+using src.SkillsCore.BuiltIn;
 using src.utils;
 using static src.HeroShift;
 
@@ -61,7 +64,8 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn?.Value;
             if (playerPawn != null && player.IsValid)
             {
-                float newSize = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "maxScale") - SkillsInfo.GetValue<float>(skillName, "minScale")) + SkillsInfo.GetValue<float>(skillName, "minScale");
+                var dwarfOptions = SkillConfigurationResolver.Get<DwarfOptions>(BuiltInSkillIds.Dwarf);
+                float newSize = (float)Instance.Random.NextDouble() * (dwarfOptions.MaxScale - dwarfOptions.MinScale) + dwarfOptions.MinScale;
                 newSize = (float)Math.Round(newSize, 2);
                 playerInfo.SkillChance = newSize;
 

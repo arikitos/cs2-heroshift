@@ -1,6 +1,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
+using src.SkillsCore.BuiltIn;
 using src.utils;
 using static src.HeroShift;
 
@@ -50,7 +53,7 @@ namespace src.player.skills
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (attackerInfo?.Skill != skillName) return;
 
-            int moneyToSteal = damage * SkillsInfo.GetValue<int>(skillName, "moneyMultiplier");
+            int moneyToSteal = damage * SkillConfigurationResolver.Get<RobinHoodOptions>(BuiltInSkillIds.RobinHood).MoneyMultiplier;
             StealMoney(victim!, attacker!, moneyToSteal);
         }
 

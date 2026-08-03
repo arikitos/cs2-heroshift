@@ -1,6 +1,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
+using src.SkillsCore.BuiltIn;
 using src.utils;
 using static src.HeroShift;
 
@@ -77,7 +80,8 @@ namespace src.player.skills
 
             if (attackerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || attackerPawn.Health <= 0) return;
 
-            int extraHealth = (int)(damage * SkillsInfo.GetValue<float>(skillName, "healthRegainScale"));
+            var draculaOptions = SkillConfigurationResolver.Get<DraculaOptions>(BuiltInSkillIds.Dracula);
+            int extraHealth = (int)(damage * draculaOptions.HealthRegainScale);
             if (extraHealth <= 0) return;
 
             attackerPawn.Health += extraHealth;

@@ -2,6 +2,9 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
+using src.SkillsCore.BuiltIn;
 using src.utils;
 using System.Collections.Concurrent;
 
@@ -68,7 +71,7 @@ namespace src.player.skills
             {
                 var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
                 if (attackerInfo?.Skill == skillName)
-                    playerPawn.FlashDuration = SkillsInfo.GetValue<float>(skillName, "flashDuration");
+                    playerPawn.FlashDuration = SkillConfigurationResolver.Get<AntyFlashOptions>(BuiltInSkillIds.AntyFlash).FlashDuration;
             }
         }
 
@@ -118,7 +121,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int flashbangLimit = ConVar.Find("ammo_grenade_limit_flashbang")?.GetPrimitiveValue<int>() ?? 2;
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = SkillConfigurationResolver.Get<AntyFlashOptions>(BuiltInSkillIds.AntyFlash).GrenadeLimit;
 
             if (grenadeLimit > flashbangLimit)
             {

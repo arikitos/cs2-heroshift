@@ -13,7 +13,20 @@ using System.Text.RegularExpressions;
 if (args.Length < 1)
 {
     Console.Error.WriteLine("Usage: BaselineExtractor <repoRoot> [outputPath]");
+    Console.Error.WriteLine("       BaselineExtractor classify <repoRoot>   (buckets skills into REFACTOR.md migration batches)");
     return 1;
+}
+
+if (string.Equals(args[0], "classify", StringComparison.OrdinalIgnoreCase))
+{
+    if (args.Length < 2)
+    {
+        Console.Error.WriteLine("Usage: BaselineExtractor classify <repoRoot>");
+        return 1;
+    }
+
+    BaselineExtractor.ClassifyBatches.Run(Path.GetFullPath(args[1]));
+    return 0;
 }
 
 string repoRoot = Path.GetFullPath(args[0]);

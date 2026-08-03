@@ -1,6 +1,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
+using src.SkillsCore.BuiltIn;
 using src.utils;
 using System.Collections.Concurrent;
 
@@ -81,7 +84,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillConfigurationResolver.Get<DashOptions>(BuiltInSkillIds.Dash).Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -149,7 +152,8 @@ namespace src.player.skills
                     float moveY = 0;
 
                     PlayerButtons playerButtons = player.Buttons;
-                    if (SkillsInfo.GetValue<bool>(skillName, "anyDirection"))
+                    var dashOptions = SkillConfigurationResolver.Get<DashOptions>(BuiltInSkillIds.Dash);
+                    if (dashOptions.AnyDirection)
                     {
                         if (playerButtons.HasFlag(PlayerButtons.Forward))
                             moveY += 1;
@@ -169,8 +173,8 @@ namespace src.player.skills
                     float moveAngle = MathF.Atan2(moveX, moveY) * (180f / MathF.PI);
                     QAngle dashAngles = new(0, eventPlayerPawn.EyeAngles.Y + moveAngle, 0);
 
-                    Vector newVelocity = SkillUtils.GetForwardVector(dashAngles) * SkillsInfo.GetValue<float>(skillName, "pushVelocity");
-                    newVelocity.Z = eventPlayerPawn.AbsVelocity.Z + SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
+                    Vector newVelocity = SkillUtils.GetForwardVector(dashAngles) * dashOptions.PushVelocity;
+                    newVelocity.Z = eventPlayerPawn.AbsVelocity.Z + dashOptions.JumpVelocity;
 
                     eventPlayerPawn.AbsVelocity.X = newVelocity.X;
                     eventPlayerPawn.AbsVelocity.Y = newVelocity.Y;

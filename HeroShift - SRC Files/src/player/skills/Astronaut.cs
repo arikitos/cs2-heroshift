@@ -1,6 +1,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
+using src.SkillsCore.BuiltIn;
 using src.utils;
 using static src.HeroShift;
 
@@ -80,7 +83,8 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            float gravityModifier = (float)Math.Round(Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "chanceFrom")) + SkillsInfo.GetValue<float>(skillName, "chanceFrom"), 1);
+            var astronautOptions = SkillConfigurationResolver.Get<AstronautOptions>(BuiltInSkillIds.Astronaut);
+            float gravityModifier = (float)Math.Round(Instance.Random.NextDouble() * (astronautOptions.ChanceTo - astronautOptions.ChanceFrom) + astronautOptions.ChanceFrom, 1);
             playerInfo.SkillChance = gravityModifier;
 
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, gravityModifier)}",
