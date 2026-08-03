@@ -42,6 +42,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Dwarf;
 
+        private static DwarfOptions Options => SkillConfigurationResolver.Get<DwarfOptions>(BuiltInSkillIds.Dwarf);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
@@ -64,7 +65,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn?.Value;
             if (playerPawn != null && player.IsValid)
             {
-                var dwarfOptions = SkillConfigurationResolver.Get<DwarfOptions>(BuiltInSkillIds.Dwarf);
+                var dwarfOptions = Options;
                 float newSize = (float)Instance.Random.NextDouble() * (dwarfOptions.MaxScale - dwarfOptions.MinScale) + dwarfOptions.MinScale;
                 newSize = (float)Math.Round(newSize, 2);
                 playerInfo.SkillChance = newSize;

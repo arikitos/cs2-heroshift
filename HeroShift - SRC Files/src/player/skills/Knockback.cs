@@ -2,6 +2,8 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -35,6 +37,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Knockback;
 
+        private static KnockbackOptions Options => SkillConfigurationResolver.Get<KnockbackOptions>(BuiltInSkillIds.Knockback);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -53,7 +56,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.Health <= 0) return;
             if ((pawn.Flags & (uint)PlayerFlags.FL_ONGROUND) != 0) return;
 
-            float force = SkillsInfo.GetValue<float>(skillName, "knockbackUnits");
+            float force = Options.KnockbackUnits;
             if (force <= 0) return;
 
             Vector push = SkillUtils.GetForwardVector(pawn.EyeAngles) * -force;
@@ -62,7 +65,7 @@ namespace src.player.skills
             pawn.AbsVelocity.Y += push.Y;
             pawn.AbsVelocity.Z += push.Z;
 
-            float maxSpeed = SkillsInfo.GetValue<float>(skillName, "maxSpeed");
+            float maxSpeed = Options.MaxSpeed;
             if (maxSpeed <= 0) return;
 
             float speed = pawn.AbsVelocity.Length();

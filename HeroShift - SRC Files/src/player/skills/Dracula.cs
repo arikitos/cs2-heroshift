@@ -39,6 +39,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Dracula;
 
+        private static DraculaOptions Options => SkillConfigurationResolver.Get<DraculaOptions>(BuiltInSkillIds.Dracula);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -80,7 +81,7 @@ namespace src.player.skills
 
             if (attackerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || attackerPawn.Health <= 0) return;
 
-            var draculaOptions = SkillConfigurationResolver.Get<DraculaOptions>(BuiltInSkillIds.Dracula);
+            var draculaOptions = Options;
             int extraHealth = (int)(damage * draculaOptions.HealthRegainScale);
             if (extraHealth <= 0) return;
 

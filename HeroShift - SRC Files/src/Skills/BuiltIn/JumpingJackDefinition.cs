@@ -4,25 +4,26 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * FastReloadOptions - typed replacement for the legacy FastReload.SkillConfig
+ * JumpingJackOptions - typed replacement for the legacy JumpingJack.SkillConfig
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
-public sealed record FastReloadOptions : ISkillOptions
+public sealed record JumpingJackOptions : ISkillOptions
 {
+    public int HealthToAdd { get; init; } = 3;
 }
 
 /*
- * FastReloadDefinition - canonical identity, metadata, typed defaults and hooks
- * for the existing FastReload gameplay implementation.
+ * JumpingJackDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing JumpingJack gameplay implementation.
  */
-public static class FastReloadDefinition
+public static class JumpingJackDefinition
 {
-    public static SkillDefinition<FastReloadOptions> Create() => new()
+    public static SkillDefinition<JumpingJackOptions> Create() => new()
     {
-        Id = BuiltInSkillIds.FastReload,
+        Id = BuiltInSkillIds.JumpingJack,
         Metadata = new SkillMetadata(
             Active: true,
-            Color: "#ffc061",
+            Color: "#a86eff",
             OnlyTeam: CounterStrikeSharp.API.Modules.Utils.CsTeam.None,
             DisableOnFreezeTime: false,
             NeedsTeammates: false,
@@ -31,11 +32,11 @@ public static class FastReloadDefinition
             DescriptionHudDuration: null,
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
-        DefaultOptions = new FastReloadOptions(),
+        DefaultOptions = new JumpingJackOptions(),
         Hooks = new SkillHookSet
         {
-            LoadSkill = FastReload.LoadSkill,
-            UseSkill = FastReload.UseSkill,
+            LoadSkill = JumpingJack.LoadSkill,
+            PlayerJump = JumpingJack.PlayerJump,
         },
     };
 }

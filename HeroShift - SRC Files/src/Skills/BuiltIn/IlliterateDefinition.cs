@@ -5,18 +5,15 @@ namespace src.SkillsCore.BuiltIn;
 
 /*
  * IlliterateOptions - typed replacement for the legacy Illiterate.SkillConfig
- * tunables (src/player/skills/Illiterate.cs). Illiterate has no skill-specific
- * tunables beyond the 11 shared SkillConfig parameters, so this record is
- * intentionally empty.
+ * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record IlliterateOptions : ISkillOptions
 {
 }
 
 /*
- * IlliterateDefinition - typed SkillDefinition for Illiterate. Hooks reference
- * the skill's existing public static methods directly as delegates
- * (REFACTOR.md section 23) - Illiterate.cs's hook bodies are unchanged.
+ * IlliterateDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Illiterate gameplay implementation.
  */
 public static class IlliterateDefinition
 {
@@ -33,13 +30,13 @@ public static class IlliterateDefinition
             HudDuration: null,
             DescriptionHudDuration: null,
             MaxPerServer: 1,
-            Rarity: utils.Rarity.Common),
+            Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new IlliterateOptions(),
         Hooks = new SkillHookSet
         {
             LoadSkill = Illiterate.LoadSkill,
-            NewRound = Illiterate.NewRound,
             EnableSkill = Illiterate.EnableSkill,
+            NewRound = Illiterate.NewRound,
         },
     };
 }

@@ -4,9 +4,8 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * DwarfOptions - typed replacement for the legacy Dwarf.SkillConfig tunables
- * (src/player/skills/Dwarf.cs). Defaults transcribed verbatim from that
- * SkillConfig's constructor parameters.
+ * DwarfOptions - typed replacement for the legacy Dwarf.SkillConfig
+ * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record DwarfOptions : ISkillOptions
 {
@@ -15,11 +14,8 @@ public sealed record DwarfOptions : ISkillOptions
 }
 
 /*
- * DwarfDefinition - typed SkillDefinition for Dwarf. Hooks reference the
- * skill's existing public static methods directly as delegates (REFACTOR.md
- * section 23) - Dwarf.cs's hook bodies are unchanged except for the
- * SkillsInfo.GetValue calls, which now read SkillConfigurationResolver's
- * typed DwarfOptions snapshot instead.
+ * DwarfDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Dwarf gameplay implementation.
  */
 public static class DwarfDefinition
 {
@@ -36,14 +32,14 @@ public static class DwarfDefinition
             HudDuration: null,
             DescriptionHudDuration: null,
             MaxPerServer: -1,
-            Rarity: utils.Rarity.Common),
+            Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new DwarfOptions(),
         Hooks = new SkillHookSet
         {
             LoadSkill = Dwarf.LoadSkill,
-            NewRound = Dwarf.NewRound,
             EnableSkill = Dwarf.EnableSkill,
             DisableSkill = Dwarf.DisableSkill,
+            NewRound = Dwarf.NewRound,
         },
     };
 }

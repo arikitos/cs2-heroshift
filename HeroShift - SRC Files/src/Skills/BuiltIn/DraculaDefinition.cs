@@ -4,9 +4,8 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * DraculaOptions - typed replacement for the legacy Dracula.SkillConfig tunables
- * (src/player/skills/Dracula.cs). Defaults transcribed verbatim from that
- * SkillConfig's constructor parameters.
+ * DraculaOptions - typed replacement for the legacy Dracula.SkillConfig
+ * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record DraculaOptions : ISkillOptions
 {
@@ -14,11 +13,8 @@ public sealed record DraculaOptions : ISkillOptions
 }
 
 /*
- * DraculaDefinition - typed SkillDefinition for Dracula. Hooks reference the
- * skill's existing public static methods directly as delegates (REFACTOR.md
- * section 23) - Dracula.cs's hook bodies are unchanged except for the
- * SkillsInfo.GetValue calls, which now read SkillConfigurationResolver's
- * typed DraculaOptions snapshot instead.
+ * DraculaDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Dracula gameplay implementation.
  */
 public static class DraculaDefinition
 {
@@ -35,7 +31,7 @@ public static class DraculaDefinition
             HudDuration: null,
             DescriptionHudDuration: null,
             MaxPerServer: -1,
-            Rarity: utils.Rarity.Common),
+            Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new DraculaOptions(),
         Hooks = new SkillHookSet
         {

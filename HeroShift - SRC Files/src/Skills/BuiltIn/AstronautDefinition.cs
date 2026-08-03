@@ -5,8 +5,7 @@ namespace src.SkillsCore.BuiltIn;
 
 /*
  * AstronautOptions - typed replacement for the legacy Astronaut.SkillConfig
- * tunables (src/player/skills/Astronaut.cs). Defaults transcribed verbatim
- * from that SkillConfig's constructor parameters.
+ * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record AstronautOptions : ISkillOptions
 {
@@ -15,11 +14,8 @@ public sealed record AstronautOptions : ISkillOptions
 }
 
 /*
- * AstronautDefinition - typed SkillDefinition for Astronaut. Hooks reference
- * the skill's existing public static methods directly as delegates
- * (REFACTOR.md section 23) - Astronaut.cs's hook bodies are unchanged except
- * for the SkillsInfo.GetValue calls, which now read
- * SkillConfigurationResolver's typed AstronautOptions snapshot instead.
+ * AstronautDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Astronaut gameplay implementation.
  */
 public static class AstronautDefinition
 {
@@ -36,14 +32,14 @@ public static class AstronautDefinition
             HudDuration: null,
             DescriptionHudDuration: null,
             MaxPerServer: -1,
-            Rarity: utils.Rarity.Common),
+            Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new AstronautOptions(),
         Hooks = new SkillHookSet
         {
             LoadSkill = Astronaut.LoadSkill,
             EnableSkill = Astronaut.EnableSkill,
-            NewRound = Astronaut.NewRound,
             DisableSkill = Astronaut.DisableSkill,
+            NewRound = Astronaut.NewRound,
         },
     };
 }

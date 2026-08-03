@@ -4,25 +4,25 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * FastReloadOptions - typed replacement for the legacy FastReload.SkillConfig
+ * SaperOptions - typed replacement for the legacy Saper.SkillConfig
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
-public sealed record FastReloadOptions : ISkillOptions
+public sealed record SaperOptions : ISkillOptions
 {
 }
 
 /*
- * FastReloadDefinition - canonical identity, metadata, typed defaults and hooks
- * for the existing FastReload gameplay implementation.
+ * SaperDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Saper gameplay implementation.
  */
-public static class FastReloadDefinition
+public static class SaperDefinition
 {
-    public static SkillDefinition<FastReloadOptions> Create() => new()
+    public static SkillDefinition<SaperOptions> Create() => new()
     {
-        Id = BuiltInSkillIds.FastReload,
+        Id = BuiltInSkillIds.Saper,
         Metadata = new SkillMetadata(
             Active: true,
-            Color: "#ffc061",
+            Color: "#8A2BE2",
             OnlyTeam: CounterStrikeSharp.API.Modules.Utils.CsTeam.None,
             DisableOnFreezeTime: false,
             NeedsTeammates: false,
@@ -31,11 +31,12 @@ public static class FastReloadDefinition
             DescriptionHudDuration: null,
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
-        DefaultOptions = new FastReloadOptions(),
+        DefaultOptions = new SaperOptions(),
         Hooks = new SkillHookSet
         {
-            LoadSkill = FastReload.LoadSkill,
-            UseSkill = FastReload.UseSkill,
+            LoadSkill = Saper.LoadSkill,
+            BombBeginplant = Saper.BombBeginplant,
+            BombBegindefuse = Saper.BombBegindefuse,
         },
     };
 }

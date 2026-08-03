@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- Migrated the passive skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.
+
 ### Fixed
 
 - Make typed skill identity available to every migrated gameplay implementation through a core global using, preventing generated option accessors from failing compilation when a source file did not already import the abstractions namespace.

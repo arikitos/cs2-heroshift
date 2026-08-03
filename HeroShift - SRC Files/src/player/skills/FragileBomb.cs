@@ -5,6 +5,8 @@ using src.utils;
 using static src.HeroShift;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -37,6 +39,7 @@ namespace src.player.skills
     public class FragileBomb : ISkill
     {
         private const Skills skillName = Skills.FragileBomb;
+        private static FragileBombOptions Options => SkillConfigurationResolver.Get<FragileBombOptions>(BuiltInSkillIds.FragileBomb);
         private static int bombHealth = 1000;
         private static int maxBombHealth = 1000;
 
@@ -50,8 +53,8 @@ namespace src.player.skills
 
         public static void NewRound()
         {
-            bombHealth = SkillsInfo.GetValue<int>(skillName, "maxBombHealth");
-            maxBombHealth = SkillsInfo.GetValue<int>(skillName, "maxBombHealth");
+            bombHealth = Options.MaxBombHealth;
+            maxBombHealth = Options.MaxBombHealth;
             plantedC4 = null;
         }
 

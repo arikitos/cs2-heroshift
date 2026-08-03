@@ -38,6 +38,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.RobinHood;
 
+        private static RobinHoodOptions Options => SkillConfigurationResolver.Get<RobinHoodOptions>(BuiltInSkillIds.RobinHood);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -53,7 +54,7 @@ namespace src.player.skills
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (attackerInfo?.Skill != skillName) return;
 
-            int moneyToSteal = damage * SkillConfigurationResolver.Get<RobinHoodOptions>(BuiltInSkillIds.RobinHood).MoneyMultiplier;
+            int moneyToSteal = damage * Options.MoneyMultiplier;
             StealMoney(victim!, attacker!, moneyToSteal);
         }
 

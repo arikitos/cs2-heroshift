@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -35,6 +37,7 @@ namespace src.player.skills
     public class ShortBomb : ISkill
     {
         private const Skills skillName = Skills.ShortBomb;
+        private static ShortBombOptions Options => SkillConfigurationResolver.Get<ShortBombOptions>(BuiltInSkillIds.ShortBomb);
         // mp_c4timer is an Int32 cvar; captured at load so restore never picks up another skill's override.
         private static int defaultC4Timer = 40;
         private static bool c4TimerOverridden;
@@ -49,7 +52,7 @@ namespace src.player.skills
         {
             // At round start (not at plant) so the client HUD/alert countdown is right before the plant completes.
             c4TimerOverridden = true;
-            Server.ExecuteCommand($"mp_c4timer {SkillsInfo.GetValue<int>(skillName, "detonationTime")}");
+            Server.ExecuteCommand($"mp_c4timer {Options.DetonationTime}");
         }
 
         public static void NewRound()
@@ -73,11 +76,11 @@ namespace src.player.skills
                 Server.NextFrame(() =>
                 {
                     if (plantedBomb != null && plantedBomb.IsValid)
-                        plantedBomb.C4Blow = Server.CurrentTime + SkillsInfo.GetValue<int>(skillName, "detonationTime");
+                        plantedBomb.C4Blow = Server.CurrentTime + Options.DetonationTime;
                 });
 
             foreach (var p in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
-                p.PrintToCenterAlert(p.GetTranslation("bombplanted", SkillsInfo.GetValue<int>(skillName, "detonationTime")));
+                p.PrintToCenterAlert(p.GetTranslation("bombplanted", Options.DetonationTime));
         }
 
         public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f5b74c", CsTeam onlyTeam = CsTeam.Terrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, int detonationTime = 20) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)

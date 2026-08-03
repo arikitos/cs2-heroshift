@@ -13,21 +13,43 @@ public class BuiltInSkillCatalogTests
     public void BuildRegistry_RegistersEveryMigratedSkillExactlyOnce()
     {
         var registry = BuiltInSkillCatalog.BuildRegistry();
+        SkillId[] expected =
+        [
+            BuiltInSkillIds.None,
+            BuiltInSkillIds.AntyFlash,
+            BuiltInSkillIds.Astronaut,
+            BuiltInSkillIds.Behind,
+            BuiltInSkillIds.Catapult,
+            BuiltInSkillIds.Disarmament,
+            BuiltInSkillIds.Dash,
+            BuiltInSkillIds.Dracula,
+            BuiltInSkillIds.Dwarf,
+            BuiltInSkillIds.FastReload,
+            BuiltInSkillIds.FragileBomb,
+            BuiltInSkillIds.Grenadier,
+            BuiltInSkillIds.Illiterate,
+            BuiltInSkillIds.Impostor,
+            BuiltInSkillIds.InfiniteAmmo,
+            BuiltInSkillIds.JumpingJack,
+            BuiltInSkillIds.Knockback,
+            BuiltInSkillIds.Push,
+            BuiltInSkillIds.Pyro,
+            BuiltInSkillIds.Rambo,
+            BuiltInSkillIds.ReturnToSender,
+            BuiltInSkillIds.RichBoy,
+            BuiltInSkillIds.RobinHood,
+            BuiltInSkillIds.Saper,
+            BuiltInSkillIds.ShortBomb,
+            BuiltInSkillIds.Silent,
+            BuiltInSkillIds.Teleporter,
+            BuiltInSkillIds.Zeus,
+        ];
 
-        Assert.Equal(10, registry.All.Count);
-        Assert.True(registry.Contains(BuiltInSkillIds.AntyFlash));
-        Assert.True(registry.Contains(BuiltInSkillIds.Astronaut));
-        Assert.True(registry.Contains(BuiltInSkillIds.Behind));
-        Assert.True(registry.Contains(BuiltInSkillIds.Dash));
-        Assert.True(registry.Contains(BuiltInSkillIds.Dracula));
-        Assert.True(registry.Contains(BuiltInSkillIds.Dwarf));
-        Assert.True(registry.Contains(BuiltInSkillIds.FastReload));
-        Assert.True(registry.Contains(BuiltInSkillIds.Illiterate));
-        Assert.True(registry.Contains(BuiltInSkillIds.Push));
-        Assert.True(registry.Contains(BuiltInSkillIds.RobinHood));
+        Assert.Equal(expected.Length, registry.All.Count);
+        Assert.Equal(expected, registry.All.Select(definition => definition.Id));
     }
 
-    [Fact]
+[Fact]
     public void DashDefinition_MatchesBaselineMetadataAndOptions()
     {
         var definition = DashDefinition.Create();

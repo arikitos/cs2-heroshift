@@ -4,25 +4,25 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * FastReloadOptions - typed replacement for the legacy FastReload.SkillConfig
+ * GrenadierOptions - typed replacement for the legacy Grenadier.SkillConfig
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
-public sealed record FastReloadOptions : ISkillOptions
+public sealed record GrenadierOptions : ISkillOptions
 {
 }
 
 /*
- * FastReloadDefinition - canonical identity, metadata, typed defaults and hooks
- * for the existing FastReload gameplay implementation.
+ * GrenadierDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Grenadier gameplay implementation.
  */
-public static class FastReloadDefinition
+public static class GrenadierDefinition
 {
-    public static SkillDefinition<FastReloadOptions> Create() => new()
+    public static SkillDefinition<GrenadierOptions> Create() => new()
     {
-        Id = BuiltInSkillIds.FastReload,
+        Id = BuiltInSkillIds.Grenadier,
         Metadata = new SkillMetadata(
             Active: true,
-            Color: "#ffc061",
+            Color: "#4a6e21",
             OnlyTeam: CounterStrikeSharp.API.Modules.Utils.CsTeam.None,
             DisableOnFreezeTime: false,
             NeedsTeammates: false,
@@ -31,11 +31,12 @@ public static class FastReloadDefinition
             DescriptionHudDuration: null,
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
-        DefaultOptions = new FastReloadOptions(),
+        DefaultOptions = new GrenadierOptions(),
         Hooks = new SkillHookSet
         {
-            LoadSkill = FastReload.LoadSkill,
-            UseSkill = FastReload.UseSkill,
+            LoadSkill = Grenadier.LoadSkill,
+            EnableSkill = Grenadier.EnableSkill,
+            GrenadeThrown = Grenadier.GrenadeThrown,
         },
     };
 }

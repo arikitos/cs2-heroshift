@@ -4,25 +4,25 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * FastReloadOptions - typed replacement for the legacy FastReload.SkillConfig
+ * NoneOptions - typed replacement for the legacy None.SkillConfig
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
-public sealed record FastReloadOptions : ISkillOptions
+public sealed record NoneOptions : ISkillOptions
 {
 }
 
 /*
- * FastReloadDefinition - canonical identity, metadata, typed defaults and hooks
- * for the existing FastReload gameplay implementation.
+ * NoneDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing None gameplay implementation.
  */
-public static class FastReloadDefinition
+public static class NoneDefinition
 {
-    public static SkillDefinition<FastReloadOptions> Create() => new()
+    public static SkillDefinition<NoneOptions> Create() => new()
     {
-        Id = BuiltInSkillIds.FastReload,
+        Id = BuiltInSkillIds.None,
         Metadata = new SkillMetadata(
             Active: true,
-            Color: "#ffc061",
+            Color: "#FFFFFF",
             OnlyTeam: CounterStrikeSharp.API.Modules.Utils.CsTeam.None,
             DisableOnFreezeTime: false,
             NeedsTeammates: false,
@@ -31,11 +31,10 @@ public static class FastReloadDefinition
             DescriptionHudDuration: null,
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
-        DefaultOptions = new FastReloadOptions(),
+        DefaultOptions = new NoneOptions(),
         Hooks = new SkillHookSet
         {
-            LoadSkill = FastReload.LoadSkill,
-            UseSkill = FastReload.UseSkill,
+            LoadSkill = None.LoadSkill,
         },
     };
 }

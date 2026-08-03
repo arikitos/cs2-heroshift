@@ -44,6 +44,7 @@ namespace src.player.skills
     public class AntyFlash : ISkill
     {
         private const Skills skillName = Skills.AntyFlash;
+        private static AntyFlashOptions Options => SkillConfigurationResolver.Get<AntyFlashOptions>(BuiltInSkillIds.AntyFlash);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
@@ -71,7 +72,7 @@ namespace src.player.skills
             {
                 var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
                 if (attackerInfo?.Skill == skillName)
-                    playerPawn.FlashDuration = SkillConfigurationResolver.Get<AntyFlashOptions>(BuiltInSkillIds.AntyFlash).FlashDuration;
+                    playerPawn.FlashDuration = Options.FlashDuration;
             }
         }
 
@@ -121,7 +122,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int flashbangLimit = ConVar.Find("ammo_grenade_limit_flashbang")?.GetPrimitiveValue<int>() ?? 2;
-            int grenadeLimit = SkillConfigurationResolver.Get<AntyFlashOptions>(BuiltInSkillIds.AntyFlash).GrenadeLimit;
+            int grenadeLimit = Options.GrenadeLimit;
 
             if (grenadeLimit > flashbangLimit)
             {

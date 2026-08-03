@@ -4,9 +4,8 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * PushOptions - typed replacement for the legacy Push.SkillConfig tunables
- * (src/player/skills/Push.cs). Defaults transcribed verbatim from that
- * SkillConfig's constructor parameters.
+ * PushOptions - typed replacement for the legacy Push.SkillConfig
+ * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record PushOptions : ISkillOptions
 {
@@ -17,11 +16,8 @@ public sealed record PushOptions : ISkillOptions
 }
 
 /*
- * PushDefinition - typed SkillDefinition for Push. Hooks reference the
- * skill's existing public static methods directly as delegates (REFACTOR.md
- * section 23) - Push.cs's hook bodies are unchanged except for the
- * SkillsInfo.GetValue calls, which now read SkillConfigurationResolver's
- * typed PushOptions snapshot instead.
+ * PushDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Push gameplay implementation.
  */
 public static class PushDefinition
 {
@@ -38,7 +34,7 @@ public static class PushDefinition
             HudDuration: null,
             DescriptionHudDuration: null,
             MaxPerServer: -1,
-            Rarity: utils.Rarity.Common),
+            Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new PushOptions(),
         Hooks = new SkillHookSet
         {

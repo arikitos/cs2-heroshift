@@ -4,27 +4,27 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * BehindOptions - typed replacement for the legacy Behind.SkillConfig
+ * DisarmamentOptions - typed replacement for the legacy Disarmament.SkillConfig
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
-public sealed record BehindOptions : ISkillOptions
+public sealed record DisarmamentOptions : ISkillOptions
 {
     public float ChanceFrom { get; init; } = .2f;
-    public float ChanceTo { get; init; } = .4f;
+    public float ChanceTo { get; init; } = .35f;
 }
 
 /*
- * BehindDefinition - canonical identity, metadata, typed defaults and hooks
- * for the existing Behind gameplay implementation.
+ * DisarmamentDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Disarmament gameplay implementation.
  */
-public static class BehindDefinition
+public static class DisarmamentDefinition
 {
-    public static SkillDefinition<BehindOptions> Create() => new()
+    public static SkillDefinition<DisarmamentOptions> Create() => new()
     {
-        Id = BuiltInSkillIds.Behind,
+        Id = BuiltInSkillIds.Disarmament,
         Metadata = new SkillMetadata(
             Active: true,
-            Color: "#00FF00",
+            Color: "#FF4500",
             OnlyTeam: CounterStrikeSharp.API.Modules.Utils.CsTeam.None,
             DisableOnFreezeTime: false,
             NeedsTeammates: false,
@@ -33,12 +33,12 @@ public static class BehindDefinition
             DescriptionHudDuration: null,
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
-        DefaultOptions = new BehindOptions(),
+        DefaultOptions = new DisarmamentOptions(),
         Hooks = new SkillHookSet
         {
-            LoadSkill = Behind.LoadSkill,
-            EnableSkill = Behind.EnableSkill,
-            PlayerHurt = Behind.PlayerHurt,
+            LoadSkill = Disarmament.LoadSkill,
+            EnableSkill = Disarmament.EnableSkill,
+            PlayerHurt = Disarmament.PlayerHurt,
         },
     };
 }

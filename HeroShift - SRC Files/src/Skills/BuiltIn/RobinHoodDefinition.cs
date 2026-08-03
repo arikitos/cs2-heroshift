@@ -5,8 +5,7 @@ namespace src.SkillsCore.BuiltIn;
 
 /*
  * RobinHoodOptions - typed replacement for the legacy RobinHood.SkillConfig
- * tunables (src/player/skills/RobinHood.cs). Defaults transcribed verbatim
- * from that SkillConfig's constructor parameters.
+ * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record RobinHoodOptions : ISkillOptions
 {
@@ -14,11 +13,8 @@ public sealed record RobinHoodOptions : ISkillOptions
 }
 
 /*
- * RobinHoodDefinition - typed SkillDefinition for RobinHood. Hooks reference
- * the skill's existing public static methods directly as delegates
- * (REFACTOR.md section 23) - RobinHood.cs's hook bodies are unchanged except
- * for the SkillsInfo.GetValue calls, which now read
- * SkillConfigurationResolver's typed RobinHoodOptions snapshot instead.
+ * RobinHoodDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing RobinHood gameplay implementation.
  */
 public static class RobinHoodDefinition
 {
@@ -35,7 +31,7 @@ public static class RobinHoodDefinition
             HudDuration: null,
             DescriptionHudDuration: null,
             MaxPerServer: -1,
-            Rarity: utils.Rarity.Common),
+            Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new RobinHoodOptions(),
         Hooks = new SkillHookSet
         {

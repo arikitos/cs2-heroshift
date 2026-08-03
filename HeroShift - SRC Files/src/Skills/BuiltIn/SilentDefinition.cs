@@ -4,25 +4,25 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * FastReloadOptions - typed replacement for the legacy FastReload.SkillConfig
+ * SilentOptions - typed replacement for the legacy Silent.SkillConfig
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
-public sealed record FastReloadOptions : ISkillOptions
+public sealed record SilentOptions : ISkillOptions
 {
 }
 
 /*
- * FastReloadDefinition - canonical identity, metadata, typed defaults and hooks
- * for the existing FastReload gameplay implementation.
+ * SilentDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Silent gameplay implementation.
  */
-public static class FastReloadDefinition
+public static class SilentDefinition
 {
-    public static SkillDefinition<FastReloadOptions> Create() => new()
+    public static SkillDefinition<SilentOptions> Create() => new()
     {
-        Id = BuiltInSkillIds.FastReload,
+        Id = BuiltInSkillIds.Silent,
         Metadata = new SkillMetadata(
             Active: true,
-            Color: "#ffc061",
+            Color: "#333333",
             OnlyTeam: CounterStrikeSharp.API.Modules.Utils.CsTeam.None,
             DisableOnFreezeTime: false,
             NeedsTeammates: false,
@@ -31,11 +31,11 @@ public static class FastReloadDefinition
             DescriptionHudDuration: null,
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
-        DefaultOptions = new FastReloadOptions(),
+        DefaultOptions = new SilentOptions(),
         Hooks = new SkillHookSet
         {
-            LoadSkill = FastReload.LoadSkill,
-            UseSkill = FastReload.UseSkill,
+            LoadSkill = Silent.LoadSkill,
+            PlayerMakeSound = Silent.PlayerMakeSound,
         },
     };
 }

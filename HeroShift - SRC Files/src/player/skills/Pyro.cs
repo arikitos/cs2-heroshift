@@ -5,6 +5,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -40,6 +42,7 @@ namespace src.player.skills
     public class Pyro : ISkill
     {
         private const Skills skillName = Skills.Pyro;
+        private static PyroOptions Options => SkillConfigurationResolver.Get<PyroOptions>(BuiltInSkillIds.Pyro);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
@@ -59,7 +62,7 @@ namespace src.player.skills
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             var pawn = victim!.PlayerPawn.Value;
-            SkillUtils.AddHealth(pawn, (int)(damage * SkillsInfo.GetValue<float>(skillName, "regenerationMultiplier")));
+            SkillUtils.AddHealth(pawn, (int)(damage * Options.RegenerationMultiplier));
         }
 
         public static void GrenadeThrown(EventGrenadeThrown @event)
@@ -111,7 +114,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             var item = player.Team == CsTeam.CounterTerrorist ? CsItem.IncendiaryGrenade : CsItem.Molotov;

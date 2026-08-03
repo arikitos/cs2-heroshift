@@ -4,27 +4,27 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * BehindOptions - typed replacement for the legacy Behind.SkillConfig
+ * CatapultOptions - typed replacement for the legacy Catapult.SkillConfig
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
-public sealed record BehindOptions : ISkillOptions
+public sealed record CatapultOptions : ISkillOptions
 {
     public float ChanceFrom { get; init; } = .2f;
     public float ChanceTo { get; init; } = .4f;
 }
 
 /*
- * BehindDefinition - canonical identity, metadata, typed defaults and hooks
- * for the existing Behind gameplay implementation.
+ * CatapultDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing Catapult gameplay implementation.
  */
-public static class BehindDefinition
+public static class CatapultDefinition
 {
-    public static SkillDefinition<BehindOptions> Create() => new()
+    public static SkillDefinition<CatapultOptions> Create() => new()
     {
-        Id = BuiltInSkillIds.Behind,
+        Id = BuiltInSkillIds.Catapult,
         Metadata = new SkillMetadata(
             Active: true,
-            Color: "#00FF00",
+            Color: "#FF4500",
             OnlyTeam: CounterStrikeSharp.API.Modules.Utils.CsTeam.None,
             DisableOnFreezeTime: false,
             NeedsTeammates: false,
@@ -33,12 +33,12 @@ public static class BehindDefinition
             DescriptionHudDuration: null,
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
-        DefaultOptions = new BehindOptions(),
+        DefaultOptions = new CatapultOptions(),
         Hooks = new SkillHookSet
         {
-            LoadSkill = Behind.LoadSkill,
-            EnableSkill = Behind.EnableSkill,
-            PlayerHurt = Behind.PlayerHurt,
+            LoadSkill = Catapult.LoadSkill,
+            EnableSkill = Catapult.EnableSkill,
+            PlayerHurt = Catapult.PlayerHurt,
         },
     };
 }

@@ -43,6 +43,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Astronaut;
 
+        private static AstronautOptions Options => SkillConfigurationResolver.Get<AstronautOptions>(BuiltInSkillIds.Astronaut);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
@@ -83,7 +84,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            var astronautOptions = SkillConfigurationResolver.Get<AstronautOptions>(BuiltInSkillIds.Astronaut);
+            var astronautOptions = Options;
             float gravityModifier = (float)Math.Round(Instance.Random.NextDouble() * (astronautOptions.ChanceTo - astronautOptions.ChanceFrom) + astronautOptions.ChanceFrom, 1);
             playerInfo.SkillChance = gravityModifier;
 

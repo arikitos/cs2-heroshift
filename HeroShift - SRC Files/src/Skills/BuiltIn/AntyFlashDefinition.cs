@@ -5,8 +5,7 @@ namespace src.SkillsCore.BuiltIn;
 
 /*
  * AntyFlashOptions - typed replacement for the legacy AntyFlash.SkillConfig
- * tunables (src/player/skills/AntyFlash.cs). Defaults transcribed verbatim
- * from that SkillConfig's constructor parameters.
+ * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record AntyFlashOptions : ISkillOptions
 {
@@ -15,11 +14,8 @@ public sealed record AntyFlashOptions : ISkillOptions
 }
 
 /*
- * AntyFlashDefinition - typed SkillDefinition for AntyFlash. Hooks reference
- * the skill's existing public static methods directly as delegates
- * (REFACTOR.md section 23) - AntyFlash.cs's hook bodies are unchanged except
- * for the SkillsInfo.GetValue calls, which now read
- * SkillConfigurationResolver's typed AntyFlashOptions snapshot instead.
+ * AntyFlashDefinition - canonical identity, metadata, typed defaults and hooks
+ * for the existing AntyFlash gameplay implementation.
  */
 public static class AntyFlashDefinition
 {
@@ -36,17 +32,17 @@ public static class AntyFlashDefinition
             HudDuration: null,
             DescriptionHudDuration: null,
             MaxPerServer: -1,
-            Rarity: utils.Rarity.Common),
+            Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new AntyFlashOptions(),
         Hooks = new SkillHookSet
         {
             LoadSkill = AntyFlash.LoadSkill,
-            PlayerBlind = AntyFlash.PlayerBlind,
-            GrenadeThrown = AntyFlash.GrenadeThrown,
-            WeaponEquip = AntyFlash.WeaponEquip,
-            WeaponPickup = AntyFlash.WeaponPickup,
             EnableSkill = AntyFlash.EnableSkill,
             DisableSkill = AntyFlash.DisableSkill,
+            PlayerBlind = AntyFlash.PlayerBlind,
+            WeaponEquip = AntyFlash.WeaponEquip,
+            WeaponPickup = AntyFlash.WeaponPickup,
+            GrenadeThrown = AntyFlash.GrenadeThrown,
         },
     };
 }

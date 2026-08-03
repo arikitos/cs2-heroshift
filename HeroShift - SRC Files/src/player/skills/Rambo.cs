@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Rambo;
 
+        private static RamboOptions Options => SkillConfigurationResolver.Get<RamboOptions>(BuiltInSkillIds.Rambo);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -46,7 +49,7 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            int healthBonus = Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "minExtraHealth"), SkillsInfo.GetValue<int>(skillName, "maxExtraHealth"));
+            int healthBonus = Instance.Random.Next(Options.MinExtraHealth, Options.MaxExtraHealth);
             AddHealth(player, healthBonus);
         }
 

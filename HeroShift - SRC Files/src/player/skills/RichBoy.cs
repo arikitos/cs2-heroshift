@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.RichBoy;
 
+        private static RichBoyOptions Options => SkillConfigurationResolver.Get<RichBoyOptions>(BuiltInSkillIds.RichBoy);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -50,7 +53,7 @@ namespace src.player.skills
         {
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
-            int moneyBonus = Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "minMoney"), SkillsInfo.GetValue<int>(skillName, "maxMoney"));
+            int moneyBonus = Instance.Random.Next(Options.MinMoney, Options.MaxMoney);
 
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
