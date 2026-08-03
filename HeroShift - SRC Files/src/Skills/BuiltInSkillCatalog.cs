@@ -56,14 +56,17 @@ public static class BuiltInSkillCatalog
         registry.Register(FragileBombDefinition.Create());
         registry.Register(FriendlyFireDefinition.Create());
         registry.Register(FrozenDecoyDefinition.Create());
+        registry.Register(GamblerDefinition.Create());
         registry.Register(GhostDefinition.Create());
         registry.Register(GiantDefinition.Create());
+        registry.Register(GlazDefinition.Create());
         registry.Register(GlitchDefinition.Create());
         registry.Register(GlueDefinition.Create());
         registry.Register(GodModeDefinition.Create());
         registry.Register(GrenadierDefinition.Create());
         registry.Register(HealingChickenDefinition.Create());
         registry.Register(HealingSmokeDefinition.Create());
+        registry.Register(HermitDefinition.Create());
         registry.Register(HolyHandGrenadeDefinition.Create());
         registry.Register(HomingNadesDefinition.Create());
         registry.Register(HotBombDefinition.Create());
@@ -126,6 +129,7 @@ public static class BuiltInSkillCatalog
         registry.Register(ShadeDefinition.Create());
         registry.Register(ShortBombDefinition.Create());
         registry.Register(SilentDefinition.Create());
+        registry.Register(SmokerDefinition.Create());
         registry.Register(SniperEliteDefinition.Create());
         registry.Register(SoldierDefinition.Create());
         registry.Register(SoundMakerDefinition.Create());
@@ -140,6 +144,7 @@ public static class BuiltInSkillCatalog
         registry.Register(ThrowingKnifeDefinition.Create());
         registry.Register(ToxicSmokeDefinition.Create());
         registry.Register(TripwireDefinition.Create());
+        registry.Register(WallhackDefinition.Create());
         registry.Register(WatchmakerDefinition.Create());
         registry.Register(WeaponsSwapDefinition.Create());
         registry.Register(WeightlessDefinition.Create());

@@ -5,6 +5,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -36,6 +38,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Gambler;
 
+        private static GamblerOptions Options => SkillConfigurationResolver.Get<GamblerOptions>(BuiltInSkillIds.Gambler);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -103,7 +106,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.InGameMoneyServices == null) return false;
             int account = player.InGameMoneyServices.Account;
-            int refreshPrice = SkillsInfo.GetValue<int>(skillName, "refreshPrice");
+            int refreshPrice = Options.RefreshPrice;
 
             int remainingMoney = account - refreshPrice;
             if (remainingMoney < 0)
@@ -130,7 +133,7 @@ namespace src.player.skills
 
             ConcurrentBag<(string, string)> menuItems = [(playerEvent.GetSkillName(firstSkill.Skill), firstSkill.Skill.ToString()),
                                                    (playerEvent.GetSkillName(secondSkill.Skill), secondSkill.Skill.ToString())];
-            SkillUtils.CreateMenu(player, menuItems, (playerEvent.GetTranslation("gambler_more", SkillsInfo.GetValue<int>(skillName, "refreshPrice")), skillName.ToString(), false));
+            SkillUtils.CreateMenu(player, menuItems, (playerEvent.GetTranslation("gambler_more", Options.RefreshPrice), skillName.ToString(), false));
         }
 
         public static void DisableSkill(CCSPlayerController player)

@@ -5,6 +5,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class Hermit : ISkill
     {
         private const Skills skillName = Skills.Hermit;
+        private static HermitOptions Options => SkillConfigurationResolver.Get<HermitOptions>(BuiltInSkillIds.Hermit);
         private static readonly ConcurrentDictionary<string, int> ConcurrentDictionary = new(
         [
             new KeyValuePair<string, int>("weapon_glock", 3), new KeyValuePair<string, int>("weapon_usp_silencer", 2), new KeyValuePair<string, int>("weapon_hkp2000", 4), new KeyValuePair<string, int>("weapon_p250", 3),
@@ -77,9 +80,9 @@ namespace src.player.skills
 
             Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_iClip1");
             Utilities.SetStateChanged(weapon, "CBasePlayerWeapon", "m_pReserveAmmo");
-            SkillUtils.AddHealth(pawn, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
+            SkillUtils.AddHealth(pawn, Options.HealthToAdd);
 
-            float effectDuration = SkillsInfo.GetValue<float>(skillName, "effectDuration");
+            float effectDuration = Options.EffectDuration;
             if (effectDuration > 0)
             {
                 pawn.HealthShotBoostExpirationTime = Server.CurrentTime + effectDuration;

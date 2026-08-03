@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class Glaz : ISkill
     {
         private const Skills skillName = Skills.Glaz;
+        private static GlazOptions Options => SkillConfigurationResolver.Get<GlazOptions>(BuiltInSkillIds.Glaz);
         private readonly static ConcurrentDictionary<int, byte> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
         private static readonly object setLock = new();
@@ -134,7 +137,7 @@ namespace src.player.skills
 
             Event.EnableTransmit();
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);

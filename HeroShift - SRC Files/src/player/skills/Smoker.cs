@@ -8,6 +8,8 @@ using System.Collections.Concurrent;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -44,6 +46,7 @@ namespace src.player.skills
     public class Smoker : ISkill
     {
         private const Skills skillName = Skills.Smoker;
+        private static SmokerOptions Options => SkillConfigurationResolver.Get<SmokerOptions>(BuiltInSkillIds.Smoker);
         private readonly static ConcurrentDictionary<uint, List<Timer>> playerSmokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
         private static readonly object setLock = new();
@@ -108,7 +111,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
