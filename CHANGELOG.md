@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- `.github/workflows/refactor-validation.yml`: Linux restore, test and Release-build validation for the `refactor` branch, plus a source snapshot artifact used to continue and verify the end-to-end refactor outside GitHub's file-by-file API.
 - `HeroShift - SRC Files/tools/refactor-baseline/`: a development-only baseline extractor
   used by the HeroShift architecture refactor (see `REFACTOR.md`). It parses the current
   skill sources and produces a deterministic JSON snapshot of every skill's ID, implemented
