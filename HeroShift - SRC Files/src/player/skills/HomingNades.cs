@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -45,6 +47,7 @@ namespace src.player.skills
     public class HomingNades : ISkill
     {
         private const Skills skillName = Skills.HomingNades;
+        private static HomingNadesOptions Options => SkillConfigurationResolver.Get<HomingNadesOptions>(BuiltInSkillIds.HomingNades);
         private readonly static ConcurrentDictionary<uint, Vector> nades = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
@@ -90,7 +93,7 @@ namespace src.player.skills
                 }
 
                 Vector currentVel = new(nade.Velocity.X, nade.Velocity.Y, nade.Velocity.Z);
-                float maxVelocity = SkillsInfo.GetValue<float>(skillName, "maxVelocity");
+                float maxVelocity = Options.MaxVelocity;
                 Vector newVelocity = currentVel + calculatedVelocity;
 
                 float speed = newVelocity.Length();
@@ -116,7 +119,7 @@ namespace src.player.skills
                 if (pawn?.IsValid != true || pawn.AbsOrigin == null) continue;
 
                 double dist = SkillUtils.GetDistance(nadePos, pawn.AbsOrigin);
-                if (dist < SkillsInfo.GetValue<float>(skillName, "detonationRange"))
+                if (dist < Options.DetonationRange)
                 {
                     nades.TryRemove(nade.Index, out _);
                     return Vector.Zero;
@@ -137,7 +140,7 @@ namespace src.player.skills
 
             if (length > 0)
             {
-                float strength = SkillsInfo.GetValue<float>(skillName, "strength");
+                float strength = Options.Strength;
                 return new Vector(
                     (direction.X / length) * strength,
                     (direction.Y / length) * strength,
@@ -221,7 +224,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);

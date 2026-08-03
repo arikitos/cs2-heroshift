@@ -8,6 +8,8 @@ using System.Collections.Concurrent;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -40,6 +42,7 @@ namespace src.player.skills
     public class Jackal : ISkill
     {
         private const Skills skillName = Skills.Jackal;
+        private static JackalOptions Options => SkillConfigurationResolver.Get<JackalOptions>(BuiltInSkillIds.Jackal);
         private static Timer? mainSkillTimer = null;
         private static readonly ConcurrentDictionary<uint, uint?> activeTrails = [];
         private static readonly ConcurrentDictionary<uint, byte> playersInAction = [];
@@ -47,7 +50,7 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            Instance.AddToManifest(SkillsInfo.GetValue<string>(skillName, "particleName"));
+            Instance.AddToManifest(Options.ParticleName);
         }
 
         public static void NewRound()
@@ -142,7 +145,7 @@ namespace src.player.skills
 
             var particle = EntityManager.CreateTrackedParticleSystem(
                 player.Index,
-                SkillsInfo.GetValue<string>(skillName, "particleName"));
+                Options.ParticleName);
 
             if (particle != null && particle.IsValid && target.AbsOrigin != null)
             {

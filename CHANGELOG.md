@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Migrated the entity and grenade skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.
+
 - Migrated the damage pipeline skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.
 
 - Migrated the tick and movement skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.

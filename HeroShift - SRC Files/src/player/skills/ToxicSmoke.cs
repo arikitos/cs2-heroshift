@@ -6,6 +6,8 @@ using HeroShift.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -49,6 +51,7 @@ namespace src.player.skills
     public class ToxicSmoke : ISkill
     {
         private const Skills skillName = Skills.ToxicSmoke;
+        private static ToxicSmokeOptions Options => SkillConfigurationResolver.Get<ToxicSmokeOptions>(BuiltInSkillIds.ToxicSmoke);
         private static readonly ConcurrentDictionary<Vector, uint> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
@@ -114,11 +117,11 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int tick = Math.Max(1, SkillsInfo.GetValue<int>(skillName, "tickCooldown"));
+            int tick = Math.Max(1, Options.TickCooldown);
             if (Server.TickCount % tick != 0) return;
 
-            float smokeRadius = SkillsInfo.GetValue<float>(skillName, "smokeRadius");
-            int smokeDamage = SkillsInfo.GetValue<int>(skillName, "smokeDamage");
+            float smokeRadius = Options.SmokeRadius;
+            int smokeDamage = Options.SmokeDamage;
 
             foreach (var smoke in smokes)
             {
@@ -185,7 +188,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);

@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class Miner : ISkill
     {
         private const Skills skillName = Skills.Miner;
+        private static MinerOptions Options => SkillConfigurationResolver.Get<MinerOptions>(BuiltInSkillIds.Miner);
         private readonly static ConcurrentDictionary<uint, byte> nades = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
@@ -55,7 +58,7 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (Server.TickCount % 10 != 0) return;
-            float detonationRange = SkillsInfo.GetValue<float>(skillName, "detonationRange");
+            float detonationRange = Options.DetonationRange;
             float currentTime = Server.CurrentTime;
 
             foreach (var index in nades.Keys.ToList())
@@ -133,7 +136,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);

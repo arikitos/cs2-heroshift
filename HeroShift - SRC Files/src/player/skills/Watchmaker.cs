@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -37,6 +39,7 @@ namespace src.player.skills
     public class Watchmaker : ISkill
     {
         private const Skills skillName = Skills.Watchmaker;
+        private static WatchmakerOptions Options => SkillConfigurationResolver.Get<WatchmakerOptions>(BuiltInSkillIds.Watchmaker);
         private static bool bombPlanted = false;
 
         public static void LoadSkill()
@@ -70,7 +73,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
             if (playerInfo?.Skill != skillName || Instance.GameRules == null) return;
 
-            var roundTime = SkillsInfo.GetValue<int>(skillName, "changeRoundTime");
+            var roundTime = Options.ChangeRoundTime;
             Instance.GameRules.RoundTime += player.Team == CsTeam.Terrorist ? roundTime : -roundTime;
 
             if (player.Team == CsTeam.Terrorist)
@@ -78,7 +81,7 @@ namespace src.player.skills
             else
                 Localization.PrintTranslationToChatAll($" {ChatColors.LightBlue}{{0}}", ["watchmaker_ct"], [roundTime]);
 
-            player.EmitSound(SkillsInfo.GetValue<string>(skillName, "SoundEvent"));
+            player.EmitSound(Options.SoundEvent);
 
             var proxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
             if (proxy == null) return;

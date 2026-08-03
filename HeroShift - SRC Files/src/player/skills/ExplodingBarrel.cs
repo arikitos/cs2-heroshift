@@ -7,6 +7,8 @@ using HeroShift.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -49,6 +51,7 @@ namespace src.player.skills
     public class ExplodingBarrel : ISkill
     {
         private const Skills skillName = Skills.ExplodingBarrel;
+        private static ExplodingBarrelOptions Options => SkillConfigurationResolver.Get<ExplodingBarrelOptions>(BuiltInSkillIds.ExplodingBarrel);
         private static readonly QAngle angle = new(7, -3, 11);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<uint, byte> consumedBarrels = [];
@@ -58,7 +61,7 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            HeroShift.Instance.AddToManifest(SkillsInfo.GetValue<string>(skillName, "propModel"));
+            HeroShift.Instance.AddToManifest(Options.PropModel);
         }
 
         public static void NewRound()
@@ -117,7 +120,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -172,7 +175,7 @@ namespace src.player.skills
             Server.NextFrame(() =>
             {
                 if (barrel == null || !barrel.IsValid) return;
-                barrel.SetModel(SkillsInfo.GetValue<string>(skillName, "propModel"));
+                barrel.SetModel(Options.PropModel);
                 barrel.Teleport(pos, rotation, null);
             });
         }
@@ -193,8 +196,8 @@ namespace src.player.skills
                     return;
 
                 heProjectile.TicksAtZeroVelocity = 100;
-                heProjectile.Damage = SkillsInfo.GetValue<int>(skillName, "explosionDamage");
-                heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "explosionRadius");
+                heProjectile.Damage = Options.ExplosionDamage;
+                heProjectile.DmgRadius = Options.ExplosionRadius;
                 heProjectile.DetonateTime = 0;
 
                 if (nades.TryRemove(lastTick, out var source))
@@ -267,7 +270,7 @@ namespace src.player.skills
 
             if (victimPawn.TeamNum == nadeTeam)
             {
-                float reduction = SkillsInfo.GetValue<float>(skillName, "dmgReductionForTeamates");
+                float reduction = Options.DmgReductionForTeamates;
                 param2.Damage *= 1f - Math.Clamp(reduction, 0f, 1f);
 
                 if (IsFriendlyFireOff())

@@ -8,6 +8,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -45,6 +47,7 @@ namespace src.player.skills
     public class DeathBomb : ISkill
     {
         private const Skills skillName = Skills.DeathBomb;
+        private static DeathBombOptions Options => SkillConfigurationResolver.Get<DeathBombOptions>(BuiltInSkillIds.DeathBomb);
         private static readonly QAngle angle = new(10, -5, 9);
         private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];
 
@@ -116,8 +119,8 @@ namespace src.player.skills
                     return;
 
                 heProjectile.TicksAtZeroVelocity = 100;
-                heProjectile.Damage = SkillsInfo.GetValue<int>(skillName, "explosionDamage");
-                heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "explosionRadius");
+                heProjectile.Damage = Options.ExplosionDamage;
+                heProjectile.DmgRadius = Options.ExplosionRadius;
                 heProjectile.DetonateTime = 0;
 
                 if (nades.TryRemove(lastTick, out var source))
@@ -156,7 +159,7 @@ namespace src.player.skills
 
             if (victimPawn.TeamNum == nadeTeam)
             {
-                float reduction = SkillsInfo.GetValue<float>(skillName, "dmgReductionForTeamates");
+                float reduction = Options.DmgReductionForTeamates;
                 param2.Damage *= 1f - Math.Clamp(reduction, 0f, 1f);
 
                 if (IsFriendlyFireOff())

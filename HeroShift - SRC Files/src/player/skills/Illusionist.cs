@@ -9,6 +9,8 @@ using System.Collections.Concurrent;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -52,6 +54,7 @@ namespace src.player.skills
     public class Illusionist : ISkill
     {
         private const Skills skillName = Skills.Illusionist;
+        private static IllusionistOptions Options => SkillConfigurationResolver.Get<IllusionistOptions>(BuiltInSkillIds.Illusionist);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<int, Timer> ActiveTimers = [];
         private static readonly ConcurrentDictionary<uint, byte> consumedReplicas = [];
@@ -119,7 +122,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -248,7 +251,7 @@ namespace src.player.skills
             var attackerTeam = attackerPawn.TeamNum;
             var replicaTeam = replica.Globalname.EndsWith("CT") ? 3 : 2;
 
-            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? SkillsInfo.GetValue<int>(skillName, "EnemyTeamDamage") : SkillsInfo.GetValue<int>(skillName, "YourTeamDamage"), owner, KillfeedIcons.Player);
+            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? Options.EnemyTeamDamage : Options.YourTeamDamage, owner, KillfeedIcons.Player);
         }
 
         private static CCSPlayerController? GetReplicaOwner(uint replicaIndex)

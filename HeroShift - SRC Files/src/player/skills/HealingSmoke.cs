@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -44,6 +46,7 @@ namespace src.player.skills
     public class HealingSmoke : ISkill
     {
         private const Skills skillName = Skills.HealingSmoke;
+        private static HealingSmokeOptions Options => SkillConfigurationResolver.Get<HealingSmokeOptions>(BuiltInSkillIds.HealingSmoke);
         private static readonly ConcurrentDictionary<Vector, byte> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
@@ -109,11 +112,11 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int tick = Math.Max(1, SkillsInfo.GetValue<int>(skillName, "tickCooldown"));
+            int tick = Math.Max(1, Options.TickCooldown);
             if (Server.TickCount % tick != 0) return;
 
-            float smokeRadius = SkillsInfo.GetValue<float>(skillName, "smokeRadius");
-            int smokeHeal = SkillsInfo.GetValue<int>(skillName, "smokeHeal");
+            float smokeRadius = Options.SmokeRadius;
+            int smokeHeal = Options.SmokeHeal;
 
             foreach (Vector smokePos in smokes.Keys)
                 foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
@@ -175,7 +178,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);

@@ -13,6 +13,8 @@ using System.Drawing;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -47,6 +49,7 @@ namespace src.player.skills
     public class ThrowingKnife : ISkill
     {
         private const Skills skillName = Skills.ThrowingKnife;
+        private static ThrowingKnifeOptions Options => SkillConfigurationResolver.Get<ThrowingKnifeOptions>(BuiltInSkillIds.ThrowingKnife);
         private readonly static ConcurrentDictionary<uint, KnifeInfo> knivesInfo = [];
 
         public static void LoadSkill()
@@ -381,7 +384,7 @@ namespace src.player.skills
 
                 var victimController = victimPawn.Controller.Value?.As<CCSPlayerController>();
 
-                bool friendlyFire = SkillsInfo.GetValue<bool>(skillName, "friendlyFire");
+                bool friendlyFire = Options.FriendlyFire;
                 if (!friendlyFire)
                 {
                     if (thrower.TeamNum == victimPawn.TeamNum) return;
@@ -390,7 +393,7 @@ namespace src.player.skills
 
                 if (CheckHasKnife(thrower!)) return;
 
-                SkillUtils.TakeHealth(victimPawn, SkillsInfo.GetValue<int>(skillName, "damage"), thrower, KillfeedIcons.Knife);
+                SkillUtils.TakeHealth(victimPawn, Options.Damage, thrower, KillfeedIcons.Knife);
             }
         }
 

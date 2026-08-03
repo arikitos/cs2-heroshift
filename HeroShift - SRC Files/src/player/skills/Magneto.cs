@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -34,6 +36,7 @@ namespace src.player.skills
     public class Magneto : ISkill
     {
         private const Skills skillName = Skills.Magneto;
+        private static MagnetoOptions Options => SkillConfigurationResolver.Get<MagnetoOptions>(BuiltInSkillIds.Magneto);
         private readonly static ConcurrentDictionary<uint, byte> nades = [];
         private readonly static ConcurrentDictionary<uint, byte> players = [];
 
@@ -51,7 +54,7 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (Server.TickCount % 5 != 0) return;
-            float radius = SkillsInfo.GetValue<float>(skillName, "radius");
+            float radius = Options.Radius;
 
             foreach (var nadeIndex in nades.Keys)
             {

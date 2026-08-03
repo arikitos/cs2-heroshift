@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -44,6 +46,7 @@ namespace src.player.skills
     public class Nightmare : ISkill
     {
         private const Skills skillName = Skills.Nightmare;
+        private static NightmareOptions Options => SkillConfigurationResolver.Get<NightmareOptions>(BuiltInSkillIds.Nightmare);
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly ConcurrentDictionary<uint, uint> targetVolumes = [];
         private static readonly object setLock = new();
@@ -51,7 +54,7 @@ namespace src.player.skills
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            HeroShift.Instance.AddToManifest(SkillsInfo.GetValue<string>(skillName, "postProcessing"));
+            HeroShift.Instance.AddToManifest(Options.PostProcessing);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -225,12 +228,12 @@ namespace src.player.skills
             try
             {
                 keys.SetString("targetname", $"Nightmare_{target.Index}");
-                keys.SetString("postprocessing", SkillsInfo.GetValue<string>(skillName, "postProcessing"));
+                keys.SetString("postprocessing", Options.PostProcessing);
                 keys.SetBool("master", true);
                 keys.SetBool("enableexposure", true);
-                keys.SetFloat("fadetime", SkillsInfo.GetValue<float>(skillName, "fadeTime"));
-                keys.SetFloat("minexposure", SkillsInfo.GetValue<float>(skillName, "minExposure"));
-                keys.SetFloat("maxexposure", SkillsInfo.GetValue<float>(skillName, "maxExposure"));
+                keys.SetFloat("fadetime", Options.FadeTime);
+                keys.SetFloat("minexposure", Options.MinExposure);
+                keys.SetFloat("maxexposure", Options.MaxExposure);
                 keys.SetFloat("exposurespeedup", 1f);
                 keys.SetFloat("exposurespeeddown", 1f);
                 keys.SetBool("startdisabled", false);

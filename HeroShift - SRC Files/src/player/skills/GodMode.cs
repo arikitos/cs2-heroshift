@@ -6,6 +6,8 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     public class GodMode : ISkill
     {
         private const Skills skillName = Skills.GodMode;
+        private static GodModeOptions Options => SkillConfigurationResolver.Get<GodModeOptions>(BuiltInSkillIds.GodMode);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
@@ -117,7 +120,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -153,7 +156,7 @@ namespace src.player.skills
                     player.PlayerPawn.Value.TakesDamage = false;
                     SetGodModeRender(player.PlayerPawn.Value, skillInfo);
 
-                    Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "duration"), () =>
+                    Instance.AddTimer(Options.Duration, () =>
                     {
                         Color? originalRender = null;
                         if (SkillPlayerInfo.TryGetValue(playerIndex, out var skillInfo))

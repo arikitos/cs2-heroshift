@@ -5,6 +5,8 @@ using src.utils;
 using static src.HeroShift;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -46,6 +48,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.ExplosiveShot;
 
+        private static ExplosiveShotOptions Options => SkillConfigurationResolver.Get<ExplosiveShotOptions>(BuiltInSkillIds.ExplosiveShot);
         private static readonly QAngle angle = new(5, 10, -4);
         private static int lastTick = 0;
 
@@ -59,7 +62,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
+            float newChance = (float)Instance.Random.NextDouble() * (Options.ChanceTo - Options.ChanceFrom) + Options.ChanceFrom;
             playerInfo.SkillChance = newChance;
 
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newChance)}",
@@ -87,8 +90,8 @@ namespace src.player.skills
 
                 heProjectile.TicksAtZeroVelocity = 100;
                 heProjectile.TeamNum = (byte)CsTeam.None;
-                heProjectile.Damage = SkillsInfo.GetValue<float>(skillName, "damage");
-                heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "damageRadius");
+                heProjectile.Damage = Options.Damage;
+                heProjectile.DmgRadius = Options.DamageRadius;
                 heProjectile.DetonateTime = 0;
             });
         }

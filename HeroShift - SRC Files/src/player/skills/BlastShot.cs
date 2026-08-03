@@ -9,6 +9,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -51,6 +53,7 @@ namespace src.player.skills
     public class BlastShot : ISkill
     {
         private const Skills skillName = Skills.BlastShot;
+        private static BlastShotOptions Options => SkillConfigurationResolver.Get<BlastShotOptions>(BuiltInSkillIds.BlastShot);
         private static readonly QAngle angle = new(13, -5, 5);
         private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
@@ -86,7 +89,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            float cooldown = SkillsInfo.GetValue<float>(skillName, "cooldown");
+            float cooldown = Options.Cooldown;
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -143,7 +146,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
-            float force = SkillsInfo.GetValue<float>(skillName, "force");
+            float force = Options.Force;
 
             Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
             Vector vel = SkillUtils.GetForwardVector(pawn.EyeAngles) * force;
@@ -168,8 +171,8 @@ namespace src.player.skills
                     return;
 
                 heProjectile.TicksAtZeroVelocity = 100;
-                heProjectile.Damage = SkillsInfo.GetValue<int>(skillName, "explosionDamage");
-                heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "explosionRadius");
+                heProjectile.Damage = Options.ExplosionDamage;
+                heProjectile.DmgRadius = Options.ExplosionRadius;
 
                 if (nades.TryRemove(lastTick, out var source))
                     heProjectile.Globalname = $"deathbomb_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
@@ -207,7 +210,7 @@ namespace src.player.skills
 
             if (victimPawn.TeamNum == nadeTeam)
             {
-                float reduction = SkillsInfo.GetValue<float>(skillName, "dmgReductionForTeamates");
+                float reduction = Options.DmgReductionForTeamates;
                 param2.Damage *= 1f - Math.Clamp(reduction, 0f, 1f);
 
                 if (IsFriendlyFireOff())

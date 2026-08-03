@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -42,6 +44,7 @@ namespace src.player.skills
     public class HolyHandGrenade : ISkill
     {
         private const Skills skillName = Skills.HolyHandGrenade;
+        private static HolyHandGrenadeOptions Options => SkillConfigurationResolver.Get<HolyHandGrenadeOptions>(BuiltInSkillIds.HolyHandGrenade);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
@@ -68,8 +71,8 @@ namespace src.player.skills
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) return;
 
-                hegrenade.Damage *= SkillsInfo.GetValue<float>(skillName, "damageMultiplier");
-                hegrenade.DmgRadius *= SkillsInfo.GetValue<float>(skillName, "damageRadiusMultiplier");
+                hegrenade.Damage *= Options.DamageMultiplier;
+                hegrenade.DmgRadius *= Options.DamageRadiusMultiplier;
             });
         }
 
@@ -118,7 +121,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);

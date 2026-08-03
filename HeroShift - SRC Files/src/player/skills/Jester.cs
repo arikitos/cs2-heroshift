@@ -7,6 +7,8 @@ using System.Drawing;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -45,6 +47,7 @@ namespace src.player.skills
     public class Jester : ISkill
     {
         private const Skills skillName = Skills.Jester;
+        private static JesterOptions Options => SkillConfigurationResolver.Get<JesterOptions>(BuiltInSkillIds.Jester);
         private static readonly ConcurrentDictionary<uint, JesterInfo> jesters = [];
 
         public static void LoadSkill()
@@ -176,8 +179,8 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var minTime = SkillsInfo.GetValue<float>(skillName, "minTime");
-            var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
+            var minTime = Options.MinTime;
+            var maxTime = Options.MaxTime;
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
             uint playerIndex = player.Index;
@@ -232,8 +235,8 @@ namespace src.player.skills
                     playerEvent.ExecuteClientCommand("play sounds/weapons/taser/taser_charge_ready");
             }
 
-            var minTime = SkillsInfo.GetValue<float>(skillName, "minTime");
-            var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
+            var minTime = Options.MinTime;
+            var maxTime = Options.MaxTime;
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
             jester.Generation++;

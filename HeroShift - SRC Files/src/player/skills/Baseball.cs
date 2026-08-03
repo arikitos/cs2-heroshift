@@ -6,6 +6,8 @@ using HeroShift.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -45,6 +47,7 @@ namespace src.player.skills
     public class Baseball : ISkill
     {
         private const Skills skillName = Skills.Baseball;
+        private static BaseballOptions Options => SkillConfigurationResolver.Get<BaseballOptions>(BuiltInSkillIds.Baseball);
         private static readonly ConcurrentDictionary<uint, byte> decoys = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
@@ -92,7 +95,7 @@ namespace src.player.skills
             var attackerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
             if (attackerInfo?.Skill != skillName) return;
 
-            SkillUtils.TakeHealth(victim!.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "damageDeal"), attacker, KillfeedIcons.Decoy);
+            SkillUtils.TakeHealth(victim!.PlayerPawn.Value, Options.DamageDeal, attacker, KillfeedIcons.Decoy);
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)
@@ -157,7 +160,7 @@ namespace src.player.skills
 
                 var vel = decoy.AbsVelocity;
                 float speed = vel.Length();
-                float targetSpeed = Math.Min(speed * SkillsInfo.GetValue<float>(skillName, "speedMultipier"), SkillsInfo.GetValue<float>(skillName, "maxSpeed"));
+                float targetSpeed = Math.Min(speed * Options.SpeedMultipier, Options.MaxSpeed);
 
                 if (speed > .01f)
                 {
@@ -216,7 +219,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
