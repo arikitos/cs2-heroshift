@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "HeroShift": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

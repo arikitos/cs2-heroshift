@@ -1,0 +1,70 @@
+name: Release
+
+# Triggered by release.ps1 (git push origin <tag>), or manually for re-running a
+# release build without re-tagging. Builds the plugin, packages the server files
+# the same way release.ps1 does locally, and publishes a GitHub Release with the
+# zip attached.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build and release (e.g. v1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Determine tag
+        id: vars
+        shell: pwsh
+        run: |
+          $tag = "${{ github.event.inputs.tag }}"
+          if ([string]::IsNullOrEmpty($tag)) { $tag = "${{ github.ref_name }}" }
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Checkout ${{ steps.vars.outputs.tag }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.vars.outputs.tag }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Build (Release)
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release
+
+      - name: Package server files
+        id: package
+        shell: pwsh
+        run: |
+          $tag = "${{ steps.vars.outputs.tag }}"
+          $zipPath = "HeroShift-$tag.zip"
+
+          # Stage a copy so debug symbols can be excluded without disturbing the build output.
+          $staging = Join-Path $env:RUNNER_TEMP "HeroShift-release-$tag"
+          if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
+          New-Item -ItemType Directory -Path $staging | Out-Null
+          Copy-Item -Path "HeroShift - Server Files/*" -Destination $staging -Recurse -Force
+          Get-ChildItem -Path $staging -Recurse -Filter "*.pdb" | Remove-Item -Force
+          Compress-Archive -Path (Join-Path $staging "*") -DestinationPath $zipPath -Force
+
+          "zipPath=$zipPath" >> $env:GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.vars.outputs.tag }}" "${{ steps.package.outputs.zipPath }}" `
+            --title "HeroShift ${{ steps.vars.outputs.tag }}" `
+            --generate-notes

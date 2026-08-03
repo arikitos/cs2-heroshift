@@ -1,0 +1,46 @@
+# Ignore build outputs recursively
+**/bin/
+**/obj/
+**/publish/
+**/artifacts/
+**/out/
+**/TestResults/
+
+# Ignore specific project-level build dirs (legacy/explicit)
+!HeroShift\ -\ Server Files/*
+HeroShift\ -\ SRC Files/*/bin/
+HeroShift\ -\ SRC Files/*/obj/
+WASDMenuAPI\ -\ SRC Files/*/bin/
+WASDMenuAPI\ -\ SRC Files/*/obj/
+
+# .NET / MSBuild artifacts
+*.exe
+*.pdb
+*.nupkg
+*.runtimeconfig.json
+project.lock.json
+project.fragment.lock.json
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+
+# Logs, caches, temp
+*.log
+debug_*.txt
+perf_*.txt
+*.cache
+*.tmp
+*.temp
+
+# Other common ignores
+node_modules/
+dist/
+.env
+
+# release.ps1 / release workflow packaging output
+/HeroShift-v*.zip

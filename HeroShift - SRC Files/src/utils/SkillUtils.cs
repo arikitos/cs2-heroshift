@@ -1,0 +1,1088 @@
+using CounterStrikeSharp.API;
+using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Entities.Constants;
+using CounterStrikeSharp.API.Modules.Memory;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
+using CounterStrikeSharp.API.Modules.Timers;
+using CounterStrikeSharp.API.Modules.UserMessages;
+using CounterStrikeSharp.API.Modules.Utils;
+using HeroShift.src.utils;
+using src.player;
+using src.player.skills;
+using System.Collections.Concurrent;
+using System.Drawing;
+using System.Globalization;
+using System.Runtime.InteropServices;
+using WASDMenuAPI.Classes;
+using WASDSharedAPI;
+
+namespace src.utils
+{
+    public static class SkillUtils
+    {
+        private static Lazy<T?> LazySig<T>(string name, Func<string, T> factory) where T : class =>
+            new(() =>
+            {
+                try { return factory(GameData.GetSignature(name)); }
+                catch (Exception ex) { Server.PrintToConsole($"[HeroShift] gamedata signature '{name}' could not be resolved: {ex.Message}"); return null; }
+            });
+
+        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>?> HEGrenadeProjectile_CreateFunc =
+            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>>("HEGrenadeProjectile_CreateFunc", s => new(s));
+        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile>?> SmokeGrenadeProjectile_CreateFunc =
+            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int, int, CSmokeGrenadeProjectile>>("SmokeGrenadeProjectile_CreateFunc", s => new(s));
+        private static readonly Lazy<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>?> CMolotovProjectile_CreateFunc =
+            LazySig<MemoryFunctionWithReturn<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, int>>("CMolotovProjectile_CreateFunc", s => new(s));
+        private static readonly Lazy<MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint>?> TerminateRoundFunc =
+            LazySig<MemoryFunctionVoid<nint, float, RoundEndReason, nint, nint>>("CCSGameRules_TerminateRound", s => new(s));
+        private static readonly Lazy<MemoryFunctionVoid<CBasePlayerPawn, QAngle>?> SnapViewAngles =
+            LazySig<MemoryFunctionVoid<CBasePlayerPawn, QAngle>>("SnapViewAngles", s => new(s));
+        // private static readonly int collisionRulesChangedOffset = GameData.GetOffset("CBaseEntity_CollisionRulesChanged");
+
+        public static void PrintToChat(CCSPlayerController player, string? msg, string border = "tb", string? title = null)
+        {
+            if (!player.IsValid) return;
+
+            var config = Config.LoadedConfig.ChatMessage;
+            float maxWidth = config.MaxWidth;
+            char symbol = config.LineSymbol;
+            if (string.IsNullOrEmpty(title)) title = player.GetTranslation("HeroShift");
+
+            if (Illiterate.CheckIlliterateSkill(player))
+                msg = Illiterate.GetRandomText(msg);
+
+            if (border.Contains('t') && config.LineShow)
+                player.PrintToChat($" {MeansureString.GetTextDashed($"{(config.TagFormat.Contains("{TAG}") ? config.TagFormat.Replace("{TAG}", title) : $"\u0002◢◆◤ {title} ◥◆◣")}", maxWidth, symbol, config.LineColor)}");
+            if (!string.IsNullOrEmpty(msg) && config.InfoMessageShow)
+                player.PrintToChat($" {config.InfoSkillColor} {msg.Replace("\x02", config.InfoPlayerNameColor).Replace("\x06", config.InfoSkillColor)}");
+            if (border.Contains('b') && config.LineShow)
+                player.PrintToChat($" {MeansureString.GetTextDashed("", maxWidth, symbol, config.LineColor)}");
+        }
+
+        public static bool IsFreezeTime()
+        {
+            return HeroShift.Instance?.GameRules?.FreezePeriod == true;
+        }
+
+        public static void RegisterSkill(Skills skill, string color, bool display = true)
+        {
+            if (!SkillData.Skills.Any(s => s.Skill == skill))
+                SkillData.Skills.Add(new jSkill_SkillInfo(skill, color, display));
+        }
+
+        public static void UpdateGrenadeCount(CCSPlayerController player, CsItem item, int ammo)
+        {
+            string? itemString = EnumUtils.GetEnumMemberAttributeValue(item);
+            if (string.IsNullOrWhiteSpace(itemString)) return;
+
+            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
+            if (player.PlayerPawn.Value.WeaponServices == null) return;
+
+            var weapon = player.PlayerPawn.Value.WeaponServices.MyWeapons
+                .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && !string.IsNullOrEmpty(w.Value.DesignerName) && w.Value.DesignerName == itemString);
+
+            if (weapon == null || !weapon.IsValid || weapon.Value == null || !weapon.Value.IsValid) return;
+
+            weapon.Value.Clip1 = ammo;
+            Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_iClip1");
+
+            if (ammo == 1) return;
+
+            HeroShift.Instance.AddTimer(.1f, () =>
+            {
+                if (weapon == null || !weapon.IsValid || weapon.Value == null || !weapon.Value.IsValid) return;
+                weapon.Value.Clip1 = 1;
+            }, TimerFlags.STOP_ON_MAPCHANGE);
+        }
+
+        public static void TryGiveWeapon(CCSPlayerController player, CsItem item, int count = 1, bool existValidator = true)
+        {
+            string? itemString = EnumUtils.GetEnumMemberAttributeValue(item);
+            if (string.IsNullOrWhiteSpace(itemString)) return;
+
+            if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
+            if (player.PlayerPawn.Value.WeaponServices == null) return;
+
+            var exists = player.PlayerPawn.Value.WeaponServices.MyWeapons
+                .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && w.Value.DesignerName == itemString);
+            
+            if (exists == null || !existValidator)
+                for (int i = 0; i < count; i++)
+                    player.GiveNamedItem(item);
+        }
+
+        public static double GetDistance(Vector vector1, Vector vector2)
+        {
+            return Math.Sqrt(Math.Pow(vector2.X - vector1.X, 2) + Math.Pow(vector2.Y - vector1.Y, 2) + Math.Pow(vector2.Z - vector1.Z, 2));
+        }
+
+        public static float Distance(this Vector vector1, Vector vector2)
+        {
+            return (float)GetDistance(vector1, vector2);
+        }
+
+        public static float Dot(this Vector vector1, Vector vector2)
+        {
+            return (vector1.X * vector2.X) + (vector1.Y * vector2.Y) + (vector1.Z * vector2.Z);
+        }
+
+        public static Vector Normalize(this Vector vector)
+        {
+            float length = vector.Length();
+            if (length > 0)
+                return new Vector(vector.X / length, vector.Y / length, vector.Z / length);
+            return Vector.Zero;
+        }
+
+        public static string SecondsToTimer(int totalSeconds)
+        {
+            if (totalSeconds <= 0) return "00:00";
+            int minutes = totalSeconds / 60;
+            int seconds = totalSeconds % 60;
+            return $"{minutes:D2}:{seconds:D2}";
+        }
+
+        public static void SafeKillEntity<T>(uint? index) where T : CBaseEntity
+        {
+            if (index == null) return;
+            EntityManager.DestroyEntity(index.Value);
+        }
+
+        public static bool IsValid<T>(this CHandle<T>? handle) where T : NativeEntity
+        {
+            return handle != null && handle.IsValid && handle.Value != null;
+        }
+
+        public static bool IsValid(this CBaseEntity? ent)
+        {
+            return ent != null && ent.IsValid;
+        }
+
+        public static bool CheckPlayer(this CCSPlayerController? player)
+        {
+            return player != null
+                && player.IsValid
+                && player.PlayerPawn?.Value?.IsValid() == true
+                && player.PawnIsAlive
+                && (player?.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist);
+        }
+
+
+        public static Vector GetForwardVector(QAngle angles)
+        {
+            float pitch = -angles.X * (float)(Math.PI / 180);
+            float yaw = angles.Y * (float)(Math.PI / 180);
+
+            float x = (float)(Math.Cos(pitch) * Math.Cos(yaw));
+            float y = (float)(Math.Cos(pitch) * Math.Sin(yaw));
+            float z = (float)Math.Sin(pitch);
+
+            return new Vector(x, y, z);
+        }
+
+        public static void Look(this CBasePlayerPawn pawn, QAngle angle)
+        {
+            if (pawn == null || !pawn.IsValid) return;
+            SnapViewAngles.Value?.Invoke(pawn, angle);
+        }
+
+        public static CBeam? CreateLine(Vector start, Vector end, Color color, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)
+        {
+            return EntityManager.CreateTrackedBeam(ownerPlayerIndex, start, end, color);
+        }
+
+        public static void SetPlayerCollisions(CCSPlayerController? player, bool enable)
+        {
+            return;
+
+            if (player == null || !player.IsValid) return;
+
+            var pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.CBodyComponent == null) return;
+
+            var collision = pawn.Collision;
+            if (collision == null) return;
+
+            var collisionGroup = (byte)(enable ? CollisionGroup.COLLISION_GROUP_PLAYER : CollisionGroup.COLLISION_GROUP_DEBRIS);
+
+            collision.CollisionGroup = collisionGroup;
+            collision.CollisionAttribute.CollisionGroup = collisionGroup;
+            Utilities.SetStateChanged(pawn, "CCollisionProperty", "m_collisionAttribute");
+
+           // CollisionRulesChanged(pawn);
+        }
+
+        //public static void CollisionRulesChanged(CBaseEntity? entity)
+        //{
+        //    if (entity == null || !entity.IsValid || collisionRulesChangedOffset <= 0) return;
+
+        //    var collisionRulesChanged = new VirtualFunctionVoid<nint>(entity.Handle, collisionRulesChangedOffset);
+        //    collisionRulesChanged.Invoke(entity.Handle);
+        //}
+
+        public static void ApplyScreenColor(CCSPlayerController? player, int r, int g, int b, int a, int duration, int holdTime, int flags = 1)
+        {
+            if (player == null || !player.IsValid) return;
+
+            using var msg = UserMessage.FromPartialName("Fade");
+            if (msg == null) return;
+            int packageColor = (a << 24) | (b << 16) | (g << 8) | r;
+
+            msg.SetInt("duration", duration);
+            msg.SetInt("hold_time", holdTime);
+
+            msg.SetInt("flags", flags);
+            msg.SetInt("color", packageColor);
+
+            msg.Send(player);
+        }
+
+        public static void ChangePlayerScale(CCSPlayerController? player, float scale)
+        {
+            if (player == null || !player.IsValid) return;
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn == null || !playerPawn.IsValid || playerPawn.CBodyComponent == null || playerPawn.CBodyComponent.SceneNode == null) return;
+            var skeleton = playerPawn.CBodyComponent.SceneNode.GetSkeletonInstance();
+            if (scale <= 0 || skeleton == null) return;
+
+            skeleton.Scale = scale;
+            playerPawn.AcceptInput("SetScale", null, null, scale.ToString(CultureInfo.InvariantCulture));
+            
+            Server.NextWorldUpdate(() => {
+                if (playerPawn == null || !playerPawn.IsValid) return;
+                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
+            });
+        }
+
+        public static Vector? GetSpawnPointVector(CCSPlayerController player, bool enemySpawn = false)
+        {
+            if (player == null || player.Team is CsTeam.None or CsTeam.Spectator) return null;
+
+            CsTeam targetTeam = enemySpawn
+                ? (player.Team == CsTeam.CounterTerrorist ? CsTeam.Terrorist : CsTeam.CounterTerrorist)
+                : player.Team;
+
+            string spawnPointName = targetTeam == CsTeam.CounterTerrorist
+                ? "info_player_counterterrorist"
+                : "info_player_terrorist";
+
+            var spawns = Utilities.FindAllEntitiesByDesignerName<SpawnPoint>(spawnPointName).Where(s => s.IsValid && s.Enabled).ToList();
+            if (spawns.Count != 0)
+            {
+                var randomSpawn = spawns[HeroShift.Instance.Random.Next(spawns.Count)];
+                if (randomSpawn != null && randomSpawn.IsValid && randomSpawn.AbsOrigin != null)
+                    return new Vector(randomSpawn.AbsOrigin.X, randomSpawn.AbsOrigin.Y, randomSpawn.AbsOrigin.Z);
+            }
+            return null;
+        }
+
+        public static bool IsBulletDamage(CTakeDamageInfo? info)
+        {
+            var ability = info?.Ability?.Value;
+            if (ability == null || !ability.IsValid) return false;
+
+            return FiresBullets(ability.DesignerName);
+        }
+
+        public static HitGroup_t GetHitGroup(CTakeDamageInfo? info)
+        {
+            if (info == null || info.Handle == nint.Zero) return HitGroup_t.HITGROUP_GENERIC;
+            if (!IsBulletDamage(info)) return HitGroup_t.HITGROUP_GENERIC;
+
+            int offset = GameData.GetOffset("CTakeDamageInfo_HitGroup");
+            if (offset <= 0) return HitGroup_t.HITGROUP_GENERIC;
+
+            nint hitGroupPointer = Marshal.ReadIntPtr(info.Handle, offset);
+            if (hitGroupPointer == nint.Zero) return HitGroup_t.HITGROUP_GENERIC;
+
+            nint hitGroupData = Marshal.ReadIntPtr(hitGroupPointer, 16);
+            if (hitGroupData == nint.Zero) return HitGroup_t.HITGROUP_GENERIC;
+
+            return (HitGroup_t)Marshal.ReadInt32(hitGroupData, 56);
+        }
+
+        public static void CreateHEGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
+        {
+            HEGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 44, teamNum);
+        }
+
+        public static void CreateSmokeGrenadeProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
+        {
+            SmokeGrenadeProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 45, teamNum);
+        }
+
+        public static void CreateMolotovProjectile(Vector pos, QAngle angle, Vector vel, int teamNum)
+        {
+            CMolotovProjectile_CreateFunc.Value?.Invoke(pos.Handle, angle.Handle, vel.Handle, vel.Handle, IntPtr.Zero, 46, teamNum);
+        }
+
+        // True when this hit would be nullified by the server's friendly-fire rules (same-team hit,
+        // mp_friendlyfire 0 and mp_teammates_are_enemies 0). The TakeDamage pre-hook still sees the raw
+        // damage, so lethal victim-side skills (SecondLife/Phoenix) must skip it — otherwise they "revive"
+        // a teammate that was never going to take damage.
+        public static bool IsFriendlyFireBlocked(CTakeDamageInfo? info, CCSPlayerPawn? victimPawn)
+        {
+            if (info == null || victimPawn == null || !victimPawn.IsValid) return false;
+
+            var attackerEnt = info.Attacker?.Value;
+            if (attackerEnt == null || !attackerEnt.IsValid) return false;   // world/no attacker -> real damage
+            if (attackerEnt.Handle == victimPawn.Handle) return false;       // self damage applies
+
+            var attackerPawn = new CCSPlayerPawn(attackerEnt.Handle);
+            if (!attackerPawn.IsValid || attackerPawn.DesignerName != "player") return false; // non-player inflictor
+            if (attackerPawn.TeamNum != victimPawn.TeamNum) return false;    // enemy -> real damage
+
+            bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
+            bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
+            return !ff && !tae; // same team + FF off -> engine will zero this damage
+        }
+
+        private static readonly ConcurrentDictionary<uint, (uint AttackerIndex, string? Weapon, int ExpiryTick)> pendingKillCredits = [];
+
+        public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, KillfeedIcons? killfeedIcon = null)
+        {
+            pendingKillCredits[victimIndex] = (attackerIndex, killfeedIcon == null ? null : KillfeedIconsExtensions.ToIcon((KillfeedIcons)killfeedIcon), Server.TickCount + 64);
+        }
+
+        public static bool TryConsumeKillCredit(uint victimIndex, out uint attackerIndex, out string? weapon)
+        {
+            attackerIndex = 0;
+            weapon = null;
+            if (!pendingKillCredits.TryRemove(victimIndex, out var credit)) return false;
+            if (credit.ExpiryTick < Server.TickCount) return false;
+
+            attackerIndex = credit.AttackerIndex;
+            weapon = credit.Weapon;
+            return true;
+        }
+
+        public static void ClearKillCredits()
+        {
+            pendingKillCredits.Clear();
+        }
+
+        private static readonly HashSet<string> bulletWeapons = new(StringComparer.Ordinal)
+        {
+            "deagle", "revolver", "glock", "usp_silencer", "cz75a",
+            "fiveseven", "p250", "tec9", "elite", "hkp2000",
+            "mp9", "mac10", "bizon", "mp7", "ump45", "p90", "mp5sd",
+            "famas", "galilar", "m4a1", "m4a1_silencer", "ak47", "aug", "sg553",
+            "ssg08", "awp", "scar20", "g3sg1",
+            "nova", "xm1014", "mag7", "sawedoff",
+            "m249", "negev"
+        };
+
+        public static bool FiresBullets(string? weapon)
+        {
+            if (string.IsNullOrEmpty(weapon)) return false;
+
+            if (weapon.StartsWith("weapon_", StringComparison.Ordinal))
+                weapon = weapon["weapon_".Length..];
+
+            return bulletWeapons.Contains(weapon);
+        }
+
+        private static readonly HashSet<Skills> curseSkills =
+        [
+            Skills.Bankrupt, Skills.CarefulBullets, Skills.Darkness, Skills.Deactivator,
+            Skills.Deaf, Skills.ExpensiveAmmo, Skills.Giant, Skills.Glitch,
+            Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
+            Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
+            Skills.PrimaryBan, Skills.Thief, Skills.WildThrow
+        ];
+
+        private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);
+
+        private static readonly Dictionary<uint, int> curseCounts = [];
+        private static readonly Dictionary<uint, uint> curserToVictim = [];
+        private static readonly object curseLock = new();
+
+        private static readonly Config.GameModes[] sharedSkillModes =
+            [Config.GameModes.TeamSkills, Config.GameModes.SameSkills, Config.GameModes.Debug];
+
+        public static bool CurseLimitEnabled
+        {
+            get
+            {
+                if (Config.LoadedConfig.CurseSkillPerPlayer is not int limit || limit <= 0) return false;
+                return Array.IndexOf(sharedSkillModes, (Config.GameModes)Config.LoadedConfig.GameMode) < 0;
+            }
+        }
+
+        public static bool IsCurseSkill(Skills skill) => curseSkills.Contains(skill);
+
+        public static bool IsCurseSkill(string skill) => curseSkillNames.Contains(skill);
+
+        public static void ClearCurses()
+        {
+            if (!CurseLimitEnabled) return;
+
+            lock (curseLock)
+            {
+                curseCounts.Clear();
+                curserToVictim.Clear();
+            }
+        }
+
+        public static bool CanCurse(uint victimIndex)
+        {
+            if (!CurseLimitEnabled) return true;
+            int limit = Config.LoadedConfig.CurseSkillPerPlayer!.Value;
+
+            lock (curseLock)
+                return !curseCounts.TryGetValue(victimIndex, out int used) || used < limit;
+        }
+
+        public static bool TryClaimCurse(uint curserIndex, uint victimIndex, bool force = false)
+        {
+            if (!CurseLimitEnabled) return true;
+            int limit = Config.LoadedConfig.CurseSkillPerPlayer!.Value;
+
+            lock (curseLock)
+            {
+                ReleaseCurseLocked(curserIndex);
+
+                curseCounts.TryGetValue(victimIndex, out int used);
+                if (!force && used >= limit) return false;
+
+                curseCounts[victimIndex] = used + 1;
+                curserToVictim[curserIndex] = victimIndex;
+                return true;
+            }
+        }
+
+        public static void ReleaseCurse(uint curserIndex)
+        {
+            if (!CurseLimitEnabled) return;
+
+            lock (curseLock) ReleaseCurseLocked(curserIndex);
+        }
+
+        public static void ClearCursesFor(uint playerIndex)
+        {
+            if (!CurseLimitEnabled) return;
+
+            lock (curseLock)
+            {
+                ReleaseCurseLocked(playerIndex);
+                curseCounts.Remove(playerIndex);
+
+                foreach (var curser in curserToVictim.Where(kvp => kvp.Value == playerIndex).Select(kvp => kvp.Key).ToList())
+                    curserToVictim.Remove(curser);
+            }
+        }
+
+        private static void ReleaseCurseLocked(uint curserIndex)
+        {
+            if (!curserToVictim.Remove(curserIndex, out uint victimIndex)) return;
+            if (!curseCounts.TryGetValue(victimIndex, out int used)) return;
+
+            if (used <= 1) curseCounts.Remove(victimIndex);
+            else curseCounts[victimIndex] = used - 1;
+        }
+
+        public static CCSPlayerController[] GetSelectableEnemies(CCSPlayerController player, bool respectCurseLimit = false)
+        {
+            if (player == null || !player.IsValid) return [];
+
+            var enemies = GetAliveEnemies(player);
+            if (!respectCurseLimit || !CurseLimitEnabled || enemies.Length == 0) return enemies;
+
+            var withCapacity = enemies.Where(p => CanCurse(p.Index)).ToArray();
+            return withCapacity.Length > 0 ? withCapacity : enemies;
+        }
+
+        public static bool AnyCurseCapacity(CCSPlayerController player)
+        {
+            if (!CurseLimitEnabled) return true;
+            if (player == null || !player.IsValid) return true;
+
+            return GetAliveEnemies(player).Any(p => CanCurse(p.Index));
+        }
+
+        private static CCSPlayerController[] GetAliveEnemies(CCSPlayerController player)
+        {
+            return [.. PlayerManager.GetTickPlayers()
+                .Where(p => p != null && p.IsValid)
+                .Select(PlayerManager.GetPlayerEvent)
+                .Where(p => p != null && p.IsValid && p.Team != player.Team
+                    && p.PlayerPawn?.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0
+                    && !p.IsHLTV && p.Team != CsTeam.Spectator && p.Team != CsTeam.None)
+                .Cast<CCSPlayerController>()];
+        }
+
+        public static bool TakeHealth(CCSPlayerPawn? pawn, int damage, CCSPlayerController? damageAttacker = null, KillfeedIcons? killfeedIcon = null)
+        {
+            if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+                return false;
+
+            CCSPlayerController? victim = null;
+            jSkill_PlayerInfo? playerInfo = null;
+
+            var player = pawn.Controller.Value;
+            if (player != null && player.IsValid)
+            {
+                victim = player.As<CCSPlayerController>();
+                playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+                if (playerInfo == null) return false;
+
+                if (playerInfo.Skill == Skills.Jester && Jester.GetJesterInfo(player.Index)?.Active == true)
+                    return false;
+
+                if (playerInfo.Skill == Skills.GodMode && GodMode.HaveHodMode(player.Index))
+                    return false;
+
+                if (playerInfo.Skill == Skills.Armored)
+                    damage = (int)Math.Round(damage * (playerInfo.SkillChance ?? 1f));
+            }
+
+            int newHealth = (int)(pawn.Health - damage);
+            if (newHealth <= 0 && playerInfo != null)
+            {
+                if (playerInfo.Skill == Skills.SecondLife && SecondLife.TryConsumeRevive(victim, pawn))
+                    return true;
+                if (playerInfo.Skill == Skills.Phoenix && Phoenix.TryConsumeRevive(victim, pawn))
+                    return true;
+                if (playerInfo.Skill == Skills.ReZombie && ReZombie.TryBecomeZombie(victim, pawn))
+                    return true;
+            }
+
+            pawn.Health = newHealth;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+
+            if (pawn.Health <= 0)
+            {
+                if (damageAttacker != null && damageAttacker.IsValid && victim != null && victim.IsValid && damageAttacker.Index != victim.Index)
+                    RegisterKillCredit(victim.Index, damageAttacker.Index, killfeedIcon);
+
+                Server.NextFrame(() =>
+                {
+                    if (pawn == null || !pawn.IsValid) return;
+                    pawn?.CommitSuicide(false, true);
+                });
+                return false;
+            }
+
+            return true;
+        }
+
+        public static void HideCarriedEntities(CCheckTransmitInfo info, CCSPlayerPawn? pawn)
+        {
+            if (pawn == null || !pawn.IsValid) return;
+
+            var weaponServices = pawn.WeaponServices;
+            if (weaponServices == null) return;
+
+            var activeWeapon = weaponServices.ActiveWeapon?.Value;
+            if (activeWeapon != null && activeWeapon.IsValid && info.TransmitEntities.Contains(activeWeapon.Index))
+                info.TransmitEntities.Remove(activeWeapon.Index);
+
+            if (weaponServices.MyWeapons == null) return;
+
+            foreach (var handle in weaponServices.MyWeapons)
+            {
+                var weapon = handle?.Value;
+                if (weapon == null || !weapon.IsValid) continue;
+
+                if (info.TransmitEntities.Contains(weapon.Index))
+                    info.TransmitEntities.Remove(weapon.Index);
+            }
+        }
+
+        public static void ResetPrintHTML(CCSPlayerController? player)
+        {
+            if (player == null || !player.IsValid) return;
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo == null) return;
+            playerInfo.PrintHTML = null;
+        }
+
+        public static CTriggerMultiple? CreateTrigger(string name, float radius, Vector pos, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)
+        {
+            return EntityManager.CreateTrackedTrigger(ownerPlayerIndex, name, radius, pos);
+        }
+
+        public static void ForceFullUpdate(CCSPlayerController player, List<(uint PlayerIndex, QAngle LastAngle)>? batchList = null, INetworkGameServer? networkGameServer = null)
+        {
+            if (!Config.LoadedConfig.EnableFullForceUpdate) return;
+            if (player == null || !player.IsValid || player.IsBot) return;
+
+            var pawn = player.PlayerPawn?.Value;
+            if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
+
+            QAngle lastAngle = new(pawn.V_angle.X, pawn.V_angle.Y, pawn.V_angle.Z);
+
+            networkGameServer ??= new INetworkServerService().GetIGameServer();
+
+            var client = networkGameServer.GetClientBySlot(player.Slot);
+            if (client == null) return;
+
+            client.ForceFullUpdate();
+            // Only skip the angle restore when the captured view is a spawn-time (0,0,0) placeholder;
+            // a genuine angle with a single zero component (e.g. yaw exactly 0) must still be restored.
+            if (lastAngle.X == 0 && lastAngle.Y == 0 && lastAngle.Z == 0) return;
+
+            uint playerIndex = player.Index;
+
+            if (batchList != null)
+            {
+                batchList.Add((playerIndex, lastAngle));
+                return;
+            }
+
+            HeroShift.Instance.AddTickTimer(3, () =>
+            {
+                var target = Utilities.GetPlayerFromIndex((int)playerIndex);
+                if (target == null || !target.IsValid) return;
+
+                var targetPawn = target.PlayerPawn?.Value;
+                if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) return;
+
+                targetPawn.Look(lastAngle);
+            });
+        }
+
+        private static int lastForceFullUpdateAll = int.MinValue;
+
+        public static void ForceFullUpdateToAll()
+        {
+            if (!Config.LoadedConfig.EnableFullForceUpdate) return;
+
+            int tickCount = Server.TickCount;
+            if (tickCount == lastForceFullUpdateAll) return;
+
+            lastForceFullUpdateAll = tickCount;
+            var playersToRestore = new List<(uint PlayerIndex, QAngle LastAngle)>();
+
+            INetworkGameServer networkGameServer = new INetworkServerService().GetIGameServer();
+            foreach (var player in Utilities.GetPlayers())
+                ForceFullUpdate(player, playersToRestore, networkGameServer);
+
+            if (playersToRestore.Count <= 0) return;
+
+            HeroShift.Instance.AddTickTimer(3, () =>
+            {
+                foreach (var item in playersToRestore)
+                {
+                    var target = Utilities.GetPlayerFromIndex((int)item.PlayerIndex);
+                    if (target == null || !target.IsValid) continue;
+
+                    var targetPawn = target.PlayerPawn?.Value;
+                    if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) continue;
+
+                    targetPawn.Look(item.LastAngle);
+                }
+            });
+        }
+
+        public static bool SetHealth(CCSPlayerPawn? pawn, int newHealth, int? maxHealth = null)
+        {
+            if (pawn == null || !pawn.IsValid)
+                return false;
+
+            maxHealth ??= pawn.MaxHealth;
+
+            if (pawn.Health == maxHealth)
+                return false;
+
+            pawn.Health = Math.Min(newHealth, (int)maxHealth);
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+
+            pawn.MaxHealth = (int)maxHealth;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+
+            return true;
+        }
+
+        public static bool AddHealth(CCSPlayerPawn? pawn, int extraHealth, int? maxHealth = null)
+        {
+            if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.Health <= 0)
+                return false;
+
+            maxHealth ??= pawn.MaxHealth;
+
+            if (pawn.Health == maxHealth)
+                return false;
+
+            int newHealth = (int)(pawn.Health + extraHealth);
+            pawn.Health = Math.Min(newHealth, (int)maxHealth);
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+
+            pawn.MaxHealth = (int)maxHealth;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iMaxHealth");
+
+            return true;
+        }
+
+        public static void RestoreHealth(CCSPlayerController? player)
+        {
+            if (player == null || !player.IsValid || player.PlayerPawn == null)
+                return;
+
+            CBasePlayerPawn? pawn = player.PlayerPawn.Value;
+            if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)
+                return;
+
+            var p = PlayerManager.GetPlayerFromEvent(player);
+            if (p == null || !p.IsValid)
+                return;
+
+            pawn.Health = (int)p.PawnHealth;
+            Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
+        }
+
+        public static void SetPlayerInvisibility(CCSPlayerController player, float percentInvisibility)
+        {
+            if (player == null || !player.IsValid || player.PlayerPawn == null)
+                return;
+
+            var playerPawn = player.PlayerPawn.Value;
+            if (playerPawn != null)
+            {
+                var color = Color.FromArgb(Math.Max(255 - (int)(255 * percentInvisibility), 0), 255, 255, 255);
+                playerPawn.Render = color;
+                Utilities.SetStateChanged(playerPawn, "CBaseModelEntity", "m_clrRender");
+            }
+        }
+
+        public static string GetDesignerName(CBasePlayerWeapon? weapon)
+        {
+            if (weapon == null || !weapon.IsValid) return string.Empty;
+            string designerName = weapon.DesignerName;
+            ushort index = weapon.AttributeManager.Item.ItemDefinitionIndex;
+
+            designerName = (designerName, index) switch
+            {
+                var (name, _) when name.Contains("bayonet") => "weapon_knife",
+                ("weapon_m4a1", 60) => "weapon_m4a1_silencer",
+                ("weapon_hkp2000", 61) => "weapon_usp_silencer",
+                ("weapon_deagle", 64) => "weapon_revolver",
+                ("weapon_mp7", 23) => "weapon_mp5sd",
+                _ => designerName
+            };
+
+            return designerName;
+        }
+
+        private static IWasdMenuManager? GetMenuManager()
+        {
+            if (HeroShift.Instance.MenuManager == null)
+                HeroShift.Instance.MenuManager = new WasdManager();
+            return HeroShift.Instance.MenuManager;
+        }
+
+        public static void CloseMenu(CCSPlayerController? player)
+        {
+            var manager = GetMenuManager();
+            if (manager == null) return;
+            manager.CloseMenu(player);
+        }
+
+        public static bool HasMenu(CCSPlayerController? player)
+        {
+            var manager = GetMenuManager();
+            if (manager == null) return false;
+            return manager.HasMenu(player);
+        }
+
+        public static bool SetMenuPaused(CCSPlayerController? player, bool pause)
+        {
+            var manager = GetMenuManager();
+            if (manager == null) return false;
+            return manager.SetMenuPaused(player, pause);
+        }
+
+        private static string GetInvisibleSignature(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return "";
+            var sb = new System.Text.StringBuilder();
+
+            foreach (char c in id)
+                for (int i = 0; i < 8; i++)
+                    sb.Append(((c >> i) & 1) == 1 ? "\u200B" : "\u200C");
+
+            return sb.ToString();
+        }
+
+        public static void UpdateMenu(CCSPlayerController? player, ConcurrentBag<(string, string)> items)
+        {
+            if (player == null) return;
+
+            var manager = GetMenuManager();
+            if (manager == null) return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo == null) return;
+
+            bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
+
+            Dictionary<string, Action<CCSPlayerController, IWasdMenuOption>> list = [];
+            foreach (var item in items)
+            {
+                string encodedText = isIlliterate
+                    ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(item.Item1)!)
+                    : System.Net.WebUtility.HtmlEncode(item.Item1);
+
+                string uniqueKey = GetInvisibleSignature(item.Item2) + $"\u202A{encodedText}\u202C";
+
+                list.TryAdd(uniqueKey, (p, option) =>
+                {
+                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
+                    manager.CloseMenu(p);
+                });
+            }
+
+            manager.UpdateActiveMenu(player, list);
+        }
+
+        public static void CreateMenu(CCSPlayerController? player, ConcurrentBag<(string, string)> enemies, (string, string, bool)? lastElement = null)
+        {
+            if (player == null || !player.IsValid) return;
+
+            var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
+            if (playerInfo == null || playerInfo.HideHUD >= Server.TickCount) return;
+
+            if (player.IsBot)
+            {
+                var pool = new List<string>();
+
+                foreach (var enemy in enemies)
+                    if (!string.IsNullOrEmpty(enemy.Item2))
+                        pool.Add(enemy.Item2);
+
+                if (lastElement != null && !string.IsNullOrEmpty(lastElement.Value.Item2))
+                    pool.Add(lastElement.Value.Item2);
+
+                if (pool.Count > 0)
+                {
+                    string randomTarget = pool[Random.Shared.Next(pool.Count)];
+                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, new[] { randomTarget }]);
+                }
+
+                return;
+            }
+
+            var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == playerInfo.Skill);
+            if (skillData == null) return;
+
+            var manager = GetMenuManager();
+            if (manager == null) return;
+
+            var config = Config.LoadedConfig.HtmlHudCustomisation;
+            var your_skill = player.GetTranslation("your_skill");
+            var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(your_skill) ? "l" : "ml")}'> </font>";
+
+            string infoLine = string.IsNullOrEmpty(your_skill)
+                ? ""
+                : $"<font class='fontWeight-Bold fontSize-{config.HeaderLineSize}' color='{config.HeaderLineColor}'>\u202A{your_skill}:\u202C</font><br>";
+
+            string skillLine = Illiterate.CheckIlliterateSkill(player)
+                ? $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}'>\u202A{Illiterate.GetRandomText(player.GetSkillName(skillData.Skill))}\u202C</font><br>"
+                : $"<font class='fontWeight-Bold fontSize-{config.SkillLineSize}' color='{skillData.Color}'>\u202A{player.GetSkillName(skillData.Skill)}\u202C</font><br>";
+
+            var skill_select_info = player.GetTranslation($"{playerInfo.Skill.ToString().ToLowerInvariant()}_select_info");
+            string remainingLine = string.IsNullOrWhiteSpace(skill_select_info)
+                ? ""
+                : $"<font class='fontSize-{config.WSADMenuSelectInfoLineSize}' color='{config.WSADMenuSelectInfoLineColor}'>{skill_select_info}</font><br>";
+
+            var hudContent = infoLine + skillLine + remainingLine;
+
+            string controllsLine = 
+                $"{emptySymbol}<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor1}'>{player.GetTranslation($"menu_controlls_scroll")}</font>"
+                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor2}'>{player.GetTranslation($"menu_controlls_padding")}</font>"
+                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor3}'>{player.GetTranslation($"menu_controlls_select")}</font>{emptySymbol}";
+
+            string itemText = $"<font class='fontSize-{config.WSADMenuItemLineSize}' color='{config.WSADMenuItemLineColor}'>{{0}}</font><br>";
+            string itemHoverText = $"<font class='fontSize-{config.WSADMenuItemLineSize}'><font color='purple'>[ </font><font color='{config.WSADMenuItemHoverLineColor}'>{{0}}</font><font color='purple'> ]</font></font><br>";
+
+            bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
+
+            IWasdMenu menu = manager.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
+            foreach (var enemy in enemies)
+            {
+                string encodedEnemyName = isIlliterate
+                    ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(enemy.Item1)!)
+                    : System.Net.WebUtility.HtmlEncode(enemy.Item1);
+
+                string uniqueKey = GetInvisibleSignature(enemy.Item2) + $"\u202A{encodedEnemyName}\u202C";
+
+                menu.Add(uniqueKey, (p, option) =>
+                {
+                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
+                    manager.CloseMenu(p);
+                });
+            }
+
+            if (lastElement != null)
+            {
+                string encodedLastElement = isIlliterate
+                    ? System.Net.WebUtility.HtmlEncode(Illiterate.GetRandomText(lastElement.Value.Item1)!)
+                    : System.Net.WebUtility.HtmlEncode(lastElement.Value.Item1);
+
+                menu.Add($"\u202A{encodedLastElement}\u202C", (p, option) =>
+                {
+                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
+                    if (lastElement.Value.Item3)
+                        manager.CloseMenu(p);
+                });
+            }
+
+            manager.OpenMainMenu(player, menu);
+        }
+
+        public static void SetTeamScores(short ctScore, short tScore, RoundEndReason roundEndReason)
+        {
+            if (HeroShift.Instance == null || HeroShift.Instance.GameRules == null) return;
+            UpdateServerTeamScores(ctScore, tScore);
+            TerminateRoundFunc.Value?.Invoke(HeroShift.Instance.GameRules.Handle, 5f, roundEndReason, 0, 0);
+        }
+
+        public static void TerminateRound(CsTeam winnerTeam)
+        {
+            if (HeroShift.Instance == null || HeroShift.Instance.GameRules == null) return;
+            var teams = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager");
+            var ctTeam = teams.FirstOrDefault(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.CounterTerrorist);
+            var tTeams = teams.FirstOrDefault(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.Terrorist);
+            if (ctTeam == null || tTeams == null) return;
+
+            short ctScore = (short)(winnerTeam == CsTeam.CounterTerrorist ? ctTeam.Score + 1 : ctTeam.Score);
+            short tScore = (short)(winnerTeam == CsTeam.Terrorist ? tTeams.Score + 1 : tTeams.Score);
+
+            UpdateServerTeamScores(ctScore, tScore);
+            HeroShift.Instance.GameRules?.TerminateRound(5f, winnerTeam == CsTeam.CounterTerrorist ? RoundEndReason.BombDefused : RoundEndReason.TargetBombed);
+        }
+
+        private static void UpdateServerTeamScores(short ctScore, short tScore)
+        {
+            if (HeroShift.Instance == null || HeroShift.Instance.GameRules == null) return;
+            int totalRoundsPlayed = ctScore + tScore;
+            int maxRounds = ConVar.Find("mp_maxrounds")?.GetPrimitiveValue<int>() ?? 24;
+            int halfRounds = maxRounds / 2;
+            int overtimeMaxRounds = ConVar.Find("mp_overtime_maxrounds")?.GetPrimitiveValue<int>() ?? 6;
+            int overtimeLimit = ConVar.Find("mp_overtime_limit")?.GetPrimitiveValue<int>() ?? 1;
+
+            var gameRulesProxy = HeroShift.Instance.GameRules;
+            gameRulesProxy.TotalRoundsPlayed = totalRoundsPlayed;
+            gameRulesProxy.ITotalRoundsPlayed = totalRoundsPlayed;
+            gameRulesProxy.RoundsPlayedThisPhase = totalRoundsPlayed;
+
+            gameRulesProxy.TeamIntroPeriod = false;
+            if (gameRulesProxy.GamePhase == 1 && totalRoundsPlayed < halfRounds)
+            {
+                gameRulesProxy.GamePhase = 0;
+                gameRulesProxy.SwapTeamsOnRestart = true;
+                gameRulesProxy.SwitchingTeamsAtRoundReset = true;
+                gameRulesProxy.RoundsPlayedThisPhase = 0;
+                gameRulesProxy.TeamIntroPeriod = true;
+            }
+
+            if (totalRoundsPlayed < halfRounds)
+                gameRulesProxy.GamePhase = 0;
+            else if (gameRulesProxy.GamePhase == 0)
+            {
+                gameRulesProxy.GamePhase = 1;
+                gameRulesProxy.SwapTeamsOnRestart = true;
+                gameRulesProxy.SwitchingTeamsAtRoundReset = true;
+                gameRulesProxy.RoundsPlayedThisPhase = 0;
+                gameRulesProxy.TeamIntroPeriod = true;
+            }
+
+            var structOffset = HeroShift.Instance.GameRules.Handle + Schema.GetSchemaOffset("CCSGameRules", "m_bMapHasBombZone") + 0x02;
+            var matchStruct = Marshal.PtrToStructure<MCCSMatch>(structOffset);
+
+            matchStruct.m_totalScore = (short)totalRoundsPlayed;
+            matchStruct.m_actualRoundsPlayed = (short)totalRoundsPlayed;
+            gameRulesProxy.MatchInfoDecidedTime = Server.CurrentTime;
+
+            matchStruct.m_ctScoreTotal = ctScore;
+            gameRulesProxy.AccountCT = ctScore;
+            matchStruct.m_terroristScoreTotal = tScore;
+            gameRulesProxy.AccountTerrorist = tScore;
+
+            if (gameRulesProxy.GamePhase == 0)
+            {
+                matchStruct.m_ctScoreFirstHalf = ctScore;
+                matchStruct.m_terroristScoreFirstHalf = tScore;
+            }
+            else
+            {
+                matchStruct.m_ctScoreSecondHalf = ctScore;
+                matchStruct.m_terroristScoreSecondHalf = tScore;
+            }
+
+            if (totalRoundsPlayed >= maxRounds)
+            {
+                if (gameRulesProxy.OvertimePlaying == 0)
+                {
+                    gameRulesProxy.OvertimePlaying = 1;
+                    gameRulesProxy.SwapTeamsOnRestart = true;
+                    gameRulesProxy.SwitchingTeamsAtRoundReset = true;
+                }
+                else
+                {
+                    int roundsInOvertime = totalRoundsPlayed - maxRounds;
+                    if (roundsInOvertime % overtimeMaxRounds == 0)
+                    {
+                        int currentOvertime = roundsInOvertime / overtimeMaxRounds;
+                        if ( currentOvertime < overtimeLimit)
+                        {
+                            gameRulesProxy.SwapTeamsOnRestart = true;
+                            gameRulesProxy.SwitchingTeamsAtRoundReset = true;
+                        }
+                    }
+                }
+            }
+            gameRulesProxy.OvertimePlaying = 0;
+
+            Marshal.StructureToPtr(matchStruct, structOffset, true);
+            UpdateClientTeamScores(matchStruct);
+        }
+
+        private static void UpdateClientTeamScores(MCCSMatch match)
+        {
+            var teams = Utilities.FindAllEntitiesByDesignerName<CCSTeam>("cs_team_manager");
+            var ctTeam = teams.FirstOrDefault(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.CounterTerrorist);
+            var tTeams = teams.FirstOrDefault(t => t.IsValid && (CsTeam)t.TeamNum == CsTeam.Terrorist);
+
+            if (ctTeam != null && tTeams != null)
+            {
+                ctTeam.Score = match.m_ctScoreTotal;
+                ctTeam.ScoreFirstHalf = match.m_ctScoreFirstHalf;
+                ctTeam.ScoreSecondHalf = match.m_ctScoreSecondHalf;
+                ctTeam.ScoreOvertime = match.m_ctScoreOvertime;
+                Utilities.SetStateChanged(ctTeam, "CTeam", "m_iScore");
+                Utilities.SetStateChanged(ctTeam, "CCSTeam", "m_scoreFirstHalf");
+                Utilities.SetStateChanged(ctTeam, "CCSTeam", "m_scoreSecondHalf");
+                Utilities.SetStateChanged(ctTeam, "CCSTeam", "m_scoreOvertime");
+
+                tTeams.Score = match.m_terroristScoreTotal;
+                tTeams.ScoreFirstHalf = match.m_terroristScoreFirstHalf;
+                tTeams.ScoreSecondHalf = match.m_terroristScoreSecondHalf;
+                tTeams.ScoreOvertime = match.m_terroristScoreOvertime;
+                Utilities.SetStateChanged(tTeams, "CTeam", "m_iScore");
+                Utilities.SetStateChanged(tTeams, "CCSTeam", "m_scoreFirstHalf");
+                Utilities.SetStateChanged(tTeams, "CCSTeam", "m_scoreSecondHalf");
+                Utilities.SetStateChanged(tTeams, "CCSTeam", "m_scoreOvertime");
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MCCSMatch
+    {
+        public short m_totalScore;
+        public short m_actualRoundsPlayed;
+        public short m_nOvertimePlaying;
+        public short m_ctScoreFirstHalf;
+        public short m_ctScoreSecondHalf;
+        public short m_ctScoreOvertime;
+        public short m_ctScoreTotal;
+        public short m_terroristScoreFirstHalf;
+        public short m_terroristScoreSecondHalf;
+        public short m_terroristScoreOvertime;
+        public short m_terroristScoreTotal;
+        public short unknown;
+        public int m_phase;
+    }
+}

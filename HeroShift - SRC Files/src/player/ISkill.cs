@@ -1,0 +1,203 @@
+﻿using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Core.Attributes;
+using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
+using CounterStrikeSharp.API.Modules.UserMessages;
+
+namespace src.player;
+
+public interface ISkill
+{
+    public static void LoadSkill() { }
+    public static void EnableSkill(CCSPlayerController _) { }
+    public static void DisableSkill(CCSPlayerController _) { }
+    public static void UseSkill(CCSPlayerController _) { }
+    public static void TypeSkill(CCSPlayerController _, string[] __) { }
+
+    public static void OnTakeDamage(DynamicHook _) { }
+    public static void OnTakeDamagePost(DynamicHook _) { }
+    public static void OnEntitySpawned(CEntityInstance _) { }
+    public static void OnTick() { }
+    public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList _) { }
+
+    public static void NewRound() { }
+    public static void RoundEnd() { }
+    public static void PlayerMakeSound(UserMessage _) { }
+    public static void PlayerBlind(EventPlayerBlind _) { }
+    public static void PlayerHurt(EventPlayerHurt _) { }
+    public static bool PlayerHurtPre(EventPlayerHurt _) { return false; }
+    public static void PlayerDeath(EventPlayerDeath _) { }
+    public static void PlayerJump(EventPlayerJump _) { }
+    public static void SwitchTeam(EventSwitchTeam _, GameEventInfo __) { }
+    public static void BotTakeover(EventBotTakeover _) { }
+
+    public static void WeaponFire(EventWeaponFire _) { }
+    public static void WeaponEquip(EventItemEquip _) { }
+    public static void WeaponPickup(EventItemPickup _) { }
+    public static void WeaponReload(EventWeaponReload _) { }
+    public static bool WeaponDrop(DynamicHook _, CCSPlayerController __) { return false; }
+    public static void GrenadeThrown(EventGrenadeThrown _) { }
+    public static void BulletImpact(EventBulletImpact _) { }
+
+    public static void BombBeginplant(EventBombBeginplant _) { }
+    public static void BombAbortplant(EventBombAbortplant _) { }
+    public static void BombPlanted(EventBombPlanted _) { }
+    public static void BombBegindefuse(EventBombBegindefuse _) { }
+
+    public static void DecoyStarted(EventDecoyStarted _) { }
+    public static void DecoyDetonate(EventDecoyDetonate _) { }
+
+    public static void SmokegrenadeDetonate(EventSmokegrenadeDetonate _) { }
+    public static void SmokegrenadeExpired(EventSmokegrenadeExpired _) { }
+
+    public static void OnTriggerEnter(CBaseTrigger _, CBaseEntity __) { }
+    public static void OnTriggerExit(CBaseTrigger _, CBaseEntity __) { }
+    public static bool OnWeaponCanAcquire(DynamicHook _, CCSPlayerController __, CEconItemView ___, CCSWeaponBaseVData ____) { return false; }
+
+    public class SkillConfig { }
+}
+
+public enum Skills
+{
+    None,
+    Aimbot,
+    AimLock,
+    Anomaly,
+    AntyFlash,
+    AntyHead,
+    AreaReaper,
+    Armored,
+    Assassin,
+    Astronaut,
+    Bankrupt,
+    Baseball,
+    Behind,
+    Berserker,
+    BladeMaster,
+    BunnyHop,
+    BlastShot,
+    C4Camouflage,
+    CarefulBullets,
+    Catapult,
+    Chicken,
+    ChillOut,
+    Cutter,
+    Cypher,
+    Darkness,
+    Deactivator,
+    Deaf,
+    DeathBomb,
+    DemonEye,
+    Disarmament,
+    Distancer,
+    Dash,
+    Dracula,
+    Duplicator,
+    Dwarf,
+    EnemySpawn,
+    ExpensiveAmmo,
+    ExplodingBarrel,
+    ExplosiveShot,
+    FalconEye,
+    FastReload,
+    FireRain,
+    Flash,
+    Flashlight,
+    Fortnite,
+    FragileBomb,
+    FriendlyFire,
+    FrozenDecoy,
+    Gambler,
+    Ghost,
+    Giant,
+    Glaz,
+    Glitch,
+    Glue,
+    GodMode,
+    Grenadier,
+    HealingChicken,
+    HealingSmoke,
+    Hermit,
+    HolyHandGrenade,
+    HomingNades,
+    HotBomb,
+    Iana,
+    Illiterate,
+    Illusionist,
+    Impostor,
+    InfiniteAmmo,
+    Jackal,
+    Jammer,
+    Jester,
+    JetKick,
+    JumpBan,
+    JumpCurse,
+    JumpingJack,
+    KillerFlash,
+    Knockback,
+    LastGasp,
+    LifeSwap,
+    LongKnife,
+    LongZeus,
+    MagneticDecoy,
+    Magneto,
+    Magnifier,
+    Medic,
+    Miner,
+    MoneySwap,
+    Nightmare,
+    Ninja,
+    NoNades,
+    NoRecoil,
+    Noclip,
+    OneShot,
+    OnlyHead,
+    PawelJumper,
+    Phoenix,
+    PsychicDefusing,
+    Pilot,
+    Planter,
+    Poison,
+    PrimaryBan,
+    Prosthesis,
+    Push,
+    Pyro,
+    QuickShot,
+    RadarHack,
+    Rambo,
+    RandomWeapon,
+    ReZombie,
+    ReactiveArmor,
+    Regeneration,
+    Replicator,
+    Retreat,
+    ReturnToSender,
+    RichBoy,
+    RobinHood,
+    Rubber,
+    Saper,
+    SecondLife,
+    Shade,
+    ShortBomb,
+    Silent,
+    Smoker,
+    SniperElite,
+    Soldier,
+    SoundMaker,
+    Spectator,
+    SwapPosition,
+    TakeAmmo,
+    TeamTeleport,
+    Teleporter,
+    Thief,
+    ThirdEye,
+    Thorns,
+    ThrowingKnife,
+    ToxicSmoke,
+    Tripwire,
+    Wallhack,
+    Watchmaker,
+    WeaponsSwap,
+    Weightless,
+    WildThrow,
+    Zeus,
+}
