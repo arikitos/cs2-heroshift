@@ -50,11 +50,36 @@ jobs:
       - name: Validate runtime cutover invariants
         shell: bash
         run: |
-          test -f "HeroShift - SRC Files/src/Configuration/ConfigurationStore.cs"
-          test -f "HeroShift - Server Files/plugins/HeroShift/configs/heroshift.json"
-          ! grep -q 'JsonConvert' "HeroShift - SRC Files/src/utils/Config.cs"
-          ! grep -q 'System.Reflection' "HeroShift - SRC Files/src/utils/SkillsInfo.cs"
-          grep -q 'Config.Initialize(BuiltInSkillCatalog.BuildRegistry())' "HeroShift - SRC Files/src/HeroShift.cs"
+          set -euo pipefail
+
+          require_file() {
+            test -f "$1" || { echo "::error file=$1::Required cutover file is missing"; exit 1; }
+          }
+
+          require_text() {
+            local file="$1"
+            local text="$2"
+            grep -Fq -- "$text" "$file" || {
+              echo "::error file=$file::Required cutover initialization is missing: $text"
+              exit 1
+            }
+          }
+
+          forbid_text() {
+            local file="$1"
+            local text="$2"
+            if grep -Fq -- "$text" "$file"; then
+              grep -Fn -- "$text" "$file" || true
+              echo "::error file=$file::Legacy cutover dependency remains: $text"
+              exit 1
+            fi
+          }
+
+          require_file "HeroShift - SRC Files/src/Configuration/ConfigurationStore.cs"
+          require_file "HeroShift - Server Files/plugins/HeroShift/configs/heroshift.json"
+          forbid_text "HeroShift - SRC Files/src/utils/Config.cs" "JsonConvert"
+          forbid_text "HeroShift - SRC Files/src/utils/SkillsInfo.cs" "System.Reflection"
+          require_text "HeroShift - SRC Files/src/HeroShift.cs" "Config.Initialize(BuiltInSkillCatalog.BuildRegistry())"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
