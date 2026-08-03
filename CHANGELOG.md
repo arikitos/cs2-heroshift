@@ -22,6 +22,7 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- Make runtime-cutover invariant checks deterministic and diagnostic, reporting the exact missing file, initialization, or remaining legacy dependency.
 - Restrict typed option discovery to the nested `SkillConfig` body, prefer its constructor parameter types, and normalize fully qualified enum defaults so generated options match the effective configuration contract.
 
 - Make typed skill identity available to every migrated gameplay implementation through a core global using, preventing generated option accessors from failing compilation when a source file did not already import the abstractions namespace.
