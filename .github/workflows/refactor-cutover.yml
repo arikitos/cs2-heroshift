@@ -40,10 +40,28 @@ jobs:
       - name: Apply reviewed patch
         shell: bash
         run: |
-          git apply --check runtime-config.patch
-          git apply runtime-config.patch
+          git apply --check --exclude=CHANGELOG.md runtime-config.patch
+          git apply --exclude=CHANGELOG.md runtime-config.patch
           rm runtime-config.patch
           rm tools/refactor-cutover/runtime-config.patch.gz.b64.part*
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('CHANGELOG.md')
+          text = path.read_text(encoding='utf-8')
+
+          changed = '- Cut runtime configuration over to atomic `heroshift.json` snapshots with canonical typed global defaults, per-skill metadata/options binding, explicit legacy-ID mapping, and embedded-English localization fallback.'
+          if changed not in text:
+              text = text.replace('### Changed\n\n', f'### Changed\n\n{changed}\n\n', 1)
+
+          removed = '- Stop reading `config.json` and `skillsInfo.json` at runtime; the files remain only until the dedicated legacy-cleanup checkpoint removes obsolete artifacts and nested compatibility models.'
+          if removed not in text:
+              text = text.replace('### Fixed\n', f'### Removed\n\n{removed}\n\n### Fixed\n', 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
           git diff --check
           test -n "$(git status --porcelain)" || { echo 'Cutover produced no changes' >&2; exit 1; }
 
