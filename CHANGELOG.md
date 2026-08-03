@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- Make typed skill identity available to every migrated gameplay implementation through a core global using, preventing generated option accessors from failing compilation when a source file did not already import the abstractions namespace.
 - Initialize typed skill option snapshots lazily from the active legacy configuration during migration, automatically rebuilding once after a successful config reload so partially migrated skills remain runtime-safe before the final `heroshift.json` cutover.
 - Invalidate cached registry hook indexes whenever a new definition is registered, and register all typed definitions already present on the branch.
 
