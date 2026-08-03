@@ -7,6 +7,8 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -51,6 +53,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Tripwire;
 
+        private static TripwireOptions Options => SkillConfigurationResolver.Get<TripwireOptions>(BuiltInSkillIds.Tripwire);
         private static readonly ConcurrentDictionary<uint, WireInfo> wires = [];
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<(uint Owner, uint Target), (int Slot, int ExpiryTick)> revealed = [];
@@ -182,7 +185,7 @@ namespace src.player.skills
 
         private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)
         {
-            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
             float cooldown = Math.Max(time, 0);
 
             if (cooldown == 0 && !skillInfo.CanUse)
@@ -203,8 +206,8 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return false;
             if (!RayTrace.IsAvailable) return false;
 
-            float height = SkillsInfo.GetValue<float>(skillName, "wireHeight");
-            float maxDistance = SkillsInfo.GetValue<float>(skillName, "maxWallDistance");
+            float height = Options.WireHeight;
+            float maxDistance = Options.MaxWallDistance;
 
             Vector origin = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + height);
             float yaw = pawn.EyeAngles.Y;
@@ -231,7 +234,7 @@ namespace src.player.skills
             var beam = EntityManager.CreateTrackedBeam(player.Index, start, end, wireColor);
             if (beam == null || !beam.IsValid) return false;
 
-            beam.Width = SkillsInfo.GetValue<float>(skillName, "wireWidth");
+            beam.Width = Options.WireWidth;
 
             wires[beam.Index] = new WireInfo
             {
@@ -275,9 +278,9 @@ namespace src.player.skills
 
             if (wires.IsEmpty || tick % 4 != 0) return;
 
-            float radius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
-            int revealTicks = (int)(SkillsInfo.GetValue<float>(skillName, "radarDuration") * 64);
-            float bodyHeight = SkillsInfo.GetValue<float>(skillName, "wireHeight");
+            float radius = Options.TriggerRadius;
+            int revealTicks = (int)(Options.RadarDuration * 64);
+            float bodyHeight = Options.WireHeight;
 
             foreach (var wire in wires.Values)
             {

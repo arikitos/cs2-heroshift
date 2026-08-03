@@ -8,6 +8,8 @@ using System.Collections.Concurrent;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -45,6 +47,7 @@ namespace src.player.skills
     public class Noclip : ISkill
     {
         private const Skills skillName = Skills.Noclip;
+        private static NoclipOptions Options => SkillConfigurationResolver.Get<NoclipOptions>(BuiltInSkillIds.Noclip);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
@@ -94,10 +97,10 @@ namespace src.player.skills
             float flying = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
-                float flyingTime = (int)(skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "duration")) - DateTime.Now).TotalMilliseconds;
+                float flyingTime = (int)(skillInfo.Cooldown.AddSeconds(Options.Duration) - DateTime.Now).TotalMilliseconds;
                 flying = Math.Max(flyingTime, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -136,7 +139,7 @@ namespace src.player.skills
 
                 if (skillInfo.CanUse)
                 {
-                    var duration = SkillsInfo.GetValue<float>(skillName, "duration");
+                    var duration = Options.Duration;
 
                     skillInfo.CanUse = false;
                     skillInfo.IsFlying = true;
@@ -245,7 +248,7 @@ namespace src.player.skills
             }
 
             if (hasGround)
-                skillInfo.Cooldown = DateTime.Now.AddSeconds(-SkillsInfo.GetValue<float>(skillName, "cooldown") + SkillsInfo.GetValue<float>(skillName, "cooldownWhenStuck"));
+                skillInfo.Cooldown = DateTime.Now.AddSeconds(-Options.Cooldown + Options.CooldownWhenStuck);
             return hasGround ? stuckVector : null;
         }
 

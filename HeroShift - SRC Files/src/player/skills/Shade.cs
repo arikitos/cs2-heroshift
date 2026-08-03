@@ -7,6 +7,8 @@ using System.Collections.Concurrent;
 using src.utils;
 using static src.utils.RarityManager;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -43,6 +45,7 @@ namespace src.player.skills
     public class Shade : ISkill
     {
         private const Skills skillName = Skills.Shade;
+        private static ShadeOptions Options => SkillConfigurationResolver.Get<ShadeOptions>(BuiltInSkillIds.Shade);
         private static readonly ConcurrentDictionary<uint, float> noSpace = [];
 
         public static void LoadSkill()
@@ -77,7 +80,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
+            float newChance = (float)Instance.Random.NextDouble() * (Options.ChanceTo - Options.ChanceFrom) + Options.ChanceFrom;
             playerInfo.SkillChance = newChance;
 
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newChance)}",
@@ -145,7 +148,7 @@ namespace src.player.skills
 
             Vector victimPos = new(victimPawn.AbsOrigin.X, victimPawn.AbsOrigin.Y, victimPawn.AbsOrigin.Z);
             QAngle victimAngles = new(victimPawn.AbsRotation.X, victimPawn.AbsRotation.Y, victimPawn.AbsRotation.Z);
-            float distance = SkillsInfo.GetValue<float>(skillName, "teleportDistance");
+            float distance = Options.TeleportDistance;
 
             int[] angles = [0, 90, -90];
             bool teleported = false;

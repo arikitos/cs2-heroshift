@@ -12,6 +12,8 @@ using System.Numerics;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -43,6 +45,7 @@ namespace src.player.skills
     public class Cypher : ISkill
     {
         private const Skills skillName = Skills.Cypher;
+        private static CypherOptions Options => SkillConfigurationResolver.Get<CypherOptions>(BuiltInSkillIds.Cypher);
         private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = new();
         private static readonly object setLock = new();
 
@@ -120,7 +123,7 @@ namespace src.player.skills
             }
 
             playerSkill.CameraActive = false;
-            playerSkill.NextCamera = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
+            playerSkill.NextCamera = Server.TickCount + Options.Cooldown * 64;
         }
 
         public static void OnTick()

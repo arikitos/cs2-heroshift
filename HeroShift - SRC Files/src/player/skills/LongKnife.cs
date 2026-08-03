@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -42,6 +44,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.LongKnife;
 
+        private static LongKnifeOptions Options => SkillConfigurationResolver.Get<LongKnifeOptions>(BuiltInSkillIds.LongKnife);
         private static bool hooked = false;
         private const int actionCode = 503;
         private static readonly ConcurrentDictionary<uint, byte> playersInAction = [];
@@ -148,7 +151,7 @@ namespace src.player.skills
             if (target.PlayerPawn.Value == null || !target.PlayerPawn.Value.IsValid)
                 return;
 
-            if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player.Team == target.Team) return;
+            if (!Options.FriendlyFire && player.Team == target.Team) return;
 
             target.PlayerPawn.Value.EmitSound("Player.DamageBody.Onlooker");
             SkillUtils.TakeHealth(target.PlayerPawn.Value, heavyHit ? Instance.Random.Next(45, 55) : Instance.Random.Next(21, 34), player, killfeedIcon ?? KillfeedIcons.Knife);

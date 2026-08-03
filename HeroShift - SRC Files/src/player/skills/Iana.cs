@@ -9,6 +9,8 @@ using System.Collections.Concurrent;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -43,6 +45,7 @@ namespace src.player.skills
     public class Iana : ISkill
     {
         private const Skills skillName = Skills.Iana;
+        private static IanaOptions Options => SkillConfigurationResolver.Get<IanaOptions>(BuiltInSkillIds.Iana);
         private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = [];
         private static readonly ConcurrentDictionary<uint, byte> consumedClones = [];
         private static readonly object setLock = new();
@@ -169,7 +172,7 @@ namespace src.player.skills
             SkillUtils.SetPlayerCollisions(player, true);
 
             BlockWeapon(player, false);
-            playerSkill.NextUse = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
+            playerSkill.NextUse = Server.TickCount + Options.Cooldown * 64;
             playerSkill.UseTime = 0;
         }
 
@@ -239,7 +242,7 @@ namespace src.player.skills
 
                 consumedClones.TryRemove(clone.Index, out _);
 
-                HeroShift.Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "Duration"), () =>
+                HeroShift.Instance.AddTimer(Options.Duration, () =>
                 {
                     if (playerSkill.CloneProp != null)
                         KillClone(playerSkill);
@@ -439,7 +442,7 @@ namespace src.player.skills
             cooldown = (int)Math.Ceiling(Math.Max(time1, 0));
 
             float duration = 0;
-            float time2 = SkillsInfo.GetValue<float>(skillName, "Duration") - (Server.TickCount - playerSkill.UseTime) / 64;
+            float time2 = Options.Duration - (Server.TickCount - playerSkill.UseTime) / 64;
             duration = (int)Math.Ceiling(Math.Max(time2, 0));
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);

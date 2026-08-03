@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -41,6 +43,7 @@ namespace src.player.skills
     public class TeamTeleport : ISkill
     {
         private const Skills skillName = Skills.TeamTeleport;
+        private static TeamTeleportOptions Options => SkillConfigurationResolver.Get<TeamTeleportOptions>(BuiltInSkillIds.TeamTeleport);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
 
         public class PlayerSkillInfo
@@ -143,7 +146,7 @@ namespace src.player.skills
             Vector eyePos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + playerPawn.ViewOffset.Z);
             Vector playerForward = SkillUtils.GetForwardVector(playerPawn.V_angle);
 
-            float teleportAngle = SkillsInfo.GetValue<float>(skillName, "teleportAngle");
+            float teleportAngle = Options.TeleportAngle;
             float minDot = MathF.Cos(teleportAngle * MathF.PI / 180.0f);
 
             skillInfo.TeamateIndex = null;
@@ -216,7 +219,7 @@ namespace src.player.skills
             if (playerPawn == null || !playerPawn.IsValid || player.AbsRotation == null) return;
 
             QAngle playerAngles = new(player.AbsRotation.X, player.AbsRotation.Y, player.AbsRotation.Z);
-            float distance = SkillsInfo.GetValue<float>(skillName, "teleportDistance");
+            float distance = Options.TeleportDistance;
 
             int[] angles = [0, 90, -90, 179];
             bool teleported = false;
@@ -252,7 +255,7 @@ namespace src.player.skills
         {
             float cooldown = 0;
 
-            float time = (float)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float time = (float)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
             cooldown = Math.Max(time, 0);
 
             if (cooldown == 0 && !skillInfo.CanUse)

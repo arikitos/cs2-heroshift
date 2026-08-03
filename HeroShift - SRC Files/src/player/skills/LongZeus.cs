@@ -5,6 +5,8 @@ using HeroShift.src.utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.LongZeus;
 
+        private static LongZeusOptions Options => SkillConfigurationResolver.Get<LongZeusOptions>(BuiltInSkillIds.LongZeus);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -66,7 +69,7 @@ namespace src.player.skills
                 return;
 
             if (target.Handle == player.Handle) return;
-            if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player.Team == target.Team) return;
+            if (!Options.FriendlyFire && player.Team == target.Team) return;
 
             SkillUtils.TakeHealth(target.PlayerPawn.Value, 9999, player, KillfeedIcons.Taser);
         }

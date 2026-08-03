@@ -31,6 +31,7 @@ public static class BuiltInSkillCatalog
         registry.Register(ChickenDefinition.Create());
         registry.Register(ChillOutDefinition.Create());
         registry.Register(CutterDefinition.Create());
+        registry.Register(CypherDefinition.Create());
         registry.Register(DarknessDefinition.Create());
         registry.Register(DeactivatorDefinition.Create());
         registry.Register(DeafDefinition.Create());
@@ -66,6 +67,7 @@ public static class BuiltInSkillCatalog
         registry.Register(HolyHandGrenadeDefinition.Create());
         registry.Register(HomingNadesDefinition.Create());
         registry.Register(HotBombDefinition.Create());
+        registry.Register(IanaDefinition.Create());
         registry.Register(IlliterateDefinition.Create());
         registry.Register(IllusionistDefinition.Create());
         registry.Register(ImpostorDefinition.Create());
@@ -81,6 +83,8 @@ public static class BuiltInSkillCatalog
         registry.Register(KnockbackDefinition.Create());
         registry.Register(LastGaspDefinition.Create());
         registry.Register(LifeSwapDefinition.Create());
+        registry.Register(LongKnifeDefinition.Create());
+        registry.Register(LongZeusDefinition.Create());
         registry.Register(MagneticDecoyDefinition.Create());
         registry.Register(MagnetoDefinition.Create());
         registry.Register(MagnifierDefinition.Create());
@@ -91,6 +95,7 @@ public static class BuiltInSkillCatalog
         registry.Register(NinjaDefinition.Create());
         registry.Register(NoNadesDefinition.Create());
         registry.Register(NoRecoilDefinition.Create());
+        registry.Register(NoclipDefinition.Create());
         registry.Register(OneShotDefinition.Create());
         registry.Register(OnlyHeadDefinition.Create());
         registry.Register(PawelJumperDefinition.Create());
@@ -118,6 +123,7 @@ public static class BuiltInSkillCatalog
         registry.Register(RubberDefinition.Create());
         registry.Register(SaperDefinition.Create());
         registry.Register(SecondLifeDefinition.Create());
+        registry.Register(ShadeDefinition.Create());
         registry.Register(ShortBombDefinition.Create());
         registry.Register(SilentDefinition.Create());
         registry.Register(SniperEliteDefinition.Create());
@@ -126,12 +132,14 @@ public static class BuiltInSkillCatalog
         registry.Register(SpectatorDefinition.Create());
         registry.Register(SwapPositionDefinition.Create());
         registry.Register(TakeAmmoDefinition.Create());
+        registry.Register(TeamTeleportDefinition.Create());
         registry.Register(TeleporterDefinition.Create());
         registry.Register(ThiefDefinition.Create());
         registry.Register(ThirdEyeDefinition.Create());
         registry.Register(ThornsDefinition.Create());
         registry.Register(ThrowingKnifeDefinition.Create());
         registry.Register(ToxicSmokeDefinition.Create());
+        registry.Register(TripwireDefinition.Create());
         registry.Register(WatchmakerDefinition.Create());
         registry.Register(WeaponsSwapDefinition.Create());
         registry.Register(WeightlessDefinition.Create());
