@@ -6,6 +6,33 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * JetKick - Curse: you mark one enemy, and their jumps get pushed/redirected.
+     *
+     * LOGIC
+     *   EnableSkill: opens a menu listing living enemies (CreateMenu).
+     *   TypeSkill: you pick the victim - SkillUsed makes it one target per round.
+     *   OnTick: refreshes the menu list every 32 ticks while it is open.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   pushVelocity = 400f
+     *                    -> push strength applied to the marked enemy
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class JetKick : ISkill
     {
         private const Skills skillName = Skills.JetKick;

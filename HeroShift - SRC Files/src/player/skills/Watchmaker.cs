@@ -6,6 +6,34 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Watchmaker - Lets you change the round time / bomb timer.
+     *
+     * LOGIC
+     *   BombPlanted/OnEntitySpawned: adjusts the timer by changeRoundTime and
+     *     plays a sound.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   changeRoundTime = 7
+     *                       -> seconds added to / removed from the timer per use
+     *   soundEvent      = "UIPanorama.sidemenu_select"
+     *                       -> sound played when the timer is changed
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Watchmaker : ISkill
     {
         private const Skills skillName = Skills.Watchmaker;

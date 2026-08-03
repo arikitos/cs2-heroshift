@@ -6,6 +6,39 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * BladeMaster - Knife hits against you are reflected back at the attacker.
+     *
+     * LOGIC
+     *   PlayerHurtPre: on a knife hit, rolls the reflect chance by hitgroup
+     *     (torso vs legs) and bounces the damage back.
+     *   OnTick: applies the movement speed change while holding a knife.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   torseReflectionChance = .95f
+     *                             -> reflect chance for hits on the torso (0.95 =
+     *                                95%)
+     *   legReflectionChance   = .70f
+     *                             -> reflect chance for hits on the legs
+     *   velocityModifier      = .85f
+     *                             -> movement speed multiplier while the skill is
+     *                                active
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class BladeMaster : ISkill
     {
         private const Skills skillName = Skills.BladeMaster;

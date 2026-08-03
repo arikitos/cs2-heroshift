@@ -9,6 +9,32 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Planter - The bomb you plant gets a much longer fuse.
+     *
+     * LOGIC
+     *   BombPlanted: adds extraC4BlowTime to the countdown.
+     *   OnTick: keeps the modified timer applied.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   extraC4BlowTime = 60
+     *                       -> extra seconds added to the C4 countdown
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.Terrorist
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Planter : ISkill
     {
         private const Skills skillName = Skills.Planter;

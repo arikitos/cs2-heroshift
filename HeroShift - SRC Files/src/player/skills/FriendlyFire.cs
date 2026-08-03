@@ -7,6 +7,32 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * FriendlyFire - Teammates can damage each other while this is active.
+     *
+     * LOGIC
+     *   OnTakeDamage: allows team damage and scales it by healthDamageMultiplier.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   healthDamageMultiplier = .3f
+     *                              -> multiplier applied to friendly-fire damage
+     *                                 (0.3 = 30%)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class FriendlyFire : ISkill
     {
         private const Skills skillName = Skills.FriendlyFire;

@@ -7,6 +7,31 @@ using CounterStrikeSharp.API;
 
 namespace src.player.skills
 {
+    /*
+     * Aimbot - Bullets that would miss are redirected into the enemy you are
+     * looking at.
+     *
+     * LOGIC
+     *   OnTakeDamage: rewrites the damage info so shots land on the aimed target.
+     *   OnTakeDamagePost: cleanup after the engine applied the damage.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Aimbot : ISkill
     {
         private const Skills skillName = Skills.Aimbot;

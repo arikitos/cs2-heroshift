@@ -6,6 +6,12 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * RadarHack - All enemies are permanently shown on your radar.
+     *
+     * LOGIC
+     *   OnTick: marks every enemy as spotted for you.
+     */
     public class RadarHack : ISkill
     {
         private const Skills skillName = Skills.RadarHack;

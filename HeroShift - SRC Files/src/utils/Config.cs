@@ -4,6 +4,17 @@ using static src.HeroShift;
 
 namespace src.utils
 {
+    /*
+     * Config - the global plugin settings, stored in configs/config.json.
+     *
+     * This is the server-wide behaviour of the plugin (game mode, HUD, chat,
+     * command names, voting). Per-hero balance values are NOT here - those live
+     * in configs/skillsInfo.json, see utils/SkillsInfo.cs.
+     *
+     * The file is created with defaults on first load. Read values anywhere with
+     * Config.LoadedConfig.<Property>. Missing keys fall back to the defaults set
+     * in the SettingsModel constructor below.
+     */
     public static class Config
     {
         private static readonly string configsFolder = Path.Combine(Instance.ModuleDirectory, "configs");
@@ -69,28 +80,52 @@ namespace src.utils
 
         public class SettingsModel
         {
+            // Label only - shown in console as the active preset name.
             public string ConfigName { get; set; }
+
+            // How skills are handed out each round. See the GameModes enum below.
             public int GameMode { get; set; }
-            public bool YourSkillChatInfo { get; set; }
-            public bool KillerSkillChatInfo { get; set; }
-            public bool TeamMateSkillChatInfo { get; set; }
-            public bool SummaryAfterTheRound { get; set; }
+
+            // Which chat announcements are printed.
+            public bool YourSkillChatInfo { get; set; }      // your own hero
+            public bool KillerSkillChatInfo { get; set; }    // the hero that killed you
+            public bool TeamMateSkillChatInfo { get; set; }  // your teammates' heroes
+            public bool SummaryAfterTheRound { get; set; }   // recap at round end
+
+            // Bots take part in the skill draw like real players.
             public bool EnableBotSkills { get; set; }
             public bool EnableBotKickDebug { get; set; }
             public bool EnableFullForceUpdate { get; set; }
+
+            // DebugMode writes the debug log; PerfMode logs slow hooks (PerfLog).
             public bool DebugMode { get; set; }
             public bool PerfMode { get; set; }
+
+            // Extra key that triggers UseSkill in addition to the default one
+            // (a console button name, e.g. "e"). null = only the default.
             public string? AlternativeSkillButton { get; set; }
+
+            // Seconds after round start before skills become usable.
             public float SkillTimeBeforeStart { get; set; }
+
+            // HUD lifetimes in seconds. -1 = show for the whole round.
             public float SkillHudDuration { get; set; }
             public float SkillDescriptionDuration { get; set; }
+            // When true, SkillDescriptionDuration is forced to 9999 on load.
             public bool DisplayAlwaysDescription { get; set; }
+
             public bool DisableSpectateHUD { get; set; }
             public bool HideHudForOtherPlugins { get; set; }
+            // Workaround for the HTML HUD flickering when other plugins draw too.
             public bool EnableFlashingHtmlHudFix { get; set; }
+            // Draw a visible beam along ray traces (debugging aid).
             public bool TraceRayBeam { get; set; }
+
             public string DisableHUDOnDeathPermission { get; set; }
+            // Strip everyone's skill the moment the round ends.
             public bool DisableSkillsOnRoundEnd { get; set; }
+            // Cap on how many curse-type skills may target one player
+            // (null = no limit). Enforced by SkillUtils.TryClaimCurse.
             public int? CurseSkillPerPlayer { get; set; }
             public HtmlHudCustomisation HtmlHudCustomisation { get; set; }
             public ChatMessage ChatMessage { get; set; }
@@ -273,6 +308,16 @@ namespace src.utils
             public required VotingCommand SetScoreCommand { get; set; }
         }
 
+        /*
+         * How the per-round skill draw works. Set via GameMode above.
+         *   Normal      - everyone gets an independent random skill
+         *   TeamSkills  - one skill per team; the whole team shares it
+         *   SameSkills  - one skill for the entire server that round
+         *   NoRepeat    - random, but avoids skills already used this map
+         *                 (tracked in HeroShift.SkillsUsedThisMap) - the default
+         *   FullRandom  - random with no history or restrictions
+         *   Debug       - for testing; see src/player/Debug.cs
+         */
         public enum GameModes
         {
             Normal = 0,

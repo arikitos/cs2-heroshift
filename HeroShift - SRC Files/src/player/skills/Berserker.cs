@@ -8,6 +8,34 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Berserker - The faster you move, the more damage you deal and take.
+     *
+     * LOGIC
+     *   OnTick: reads your current velocity and scales speed/damage from it.
+     *   OnTakeDamage: applies the velocity-based damage multiplier.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   maxSpeedVelocity  = 2f
+     *                         -> upper bound of the speed bonus multiplier
+     *   maxDamageVelocity = 2f
+     *                         -> upper bound of the damage bonus multiplier
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Berserker : ISkill
     {
         private const Skills skillName = Skills.Berserker;

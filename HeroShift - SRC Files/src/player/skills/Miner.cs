@@ -7,6 +7,34 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Miner - Your grenades become proximity mines that wait on the ground.
+     *
+     * LOGIC
+     *   OnEntitySpawned: turns the thrown grenade into a stationary mine.
+     *   OnTick: detonates it when a player comes within detonationRange.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   detonationRange = 130
+     *                       -> trigger distance for the mine (game units)
+     *   grenadeLimit    = 3
+     *                       -> how many mines the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Miner : ISkill
     {
         private const Skills skillName = Skills.Miner;

@@ -6,6 +6,33 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * ExpensiveAmmo - Curse: every shot the victim fires costs them money.
+     *
+     * LOGIC
+     *   WeaponFire: subtracts moneyPerShot from the cursed player's account.
+     *   TypeSkill: pick the victim.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   moneyPerShot = 50
+     *                    -> money deducted from the cursed player per bullet
+     *                       fired
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class ExpensiveAmmo : ISkill
     {
         private const Skills skillName = Skills.ExpensiveAmmo;

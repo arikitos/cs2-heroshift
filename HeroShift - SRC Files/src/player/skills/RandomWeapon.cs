@@ -7,6 +7,32 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * RandomWeapon - Gives you a random weapon on demand.
+     *
+     * LOGIC
+     *   UseSkill: replaces your weapon with a random one.
+     *   OnTick: enforces the cooldown.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown = 15f
+     *                -> seconds before you can re-roll the weapon
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class RandomWeapon : ISkill
     {
         private const Skills skillName = Skills.RandomWeapon;

@@ -5,6 +5,40 @@ using static src.HeroShift;
 
 namespace src.player
 {
+    /*
+     * PerfLog - timing instrumentation for slow hooks, gated on
+     * Config.LoadedConfig.PerfMode. Writes to <plugin>/logs/perf_<session>.txt.
+     *
+     * Usage from a hero or hook is always the same two-step pattern:
+     *
+     *     long t = PerfLog.Start();          // returns 0 when PerfMode is off
+     *     ... work ...
+     *     PerfLog.End("MySkill.OnTick", t);  // or Sample(...) on a per-tick path
+     *
+     * Start() returns 0 when disabled and both End() and Sample() bail out on a 0
+     * timestamp, so instrumented code costs one comparison when PerfMode is off and
+     * needs no #if or extra branching at the call site.
+     *
+     * Which of the two reporting methods to use matters:
+     *   End()    - one-shot paths (a skill activation, a round transition). Logs a
+     *              single line, but only when the measured time reaches thresholdMs
+     *              (default 1ms), so fast calls stay silent.
+     *   Sample() - per-tick paths. Logging every tick would produce ~64 lines per
+     *              second per label, so it accumulates into a per-label Aggregate and
+     *              emits one avg/max/samples summary every reportSeconds (default 5),
+     *              and only if the window's max reached maxThresholdMs (default
+     *              0.5ms). Quiet windows produce nothing at all.
+     *
+     * Timing uses Stopwatch.GetTimestamp ticks converted with Stopwatch.Frequency,
+     * not DateTime, so it is monotonic and unaffected by clock changes. The
+     * aggregate window boundary itself is checked with DateTime.
+     *
+     * Note the file is created on the first write rather than at load, and the very
+     * first Start() emits a "PerfMode enabled" header line precisely so an operator
+     * can tell PerfMode is active even if nothing has been slow yet. Everything is
+     * serialised on _writeLock / the per-Aggregate lock because tick hooks and event
+     * handlers can both call in.
+     */
     public static class PerfLog
     {
         private static readonly string logsFolder = Path.Combine(Instance.ModuleDirectory, "logs");
@@ -16,6 +50,8 @@ namespace src.player
 
         private static bool _headerWritten;
 
+        // Begins a measurement. Returns 0 when PerfMode is off, which is the sentinel
+        // End()/Sample() use to skip their work entirely.
         public static long Start()
         {
             if (!Enabled) return 0;
@@ -30,6 +66,7 @@ namespace src.player
             return Stopwatch.GetTimestamp();
         }
 
+        // Free-form note in the perf log, for context around the timing lines.
         public static void Info(string message)
         {
             if (!Enabled) return;
@@ -41,12 +78,14 @@ namespace src.player
         {
             if (startTimestamp == 0 || !Enabled) return;
 
+            // Stopwatch ticks are not milliseconds; Frequency is ticks per second.
             double ms = (Stopwatch.GetTimestamp() - startTimestamp) * 1000.0 / Stopwatch.Frequency;
             if (ms < thresholdMs) return;
 
             Write($"{label} took {ms:F2}ms");
         }
 
+        // Rolling window of samples for one label; reset each time a summary is emitted.
         private sealed class Aggregate
         {
             public double TotalMs;
@@ -83,6 +122,8 @@ namespace src.player
             }
         }
 
+        // Single writer for the perf file. Opens it lazily on first use and swallows all
+        // IO errors, since this runs inside game hooks where throwing is not acceptable.
         private static void Write(string message)
         {
             lock (_writeLock)

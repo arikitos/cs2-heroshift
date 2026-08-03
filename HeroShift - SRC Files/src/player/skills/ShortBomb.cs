@@ -7,6 +7,31 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * ShortBomb - The bomb you plant explodes much sooner.
+     *
+     * LOGIC
+     *   BombPlanted: overrides the C4 countdown with detonationTime.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   detonationTime = 20
+     *                      -> seconds on the C4 timer instead of the default 40
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.Terrorist
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class ShortBomb : ISkill
     {
         private const Skills skillName = Skills.ShortBomb;

@@ -9,6 +9,44 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
+    /*
+     * Tripwire - Place a laser tripwire that reveals enemies who cross it.
+     *
+     * LOGIC
+     *   UseSkill: attaches the wire between surfaces up to maxWallDistance apart.
+     *   OnTick: an enemy within triggerRadius trips it and is shown on radar for
+     *     radarDuration seconds.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   radarDuration   = 5f
+     *                       -> seconds the tripped enemy stays visible on radar
+     *   triggerRadius   = 24f
+     *                       -> how close an enemy must be to trip the wire (game
+     *                          units)
+     *   wireHeight      = 30f
+     *                       -> height the wire is placed at (game units)
+     *   wireWidth       = 0.7f
+     *                       -> visual thickness of the wire
+     *   maxWallDistance = 400f
+     *                       -> maximum span the wire can bridge (game units)
+     *   cooldown        = 20f
+     *                       -> seconds before you can place another wire
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Rare
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Tripwire : ISkill
     {
         private const Skills skillName = Skills.Tripwire;

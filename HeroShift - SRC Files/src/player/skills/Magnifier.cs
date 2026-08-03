@@ -6,6 +6,33 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Magnifier - Curse: the victim's field of view is zoomed in.
+     *
+     * LOGIC
+     *   TypeSkill: pick the victim.
+     *   OnTick: forces the cursed player's FOV to customFOV.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   customFOV = 50
+     *                 -> field of view forced on the cursed player (lower = more
+     *                    zoomed in)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Magnifier : ISkill
     {
         private const Skills skillName = Skills.Magnifier;

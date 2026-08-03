@@ -10,6 +10,38 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
+    /*
+     * Noclip - Short burst of noclip - you can fly through walls.
+     *
+     * LOGIC
+     *   UseSkill: enables noclip for 'duration' seconds.
+     *   OnTick: disables it on expiry; if you end up stuck inside geometry,
+     *     cooldownWhenStuck is used instead of the normal cooldown.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown          = 30f
+     *                         -> seconds before the skill can be used again
+     *   duration          = 2f
+     *                         -> how long (seconds) noclip stays on
+     *   cooldownWhenStuck = 5f
+     *                         -> shorter cooldown applied when you got stuck in a
+     *                            wall
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Noclip : ISkill
     {
         private const Skills skillName = Skills.Noclip;

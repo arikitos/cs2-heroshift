@@ -8,6 +8,32 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * ChillOut - The planted bomb needs extra time before it becomes armed.
+     *
+     * LOGIC
+     *   BombBeginplant/BombPlanted: records the plant and delays the armed state.
+     *   OnTick: counts down bombArmedTime before the C4 actually starts ticking.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   bombArmedTime = 10f
+     *                     -> extra seconds before the planted C4 becomes armed
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.CounterTerrorist
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class ChillOut : ISkill
     {
         private const Skills skillName = Skills.ChillOut;

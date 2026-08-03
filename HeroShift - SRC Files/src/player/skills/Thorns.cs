@@ -5,6 +5,37 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Thorns - Attackers take back part of the damage they deal to you.
+     *
+     * LOGIC
+     *   PlayerHurt: fires after you were damaged. The reflected amount is
+     *     DmgHealth * healthTakenScale, then capped at maxTakenDamagePerShot, and
+     *     applied to the attacker with the armor kill-feed icon. Self-damage is
+     *     ignored (attacker index == victim index).
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   healthTakenScale      = .3f
+     *                             -> share of the damage reflected back (0.3 =
+     *                                30%)
+     *   maxTakenDamagePerShot = 37
+     *                             -> hard cap on reflected damage per single hit
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Thorns : ISkill
     {
         private const Skills skillName = Skills.Thorns;

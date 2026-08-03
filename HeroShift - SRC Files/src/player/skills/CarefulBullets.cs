@@ -9,6 +9,33 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * CarefulBullets - Curse: missing a shot costs the cursed player health.
+     *
+     * LOGIC
+     *   BulletImpact: detects a shot that hit nothing (a miss).
+     *   OnTakeDamage/TypeSkill: applies damageAfterMiss to the cursed player.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   damageAfterMiss = 5
+     *                       -> health lost by the cursed player for each missed
+     *                          bullet
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class CarefulBullets : ISkill
     {
         private const Skills skillName = Skills.CarefulBullets;

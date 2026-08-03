@@ -7,6 +7,41 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
+    /*
+     * ExplosiveShot - Your bullets have a chance to explode on impact.
+     *
+     * LOGIC
+     *   EnableSkill: rolls the per-shot explosion chance between chanceFrom and
+     *     chanceTo.
+     *   BulletImpact: on a successful roll, creates a small blast at the impact
+     *     point.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   damage       = 25f
+     *                    -> explosion damage at the impact point
+     *   damageRadius = 210f
+     *                    -> explosion radius in game units
+     *   chanceFrom   = .15f
+     *                    -> lowest per-shot explosion chance that can be rolled
+     *                       (0.15 = 15%)
+     *   chanceTo     = .3f
+     *                    -> highest per-shot explosion chance that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class ExplosiveShot : ISkill
     {
         private const Skills skillName = Skills.ExplosiveShot;

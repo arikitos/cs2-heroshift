@@ -7,6 +7,34 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * SniperElite - Your rifle/SMG is swapped for an AWP; UseSkill toggles back
+     * and forth.
+     *
+     * LOGIC
+     *   The 'rifles' array lists every weapon that gets replaced by the AWP.
+     *     savedWeapons remembers what you were holding so it can be restored.
+     *   WeaponEquip: swaps a newly equipped rifle for the AWP.
+     *   NewRound/PlayerDeath: deletes the spawned AWP entities and clears the
+     *     state.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class SniperElite : ISkill
     {
         private const Skills skillName = Skills.SniperElite;

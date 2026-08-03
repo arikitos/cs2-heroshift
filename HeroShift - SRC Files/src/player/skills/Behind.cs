@@ -6,6 +6,35 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Behind - A chance that damage taken teleports the attacker behind you.
+     *
+     * LOGIC
+     *   EnableSkill: rolls the trigger chance between chanceFrom and chanceTo.
+     *   PlayerHurt: rolls against that chance and repositions the attacker if it
+     *     hits.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   chanceFrom = .2f
+     *                  -> lowest trigger chance that can be rolled (0.2 = 20%)
+     *   chanceTo   = .4f
+     *                  -> highest trigger chance that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Behind : ISkill
     {
         private const Skills skillName = Skills.Behind;

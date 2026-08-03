@@ -9,6 +9,39 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
+    /*
+     * Jester - You periodically flip into an invulnerable 'jester' mode; hits are
+     * undone.
+     *
+     * LOGIC
+     *   The mode toggles on a random timer between minTime and maxTime seconds
+     *     (SetPlayerColor tints you while it is active).
+     *   PlayerHurtPre: while a jester is involved, RestoreHealth undoes the
+     *     damage and returns true so the plugin skips its normal hurt handling.
+     *   BombBeginplant/BombBegindefuse: planting or defusing forces the mode off
+     *     after 1 second, so you cannot do it while invulnerable.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   minTime = 10f
+     *               -> shortest time (seconds) between mode switches
+     *   maxTime = 25f
+     *               -> longest time (seconds) between mode switches
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Jester : ISkill
     {
         private const Skills skillName = Skills.Jester;

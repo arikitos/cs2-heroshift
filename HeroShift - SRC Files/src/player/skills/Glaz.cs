@@ -9,6 +9,32 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Glaz - You can see enemies through your own smoke.
+     *
+     * LOGIC
+     *   SmokegrenadeDetonate/Expired: tracks where your smokes are.
+     *   CheckTransmit: keeps enemies visible to you inside that smoke.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   grenadeLimit = 2
+     *                    -> how many smoke grenades the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Glaz : ISkill
     {
         private const Skills skillName = Skills.Glaz;

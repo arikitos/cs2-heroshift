@@ -14,6 +14,32 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
+    /*
+     * Cypher - Places a camera/tripwire that reveals enemies who pass it.
+     *
+     * LOGIC
+     *   UseSkill: spawns the watcher entity at your aim position.
+     *   OnTick: checks for enemies in range and reveals them.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown = 30
+     *                -> seconds before the skill can be used again
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Cypher : ISkill
     {
         private const Skills skillName = Skills.Cypher;

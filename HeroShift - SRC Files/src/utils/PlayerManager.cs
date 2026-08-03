@@ -6,6 +6,33 @@ using CounterStrikeSharp.API.Core;
 
 namespace src.utils
 {
+    /*
+     * PlayerManager - the player lookup layer every skill uses.
+     *
+     * Two things live here:
+     *
+     * 1. PER-TICK CACHES. GetTickPlayers() calls Utilities.GetPlayers() at most
+     *    once per server tick and reuses the list for the rest of that tick
+     *    (same for GetTickBomb). Skills run in OnTick 64 times a second, so
+     *    ALWAYS prefer GetTickPlayers() over Utilities.GetPlayers() inside a
+     *    hook - it is the difference between one engine call per tick and one
+     *    per skill per tick.
+     *
+     * 2. SKILL STATE LOOKUP. GetPlayerByIndex(index) returns the
+     *    jSkill_PlayerInfo holding that player's current hero and per-round
+     *    state. This is the standard first line of nearly every hook:
+     *        var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
+     *        if (playerInfo?.Skill != skillName) return;
+     *
+     * BOTS AND BOT-TAKEOVER (important, and easy to get wrong):
+     *   GetPlayerEvent(player)     - given the controller from a game event,
+     *       returns the BOT controller actually holding the pawn when a human
+     *       has taken over a bot. Use this to act on the pawn in the world.
+     *   GetPlayerFromEvent(player) - the inverse: returns the HUMAN controller
+     *       behind a bot. Use this when printing chat/HUD to a real person.
+     *   Mixing these two up is why a message goes to nobody, or an effect is
+     *   applied to the wrong body.
+     */
     public static class PlayerManager
     {
         private static readonly ConcurrentDictionary<uint, jSkill_PlayerInfo> playersByIndex = [];

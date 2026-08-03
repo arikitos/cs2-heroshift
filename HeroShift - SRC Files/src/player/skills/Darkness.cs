@@ -9,6 +9,38 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
+    /*
+     * Darkness - Curse: the victim's screen is covered in darkness.
+     *
+     * LOGIC
+     *   TypeSkill: you choose the victim from the menu.
+     *   OnTick: keeps the dark screen overlay drawn for the cursed player.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   r = 0
+     *         -> overlay colour red channel (0-255)
+     *   g = 0
+     *         -> overlay colour green channel (0-255)
+     *   b = 0
+     *         -> overlay colour blue channel (0-255)
+     *   a = 230
+     *         -> overlay opacity (0-255); higher = darker screen
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Rare
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Darkness : ISkill
     {
         private const Skills skillName = Skills.Darkness;

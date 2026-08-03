@@ -7,6 +7,41 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * HomingNades - Your grenades steer themselves toward the nearest enemy.
+     *
+     * LOGIC
+     *   OnEntitySpawned: registers the thrown projectile.
+     *   OnTick: steers it toward the closest enemy with 'strength' and detonates
+     *     it once it is within detonationRange.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   strength        = 150
+     *                       -> how aggressively the grenade turns toward the
+     *                          target
+     *   maxVelocity     = 2000
+     *                       -> speed cap for the homing grenade (units/s)
+     *   detonationRange = 130
+     *                       -> distance to the target at which it explodes (game
+     *                          units)
+     *   grenadeLimit    = 2
+     *                       -> how many grenades the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class HomingNades : ISkill
     {
         private const Skills skillName = Skills.HomingNades;

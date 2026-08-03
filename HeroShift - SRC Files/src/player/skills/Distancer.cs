@@ -6,6 +6,33 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Distancer - A HUD readout showing the name and distance of the nearest
+     * enemy.
+     *
+     * LOGIC
+     *   OnTick: finds the closest living enemy and writes it to
+     *     playerInfo.PrintHTML. The colour is a proximity warning: green >1500
+     *     units, yellow >600, red closer. Distances above 3000 are shown as
+     *     '3000+'.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Distancer : ISkill
     {
         private const Skills skillName = Skills.Distancer;

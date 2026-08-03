@@ -11,6 +11,44 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
+    /*
+     * Illusionist - Leaves a decoy clone of yourself that damages enemies who
+     * shoot it.
+     *
+     * LOGIC
+     *   UseSkill: spawns the clone; durationRun/durationCrouch set how long it
+     *     lives.
+     *   OnTakeDamage: shooting the clone hurts the shooter.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown        = 30f
+     *                       -> seconds before the skill can be used again
+     *   durationRun     = 5
+     *                       -> clone lifetime (seconds) when created while
+     *                          running
+     *   durationCrouch  = 12
+     *                       -> clone lifetime (seconds) when created while
+     *                          crouching
+     *   yourTeamDamage  = 10
+     *                       -> damage dealt to teammates who shoot the clone
+     *   enemyTeamDamage = 20
+     *                       -> damage dealt to enemies who shoot the clone
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 2
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Illusionist : ISkill
     {
         private const Skills skillName = Skills.Illusionist;

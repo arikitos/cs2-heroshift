@@ -6,6 +6,35 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Anomaly - Rewinds you back to where you stood a few seconds ago.
+     *
+     * LOGIC
+     *   OnTick: continuously records your position history (a trail of past
+     *     origins).
+     *   UseSkill: teleports you back to the recorded position from N seconds ago.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   secondsInBack = 5
+     *                     -> how many seconds into the past you are teleported
+     *   cooldown      = 15
+     *                     -> seconds before the skill can be used again
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Anomaly : ISkill
     {
         private const Skills skillName = Skills.Anomaly;

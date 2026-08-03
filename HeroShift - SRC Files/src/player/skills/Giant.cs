@@ -7,6 +7,35 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Giant - You are enlarged - more health/presence but a much bigger hitbox.
+     *
+     * LOGIC
+     *   EnableSkill: rolls a scale between minScale and maxScale and applies it
+     *     to the pawn.
+     *   DisableSkill: restores scale 1.0.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   minScale = 1.1f
+     *                -> smallest body scale that can be rolled (1.1 = 110% size)
+     *   maxScale = 1.4f
+     *                -> largest body scale that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Giant : ISkill
     {
         private const Skills skillName = Skills.Giant;

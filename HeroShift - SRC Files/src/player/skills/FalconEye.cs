@@ -8,6 +8,32 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * FalconEye - Detaches your view upward for a bird's-eye look at the map.
+     *
+     * LOGIC
+     *   UseSkill: moves the camera up by 'distance' units.
+     *   OnTick: keeps the camera in place and returns it when the skill ends.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   distance = 1000f
+     *                -> how far above you the camera is placed (game units)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class FalconEye : ISkill
     {
         private const Skills skillName = Skills.FalconEye;

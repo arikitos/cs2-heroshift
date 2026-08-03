@@ -9,6 +9,39 @@ using System.Drawing;
 
 namespace src.player.skills
 {
+    /*
+     * Flashlight - Gives you a flashlight you can toggle.
+     *
+     * LOGIC
+     *   UseSkill: toggles the light on/off.
+     *   OnTick: keeps the light entity attached to you.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown      = 2f
+     *   colorR        = 255
+     *   colorG        = 255
+     *   colorB        = 255
+     *   brightness    = 1.5f
+     *   range         = 1200.0f
+     *   blindDuration = 5f
+     *   blindAngle    = 10.0f
+     *   blindAlpha    = 200
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 2
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Legendary
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Flashlight : ISkill
     {
         private const Skills skillName = Skills.Flashlight;

@@ -6,6 +6,29 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * QuickShot - Your weapon fires faster than normal.
+     *
+     * LOGIC
+     *   OnTick: shortens the next-attack delay on your active weapon.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class QuickShot : ISkill
     {
         private const Skills skillName = Skills.QuickShot;

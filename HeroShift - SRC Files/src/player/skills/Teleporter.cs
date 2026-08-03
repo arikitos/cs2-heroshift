@@ -7,6 +7,34 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
+    /*
+     * Teleporter - A chance that damage taken teleports you somewhere else.
+     *
+     * LOGIC
+     *   EnableSkill: rolls the trigger chance between chanceFrom and chanceTo.
+     *   PlayerHurt: on a successful roll, teleports you away from the attacker.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   chanceFrom = .5f
+     *                  -> lowest trigger chance that can be rolled (0.5 = 50%)
+     *   chanceTo   = .6f
+     *                  -> highest trigger chance that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Teleporter : ISkill
     {
         private const Skills skillName = Skills.Teleporter;

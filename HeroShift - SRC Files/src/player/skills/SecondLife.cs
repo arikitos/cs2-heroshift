@@ -8,6 +8,32 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * SecondLife - You get one extra life - lethal damage revives you instead.
+     *
+     * LOGIC
+     *   OnTakeDamage/TryConsumeRevive: the first lethal hit is converted into a
+     *     revive with startHealth health.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   startHealth = 50
+     *                   -> health you respawn with after the second life triggers
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class SecondLife : ISkill
     {
         private const Skills skillName = Skills.SecondLife;

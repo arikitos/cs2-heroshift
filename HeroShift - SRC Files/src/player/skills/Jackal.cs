@@ -10,6 +10,33 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
+    /*
+     * Jackal - You see the footstep trails enemies leave behind.
+     *
+     * LOGIC
+     *   CreatePlayerTrail/CheckTransmit: draws the particle trail behind players
+     *     and shows it only to you.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   particleName = "particles/ui/hud/ui_map_def_utility_trail.vpcf"
+     *                    -> particle effect path used for the visible footstep
+     *                       trail
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Jackal : ISkill
     {
         private const Skills skillName = Skills.Jackal;

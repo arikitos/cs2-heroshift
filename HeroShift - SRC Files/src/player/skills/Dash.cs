@@ -6,6 +6,38 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Dash - A short burst dash in the direction you are moving.
+     *
+     * LOGIC
+     *   OnTick: detects the dash input and applies the impulse. anyDirection
+     *     controls whether you can dash sideways/backwards or only forward.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   jumpVelocity = 150f
+     *                    -> upward velocity added to the dash
+     *   pushVelocity = 600f
+     *                    -> forward/horizontal velocity of the dash
+     *   anyDirection = true
+     *                    -> true = dash in any direction, false = forward only
+     *   cooldown     = 2f
+     *                    -> seconds before you can dash again
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Dash : ISkill
     {
         private const Skills skillName = Skills.Dash;

@@ -19,6 +19,57 @@ using WASDSharedAPI;
 
 namespace src.utils
 {
+    /*
+     * SkillUtils - the shared toolbox every hero calls into.
+     *
+     * Roughly grouped:
+     *
+     *   DAMAGE / HEALTH
+     *     TakeHealth()   - deal damage the plugin way (see its own comment; this
+     *                      is where GodMode/Jester/Armored/SecondLife intercept)
+     *     SetHealth(), AddHealth(), RestoreHealth()
+     *     IsBulletDamage(), GetHitGroup(), IsFriendlyFireBlocked()
+     *
+     *   KILL CREDIT
+     *     RegisterKillCredit()/TryConsumeKillCredit() - so a kill caused by a
+     *     skill is attributed to the right player with the right kill-feed icon
+     *     instead of showing as a suicide/world kill.
+     *
+     *   ITEMS AND GRENADES
+     *     TryGiveWeapon(), UpdateGrenadeCount() - the grenade count is a HUD
+     *     value that must be refreshed on equip/pickup, which is why so many
+     *     grenade heroes implement WeaponEquip/WeaponPickup.
+     *
+     *   GEOMETRY / VECTORS
+     *     GetDistance(), Distance(), Dot(), Normalize(), GetForwardVector(),
+     *     Look(), GetSpawnPointVector()
+     *
+     *   VISUALS AND ENTITIES
+     *     CreateLine(), CreateTrigger(), ApplyScreenColor(),
+     *     ChangePlayerScale(), SetPlayerInvisibility(), HideCarriedEntities(),
+     *     SafeKillEntity(), SetPlayerCollisions()
+     *     CreateHEGrenadeProjectile()/Smoke/Molotov - spawn a live projectile
+     *
+     *   CURSE LIMIT (the "pick an enemy" heroes)
+     *     curseSkills is the list of heroes that target another player.
+     *     Config.CurseSkillPerPlayer caps how many may target the same victim;
+     *     TryClaimCurse/ReleaseCurse/CanCurse enforce it.
+     *
+     *   MENUS (WASD menu integration)
+     *     CreateMenu(), UpdateMenu(), CloseMenu(), HasMenu() - used by every
+     *     hero that asks the player to choose a target.
+     *
+     *   HUD / CHAT
+     *     PrintToChat(), ResetPrintHTML(), RegisterSkill()
+     *
+     *   NETWORKING
+     *     ForceFullUpdate() - resends the whole entity state to a client, needed
+     *     after changing what a player is allowed to see (invisibility/wallhack).
+     *
+     * LazySig below resolves gamedata signatures on first use and logs instead
+     * of throwing, so a signature broken by a CS2 update disables one feature
+     * rather than killing the plugin.
+     */
     public static class SkillUtils
     {
         private static Lazy<T?> LazySig<T>(string name, Func<string, T> factory) where T : class =>
@@ -512,6 +563,27 @@ namespace src.utils
                 .Cast<CCSPlayerController>()];
         }
 
+    /*
+         * Deals plugin damage to a pawn. Use this instead of writing pawn.Health
+         * directly - it is the single place where the defensive heroes get their
+         * chance to intervene, and where kill credit is recorded.
+         *
+         *   damage         - HP to remove (9999 is the convention for "kill")
+         *   damageAttacker - who gets credit for the kill
+         *   killfeedIcon   - the weapon icon shown in the kill feed
+         *
+         * Order of checks (this is the hero interaction table):
+         *   Jester (active)  -> damage ignored entirely
+         *   GodMode (active) -> damage ignored entirely
+         *   Armored          -> damage multiplied by the rolled SkillChance
+         *   ...if the hit would be lethal:
+         *   SecondLife       -> revives instead of dying
+         *   Phoenix          -> may revive instead of dying (rolled chance)
+         *   ReZombie         -> turns into the zombie form instead of dying
+         *
+         * Returns true if the pawn survived, false if it died (or was invalid).
+         * The actual death is committed on the next frame via CommitSuicide.
+         */
         public static bool TakeHealth(CCSPlayerPawn? pawn, int damage, CCSPlayerController? damageAttacker = null, KillfeedIcons? killfeedIcon = null)
         {
             if (pawn == null || !pawn.IsValid || pawn.LifeState != (byte)LifeState_t.LIFE_ALIVE)

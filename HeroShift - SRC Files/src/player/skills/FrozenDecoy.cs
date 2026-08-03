@@ -7,6 +7,38 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * FrozenDecoy - Your decoys freeze/slow enemies who come close.
+     *
+     * LOGIC
+     *   DecoyStarted/DecoyDetonate: registers the active decoy position.
+     *   OnTick: slows every player within triggerRadius of it.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   triggerRadius      = 180
+     *                          -> radius around the decoy that slows players
+     *                             (game units)
+     *   slownessMultiplier = 5
+     *                          -> how strongly affected players are slowed
+     *                             (higher = slower)
+     *   grenadeLimit       = 3
+     *                          -> how many decoys the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class FrozenDecoy : ISkill
     {
         private const Skills skillName = Skills.FrozenDecoy;

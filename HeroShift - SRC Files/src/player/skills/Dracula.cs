@@ -6,6 +6,32 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Dracula - Damage you deal is converted into health for you (life steal).
+     *
+     * LOGIC
+     *   PlayerHurt: adds a share of the damage dealt back to your own health.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   healthRegainScale = .3f
+     *                         -> share of damage dealt returned as health (0.3 =
+     *                            30%)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Dracula : ISkill
     {
         private const Skills skillName = Skills.Dracula;

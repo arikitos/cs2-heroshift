@@ -8,6 +8,42 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Flash - Super speed - you run much faster, and are silent while
+     * walking/crouching.
+     *
+     * LOGIC
+     *   EnableSkill: rolls a speed multiplier between ChanceFrom and ChanceTo,
+     *     stores it as SkillChance.
+     *   OnTick: applies that multiplier as VelocityModifier while you press a
+     *     movement key, and clamps upward velocity so the speed cannot be turned
+     *     into huge jumps.
+     *   PlayerMakeSound: clears sound recipients while walking/ducking so
+     *     footsteps are silent.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   chanceFrom = 1.2f
+     *                  -> lowest speed multiplier that can be rolled (1.2 = +20%
+     *                     speed)
+     *   chanceTo   = 3.0f
+     *                  -> highest speed multiplier that can be rolled (3.0 = 3x
+     *                     speed)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Flash : ISkill
     {
         private const Skills skillName = Skills.Flash;

@@ -6,6 +6,32 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * ReactiveArmor - Armor that absorbs a hit, then needs to recharge.
+     *
+     * LOGIC
+     *   PlayerHurtPre: absorbs the incoming hit and starts the recharge.
+     *   OnTick: re-arms the armor after 'cooldown' seconds.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown = 15
+     *                -> seconds before the armor can absorb another hit
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class ReactiveArmor : ISkill
     {
         private const Skills skillName = Skills.ReactiveArmor;

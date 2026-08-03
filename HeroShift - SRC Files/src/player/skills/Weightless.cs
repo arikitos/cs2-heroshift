@@ -7,6 +7,32 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Weightless - Your grenades float and drift instead of falling.
+     *
+     * LOGIC
+     *   OnEntitySpawned: registers the thrown projectile.
+     *   OnTick: cancels its gravity so it hangs in the air.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   grenadeLimit = 2
+     *                    -> how many grenades the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Weightless : ISkill
     {
         private const Skills skillName = Skills.Weightless;

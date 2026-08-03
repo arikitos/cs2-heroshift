@@ -6,6 +6,29 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * LifeSwap - Swaps your health with another player's.
+     *
+     * LOGIC
+     *   TypeSkill: pick the target; the two health values are exchanged.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class LifeSwap : ISkill
     {
         private const Skills skillName = Skills.LifeSwap;

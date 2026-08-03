@@ -6,6 +6,34 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * PawelJumper - You get extra mid-air jumps (double/triple jump).
+     *
+     * LOGIC
+     *   EnableSkill: rolls how many extra jumps you get this round.
+     *   OnTick: allows a new jump in the air until that count is used up.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   extraJumpsMin = 1
+     *                     -> fewest extra mid-air jumps that can be rolled
+     *   extraJumpsMax = 4
+     *                     -> most extra mid-air jumps that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class PawelJumper : ISkill
     {
         private const Skills skillName = Skills.PawelJumper;

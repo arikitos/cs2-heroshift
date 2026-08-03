@@ -3,6 +3,41 @@ using src.utils;
 
 namespace HeroShift.src.utils
 {
+    /*
+     * KillfeedIcons - the icon shown in the kill feed when a skill kills someone.
+     *
+     * A skill kill is not a normal weapon kill, so CS2 has no weapon to draw an icon
+     * for. The plugin therefore names one explicitly: a hero passes a KillfeedIcons
+     * value to SkillUtils.TakeHealth, and if that damage is lethal the kill is
+     * reported with that icon. Pick whatever reads best for the hero - Fire for a
+     * burn, Taser for a shock, Explosion for a blast, Fist for melee.
+     *
+     * The enum name is NOT what the game receives. ToIcon() maps each value to the
+     * engine's internal icon string, and those strings are frequently not what you
+     * would guess:
+     *   M4A4        -> "m4a1"                  (the M4A4's internal name)
+     *   M4A1        -> "m4a1_silencer"         (the M4A1-S)
+     *   Mp5         -> "mp5sd"
+     *   Ssg         -> "ssg08"
+     *   Fire        -> "inferno"               (molotov/incendiary burn)
+     *   Sentry      -> "dronegun"
+     *   MeleeKnife  -> "melee"
+     *   Fist        -> "movelinear"
+     *   Explosion   -> "prop_exploding_barrel"
+     *   Leg         -> "stomp_damage"
+     * The last four are borrowed from unrelated entities purely because their icons
+     * look right, which is why they must go through this map rather than being
+     * spelled out at the call site.
+     *
+     * ToIcon() THROWS ArgumentOutOfRangeException for an unmapped value, so a new
+     * enum member must always be given a mapping in the same commit.
+     *
+     * FromWeapon()/FromWeaponName() go the other way, for heroes that want to blame
+     * the victim's or attacker's actual weapon. They return null (rather than
+     * throwing) for anything unrecognised, and their list is deliberately narrower
+     * than the enum - equipment, most knife finishes and the cosmetic entries have
+     * no reverse mapping.
+     */
     public enum KillfeedIcons
     {
         // Pistols
@@ -124,6 +159,8 @@ namespace HeroShift.src.utils
 
     public static class KillfeedIconsExtensions
     {
+        // Enum value -> the engine icon string sent with the death notice.
+        // Throws for an unmapped value, so every new enum member needs an entry here.
         public static string? ToIcon(this KillfeedIcons icon)
         {
             return icon switch
@@ -248,12 +285,19 @@ namespace HeroShift.src.utils
             };
         }
 
+        // Picks the icon matching a weapon entity, so a skill kill can be attributed to the
+        // weapon actually in hand. Null-safe: GetDesignerName handles a null weapon.
         public static KillfeedIcons? FromWeapon(CBasePlayerWeapon? weapon)
         {
             string weaponName = SkillUtils.GetDesignerName(weapon);
             return FromWeaponName(weaponName);
         }
 
+        // Maps a "weapon_*" classname to an icon, returning null for anything unmapped so
+        // the caller can fall back to its own default. Comparison is lower-cased.
+        // Note weapon_sg553 and weapon_sg556 both map to Sg556, and only two knife
+        // classnames (weapon_knife, weapon_bayonet) are recognised here even though the
+        // enum lists every knife finish.
         public static KillfeedIcons? FromWeaponName(string? weaponName)
         {
             if (string.IsNullOrWhiteSpace(weaponName))

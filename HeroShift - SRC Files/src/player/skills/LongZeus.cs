@@ -7,6 +7,34 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * LongZeus - Your zeus (taser) reaches across the whole map.
+     *
+     * LOGIC
+     *   EnableSkill: gives the zeus and raises its range to maxDistance.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   maxDistance  = 4096f
+     *                    -> taser reach in game units (4096 = practically
+     *                       map-wide)
+     *   friendlyFire = false
+     *                    -> true = can also hit teammates
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Uncommon
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class LongZeus : ISkill
     {
         private const Skills skillName = Skills.LongZeus;

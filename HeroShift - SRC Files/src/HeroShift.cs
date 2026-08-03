@@ -14,6 +14,30 @@ using static CounterStrikeSharp.API.Core.Listeners;
 
 namespace src
 {
+    /*
+     * HeroShift - the plugin entry point.
+     *
+     * WHAT THIS PLUGIN DOES
+     * Every round each player is given a random "skill" (a hero power). The
+     * skills themselves live in src/player/skills/ - one file per hero - and the
+     * rest of the plugin is the machinery that hands them out and routes game
+     * events into them.
+     *
+     * HOW A SKILL GETS CALLED (the important part)
+     * Skill classes are NOT registered in a list of interfaces. Instead
+     * SkillAction() below builds the type name "src.player.skills.{Skill}" and
+     * looks up a public static method by name through reflection. So:
+     *   - the enum entry in Skills, the class name, and the file name must match
+     *   - the method signature must match ISkill exactly or the hook never fires
+     *   - lookups are cached in _skillMethodCache so reflection cost is paid once
+     *
+     * LOAD ORDER (Load method): config -> skill tunables -> translations ->
+     * event/tick listeners -> commands -> WASD menu -> all skills -> player sync.
+     *
+     * CONFIG FILES this reads (both in the plugin's configs/ folder):
+     *   settings.json    - global plugin behaviour (see utils/Config.cs)
+     *   skillsInfo.json  - per-hero tunables (see utils/SkillsInfo.cs)
+     */
     public partial class HeroShift : BasePlugin
     {
 #pragma warning disable CS8618
@@ -114,6 +138,18 @@ namespace src
 
         private static readonly ConcurrentDictionary<(string Skill, string Method), MethodInfo?> _skillMethodCache = new();
 
+        /*
+         * The central dispatcher: calls <methodName> on the skill class <skill>.
+         * Every hook in the plugin ultimately routes through here.
+         *
+         *   skill      - skill/class name, e.g. "KillerFlash"
+         *   methodName - one of the ISkill hooks, e.g. "EnableSkill", "OnTick"
+         *   param      - arguments matching that hook's signature
+         *
+         * Returns whatever the hook returned (used for the bool hooks such as
+         * PlayerHurtPre / WeaponDrop), or null when the method does not exist.
+         * A missing type is reported to console once; a missing method is silent.
+         */
         internal object? SkillAction(string skill, string methodName, object[]? param = null)
         {
             if (string.IsNullOrEmpty(skill))
@@ -181,6 +217,11 @@ namespace src
             return player != null && player.IsValid && player.PlayerPawn?.Value != null && player.PlayerPawn.Value.IsValid && player.PlayerPawn.Value.LifeState == (byte)LifeState_t.LIFE_ALIVE;
         }
 
+        // Hashes of CS2 sound events, used by the sound-based skills.
+        // A skill compares the soundevent_hash from the PlayerMakeSound user
+        // message against these lists, then clears um.Recipients to mute it.
+        //   footstepSoundEvents - walking/running/landing sounds (used by Flash)
+        //   silentSoundEvents   - the wider set muted by Silent
         public uint[] footstepSoundEvents = [3109879199, 70939233, 1342713723, 2722081556, 1909915699, 3193435079, 2300993891, 3847761506, 4084367249, 1342713723, 3847761506, 2026488395, 2745524735, 2684452812, 2265091453, 1269567645, 520432428, 3266483468, 1346129716, 2061955732, 2240518199, 2829617974, 1194677450, 1803111098, 3749333696, 29217150, 1692050905, 2207486967, 2633527058, 3342414459, 988265811, 540697918, 1763490157, 3755338324, 3161194970, 3753692454, 3166948458, 3997353267, 3161194970, 3753692454, 3166948458, 3997353267, 809738584, 3368720745, 3295206520, 3184465677, 123085364, 3123711576, 737696412, 1403457606, 1770765328, 892882552, 3023174225, 4163677892, 3952104171, 4082928848, 1019414932, 1485322532, 1161855519, 1557420499, 1163426340, 809738584, 3368720745, 2708661994, 2479376962, 3295206520, 1404198078, 1194093029, 1253503839, 2189706910, 1218015996, 96240187, 1116700262, 84876002, 1598540856, 2231399653];
         public uint[] silentSoundEvents = [2551626319, 765706800, 765706800, 2860219006, 2162652424, 2551626319, 2162652424, 117596568, 117596568, 740474905, 1661204257, 3009312615, 1506215040, 115843229, 3299941720, 1016523349, 2684452812, 2067683805, 2067683805, 1016523349, 4160462271, 1543118744, 585390608, 3802757032, 2302139631, 2546391140, 144629619, 4152012084, 4113422219, 1627020521, 2899365092, 819435812, 3218103073, 961838155, 1535891875, 1826799645, 3460445620, 1818046345, 3666896632, 3099536373, 1440734007, 1409986305, 1939055066, 782454593, 4074593561, 1540837791, 3257325156];
 
@@ -348,20 +389,42 @@ namespace src
         }
     }
 
+    /*
+     * Per-player plugin state. One instance per connected player, kept in
+     * PlayerManager and looked up with PlayerManager.GetPlayerByIndex(index).
+     * This is the object a skill reads/writes to remember anything about its
+     * holder for the round.
+     */
     public class jSkill_PlayerInfo
     {
         public required bool IsBot { get; set; }
         public required string PlayerName { get; set; }
         public required uint PlayerIndex { get; set; }
+
+        // The hero this player currently has. Skills compare against this to
+        // decide "is this event mine?" - see any skill's `playerInfo?.Skill != skillName`.
         public Skills Skill { get; set; }
         public Skills SpecialSkill { get; set; }
+
+        // The value rolled for this round by skills that randomise their
+        // strength (speed multiplier, gravity, damage reduction, chance...).
+        // Set in EnableSkill, read back in OnTick / damage hooks.
         public float? SkillChance { get; set; }
+
         public bool IsDrawing { get; set; }
+
+        // HUD timing: when the hero name / description should stop being drawn,
+        // and a window during which the HUD is suppressed entirely.
         public DateTime SkillHudExpired { get; set; }
         public DateTime SkillDescriptionHudExpired { get; set; }
         public DateTime HudSuppressedUntil { get; set; }
+
+        // Free-form HTML a skill wants shown in the centre HUD this tick
+        // (e.g. Distancer writes the nearest-enemy distance here).
         public string? PrintHTML { get; set; }
         public int HideHUD { get; set; }
+
+        // Set true by one-shot-per-round skills so they cannot be used twice.
         public bool SkillUsed = false;
         public bool? HudOnDeathBlocked { get; set; }
     }

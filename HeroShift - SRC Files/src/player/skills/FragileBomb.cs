@@ -7,6 +7,33 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
+    /*
+     * FragileBomb - The planted C4 can be destroyed by shooting it.
+     *
+     * LOGIC
+     *   BombPlanted: gives the bomb a health pool.
+     *   BulletImpact: bullets hitting the C4 reduce that health until it is
+     *     destroyed.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   maxBombHealth = 1000
+     *                     -> hit points of the planted C4 before it is destroyed
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.CounterTerrorist
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class FragileBomb : ISkill
     {
         private const Skills skillName = Skills.FragileBomb;

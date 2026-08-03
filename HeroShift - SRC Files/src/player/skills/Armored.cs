@@ -7,6 +7,37 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Armored - Incoming damage is reduced by a random multiplier rolled each
+     * round.
+     *
+     * LOGIC
+     *   EnableSkill: rolls the reduction between chanceFrom and chanceTo, stores
+     *     it as SkillChance.
+     *   OnTakeDamage: multiplies incoming damage by that rolled value.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   chanceFrom = .65f
+     *                  -> lowest damage multiplier that can be rolled (0.65 = you
+     *                     take 65% damage)
+     *   chanceTo   = .85f
+     *                  -> highest damage multiplier that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Armored : ISkill
     {
         private const Skills skillName = Skills.Armored;

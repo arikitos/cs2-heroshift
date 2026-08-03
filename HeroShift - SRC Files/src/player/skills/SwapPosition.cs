@@ -7,6 +7,35 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * SwapPosition - Swaps your position with another player.
+     *
+     * LOGIC
+     *   UseSkill: exchanges your origin with the chosen player's.
+     *   OnTick: enforces cooldown and the initial delay after round start.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown          = 30f
+     *                         -> seconds before the skill can be used again
+     *   cooldownBeforeUse = 10f
+     *                         -> delay after round start before the skill can be
+     *                            used at all
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class SwapPosition : ISkill
     {
         private const Skills skillName = Skills.SwapPosition;

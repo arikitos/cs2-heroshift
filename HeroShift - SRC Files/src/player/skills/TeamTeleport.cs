@@ -6,6 +6,38 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * TeamTeleport - Teleports your whole team to you.
+     *
+     * LOGIC
+     *   UseSkill: moves teammates next to you, spread out by
+     *     teleportAngle/teleportDistance.
+     *   OnTick: enforces the cooldown.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown         = 15f
+     *                        -> seconds before the skill can be used again
+     *   teleportAngle    = 10.0f
+     *                        -> angular spacing (degrees) between teleported
+     *                           teammates
+     *   teleportDistance = 100f
+     *                        -> how far from you they are placed (game units)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 2
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class TeamTeleport : ISkill
     {
         private const Skills skillName = Skills.TeamTeleport;

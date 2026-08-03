@@ -8,6 +8,30 @@ using System.Drawing;
 
 namespace src.player.skills
 {
+    /*
+     * Wallhack - You can see enemies through walls.
+     *
+     * LOGIC
+     *   CheckTransmit: keeps enemy pawns transmitted to you even without line of
+     *     sight.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Epic
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Wallhack : ISkill
     {
         private const Skills skillName = Skills.Wallhack;

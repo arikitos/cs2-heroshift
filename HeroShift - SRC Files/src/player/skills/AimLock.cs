@@ -6,6 +6,35 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * AimLock - On activation your crosshair snaps onto the nearest enemy for a
+     * moment.
+     *
+     * LOGIC
+     *   UseSkill: starts the lock, stores the tick it must expire on.
+     *   OnTick: while active, forces the view angles toward the locked target.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown = 20f
+     *                -> seconds before the skill can be used again
+     *   duration = .3f
+     *                -> how long (seconds) the aim stays locked on the target
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class AimLock : ISkill
     {
         private const Skills skillName = Skills.AimLock;

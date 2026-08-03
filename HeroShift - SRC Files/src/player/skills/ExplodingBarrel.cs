@@ -9,6 +9,43 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * ExplodingBarrel - Spawns a barrel prop that explodes when shot.
+     *
+     * LOGIC
+     *   UseSkill: spawns the barrel model in front of you.
+     *   OnEntitySpawned/OnTakeDamage: detonates it and applies the blast damage.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown                = 20f
+     *                               -> seconds before you can place another
+     *                                  barrel
+     *   explosionRadius         = 600f
+     *                               -> blast radius in game units
+     *   explosionDamage         = 50
+     *                               -> max damage at the centre of the blast
+     *   propModel               = "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl"
+     *                               -> model path of the barrel prop that is
+     *                                  spawned
+     *   dmgReductionForTeamates = 0.5f
+     *                               -> damage multiplier applied to teammates
+     *                                  (0.5 = half)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 2
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class ExplodingBarrel : ISkill
     {
         private const Skills skillName = Skills.ExplodingBarrel;

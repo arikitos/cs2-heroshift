@@ -10,6 +10,38 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
+    /*
+     * DeathBomb - When you die you explode, damaging everyone nearby.
+     *
+     * LOGIC
+     *   PlayerDeath: spawns the explosion at your corpse position.
+     *   OnTakeDamage: applies explosionDamage scaled by distance inside
+     *     explosionRadius.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   explosionRadius         = 500.0f
+     *                               -> blast radius in game units
+     *   explosionDamage         = 999
+     *                               -> max damage at the centre (999 = lethal)
+     *   dmgReductionForTeamates = 0.5f
+     *                               -> damage multiplier applied to teammates
+     *                                  (0.5 = half)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class DeathBomb : ISkill
     {
         private const Skills skillName = Skills.DeathBomb;

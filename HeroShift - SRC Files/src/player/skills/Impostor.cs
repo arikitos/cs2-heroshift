@@ -8,6 +8,30 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Impostor - You appear to be a member of the enemy team.
+     *
+     * LOGIC
+     *   EnableSkill: swaps your model/team appearance.
+     *   DisableSkill: restores the real appearance.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Impostor : ISkill
     {
         private const Skills skillName = Skills.Impostor;

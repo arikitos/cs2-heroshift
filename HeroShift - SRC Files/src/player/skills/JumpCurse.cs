@@ -6,6 +6,33 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * JumpCurse - Curse: when a teammate of the victim jumps, the victim is
+     * launched too.
+     *
+     * LOGIC
+     *   PlayerJump: whenever someone jumps, every cursed player on the SAME team
+     *     gets jumpVelocity applied to them.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   jumpVelocity = 301f
+     *                    -> upward velocity forced on the cursed player
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class JumpCurse : ISkill
     {
         private const Skills skillName = Skills.JumpCurse;

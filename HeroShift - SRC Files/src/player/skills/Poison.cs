@@ -7,6 +7,37 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Poison - Curse: the victim is poisoned and loses health over time.
+     *
+     * LOGIC
+     *   TypeSkill: pick the victim.
+     *   OnTick: every 'cooldown' seconds removes 'damage' health, but never below
+     *     minHealth.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown  = .85f
+     *                 -> seconds between each poison tick
+     *   damage    = 1
+     *                 -> health lost per poison tick
+     *   minHealth = 30
+     *                 -> poison stops at this health value (so it cannot kill)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 2
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Poison : ISkill
     {
         private const Skills skillName = Skills.Poison;

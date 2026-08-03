@@ -12,6 +12,48 @@ using static src.HeroShift;
 
 namespace src.command
 {
+    /*
+     * Command - every chat/console command the plugin exposes.
+     *
+     * Nothing here hardcodes a command name. Load() reads the aliases out of
+     * Config.LoadedConfig.NormalCommands / .VotingCommands (configs/config.json),
+     * splits each Alias string on commas, and registers "css_<alias>" for each
+     * one. So a single handler can answer to !skills, !skill, !list, etc., and an
+     * admin can rename any command without touching this file. Load() is called
+     * again on !reload, which is why it first removes the previously registered
+     * names it remembers in oldCommands - re-registering the same name twice
+     * would leave a stale duplicate handler behind.
+     *
+     * Permissions come from the same config entry (e.g.
+     * NormalCommands.SetSkillCommand.Permissions, a CounterStrikeSharp admin
+     * flag/group string such as "@css/root"). Empty string means "no permission
+     * required". Every handler therefore does the same two-part check:
+     * skip the check when the string is empty, otherwise require
+     * AdminManager.PlayerHasPermissions.
+     *
+     * The commands under VotingCommands behave differently for non-admins: if
+     * the caller lacks the permission but EnableVoting is true, the command is
+     * turned into a player vote (player.Vote(...) in VoteSystem) instead of
+     * being refused. Admins bypass the vote and execute directly, which is why
+     * each voting command is split into Command_X (permission/vote gate) and a
+     * plain X() (the actual work, also the target of the vote's success action).
+     *
+     * Notes for a hero/skill author:
+     *   - Command_UseTypeSkill is the entry point of the "use my skill" button.
+     *     With no arguments it reflection-calls UseSkill on the player's hero;
+     *     with arguments it calls TypeSkill and hands the split arguments over.
+     *     Both go through Instance.SkillAction(skill, "HookName", params), so a
+     *     hero only needs `public static void UseSkill(CCSPlayerController)` or
+     *     `TypeSkill(CCSPlayerController, string[])` to be reachable here.
+     *   - Whenever a player's hero changes (setskill / setstaticskill / next) the
+     *     old hero gets "DisableSkill" and the new one "EnableSkill", and
+     *     Event.UpdateSkillHudExpired refreshes the HUD. Copy that order in any
+     *     new command that reassigns a skill, or the old hero keeps its hooks.
+     *   - Handlers run on the game thread. player == null means the command came
+     *     from the server console (RCON), which is why every message has a
+     *     Server.PrintToConsole fallback using the untranslated-for-player
+     *     Localization.GetTranslation instead of player.GetTranslation.
+     */
     public static class Command
     {
         private static bool gamePaused = false;
@@ -20,6 +62,8 @@ namespace src.command
         private static readonly ConcurrentDictionary<uint, int> nextSkill = [];
         private static readonly object setLock = new();
 
+        // Registers (or re-registers, on !reload) every configured command alias.
+        // setLock serialises this against Command_Reload, which mutates the same state.
         public static void Load()
         {
             config = Config.LoadedConfig;
@@ -27,6 +71,8 @@ namespace src.command
 
             lock (setLock)
             {
+                // Drop the previous registration set first; CounterStrikeSharp would
+                // otherwise keep both the old and the new callback on the same name.
                 if (!oldCommands.IsEmpty)
                 {
                     foreach (var command in oldCommands)
@@ -34,6 +80,8 @@ namespace src.command
                     oldCommands.Clear();
                 }
 
+                // Alias list -> (console description, handler). The keys are the
+                // comma-separated aliases from config, not fixed command names.
                 var commands = new Dictionary<IEnumerable<string>, (string description, CommandInfo.CommandCallback handler)>
                 {
                     { SplitCommands(config.NormalCommands.SetSkillCommand.Alias), ("Set skill", Command_SetSkill) },
@@ -50,6 +98,8 @@ namespace src.command
                     { SplitCommands(config.NormalCommands.NextCommand.Alias), ("Next skill", Command_Next) },
                     { SplitCommands(config.NormalCommands.CheckEntityCommand.Alias), ("Check entity", Command_CheckEntity) },
 
+                    // Voting commands: admins execute directly, everyone else votes
+                    // (when the entry's EnableVoting is true).
                     { SplitCommands(config.VotingCommands.ChangeMapCommand.Alias), ("Change map", Command_ChangeMap) },
                     { SplitCommands(config.VotingCommands.StartGameCommand.Alias), ("Start game", Command_StartGame) },
                     { SplitCommands(config.VotingCommands.SwapCommand.Alias), ("Swap team", Command_Swap) },
@@ -67,14 +117,23 @@ namespace src.command
             }
         }
 
+        // "skills, skill , list" -> ["skills", "skill", "list"]. One config Alias
+        // entry may therefore register several console command names.
         private static IEnumerable<string> SplitCommands(string commands)
         {
             return commands.Split(',').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c));
         }
 
+        // The "use my skill" command. No arguments -> the hero's UseSkill hook;
+        // with arguments -> its TypeSkill hook, receiving the arguments as string[].
+        // Both are invoked by reflection through Instance.SkillAction.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_UseTypeSkill(CCSPlayerController? player, CommandInfo _)
         {
+            // A human who took over a bot (ControllingBot) still issues commands
+            // through their own controller, but the pawn that exists in the world
+            // belongs to the bot. GetPlayerEvent redirects to that bot controller,
+            // so the pawn/skill lookups below act on the body actually being played.
             player = PlayerManager.GetPlayerEvent(player);
             if (player == null || !player.IsValid) return;
 
@@ -86,6 +145,8 @@ namespace src.command
 
             if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
+            // Per-hero tunable from configs/skillsInfo.json: heroes flagged
+            // "disableOnFreezeTime" simply cannot be triggered during freeze time.
             if (SkillsInfo.GetValue<bool>(playerInfo.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                 return;
 
@@ -98,6 +159,8 @@ namespace src.command
                 Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, commands]);
         }
 
+        // Assigns a hero to a target player for the current round only.
+        // Usage: <command> <steamid|name> <skill name or enum name>
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_SetSkill(CCSPlayerController? player, CommandInfo command)
         {
@@ -129,7 +192,10 @@ namespace src.command
                 return;
             }
 
+            // Skill names can contain a space ("Second Life"), so a 4th argument is
+            // treated as the second half of the name rather than a separate option.
             var skillName = command.ArgCount > 3 ? $"{command.GetArg(2)} {command.GetArg(3)}" : command.GetArg(2);
+            // Matched against both the localized display name and the raw Skills enum name.
             var skill = SkillData.Skills.FirstOrDefault(s => player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase));
 
             if (skill == null)
@@ -146,6 +212,8 @@ namespace src.command
             var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer.Index);
             if (skillPlayer != null)
             {
+                // Order matters: tear down the old hero's hooks/entities first, then
+                // swap the stored skill, then let the new hero set itself up.
                 Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
@@ -175,6 +243,7 @@ namespace src.command
             }
         }
 
+        // Opens the center HTML menu listing every loaded hero (see menu/Menu.cs).
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_SkillsListMenu(CCSPlayerController? player, CommandInfo command)
         {
@@ -184,6 +253,9 @@ namespace src.command
             Menu.DisplaySkillsList(player);
         }
 
+        // Debug helper: reports whether an entity index (or raw handle value) is
+        // still alive and what its DesignerName is. Useful when chasing leaked
+        // skill entities that EntityManager should have cleaned up.
         [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_CheckEntity(CCSPlayerController? player, CommandInfo command)
         {
@@ -213,6 +285,8 @@ namespace src.command
                 player.PrintToChat(entity != null ? $"Entity {entity?.DesignerName} exists!" : "Entity does not exist!");
         }
 
+        // Voting command. Admin -> change map now; anyone else -> cast a ChangeMap
+        // vote carrying the requested map name as the vote's argument.
         [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_ChangeMap(CCSPlayerController? player, CommandInfo command)
         {
@@ -227,6 +301,8 @@ namespace src.command
             ChangeMap(command);
         }
 
+        // A purely numeric argument is treated as a Workshop item ID
+        // (host_workshop_map); anything else must be an installed map (changelevel).
         private static void ChangeMap(CommandInfo command)
         {
             string map = command.GetArg(1).ToLowerInvariant();
@@ -247,6 +323,7 @@ namespace src.command
                 Server.ExecuteCommand($"changelevel {map}");
         }
 
+        // Voting command: starts/restarts the match.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_StartGame(CCSPlayerController? player, CommandInfo command)
         {
@@ -261,6 +338,9 @@ namespace src.command
             StartGame(command);
         }
 
+        // Runs the ';'-separated ConVar list from config (StartParams, or SVStartParams
+        // when the command was called with the "sv" argument), then either ends warmup
+        // or issues mp_restartgame.
         private static void StartGame(CommandInfo command)
         {
             int cheats = command.GetArg(1) == "sv" ? 1 : 0;
@@ -282,6 +362,7 @@ namespace src.command
             }
         }
 
+        // Voting command: swaps the two teams wholesale.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_Swap(CCSPlayerController? player, CommandInfo command)
         {
@@ -296,6 +377,8 @@ namespace src.command
             Swap();
         }
 
+        // Spectators are left alone; only CT/T are flipped, then the round is ended
+        // so the new teams start cleanly.
         private static void Swap()
         {
             foreach (var player in Utilities.GetPlayers())
@@ -304,6 +387,7 @@ namespace src.command
             Server.ExecuteCommand($"endround");
         }
 
+        // Voting command: randomly redistributes players across both teams.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_Shuffle(CCSPlayerController? player, CommandInfo command)
         {
@@ -321,6 +405,8 @@ namespace src.command
         private static void Shuffle()
         {
             var players = Utilities.GetPlayers().FindAll(p => Instance.IsPlayerValid(p) && new CsTeam[] { CsTeam.CounterTerrorist, CsTeam.Terrorist }.Contains(p.Team));
+            // With an odd player count the extra player is randomly given to CT or T
+            // by rounding the CT quota down or up.
             double CTlimit = Instance.Random.Next(0, 2) == 0 ? Math.Floor(players.Count / 2.0) : Math.Ceiling(players.Count / 2.0);
 
             foreach (var player in players.OrderBy(_ => Instance.Random.Next()).ToList())
@@ -331,6 +417,7 @@ namespace src.command
             Server.ExecuteCommand($"mp_restartgame 1");
         }
 
+        // Voting command: toggles the match pause.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_Pause(CCSPlayerController? player, CommandInfo command)
         {
@@ -345,6 +432,8 @@ namespace src.command
             Pause();
         }
 
+        // gamePaused is the plugin's own toggle state; the engine has no readable
+        // "is paused" flag here, so pause/unpause alternate off this local bool.
         private static void Pause()
         {
             Localization.PrintTranslationToChatAll($" {(gamePaused ? ChatColors.Green : ChatColors.Red)}{{0}}", [gamePaused ? "unpause" : "pause"]);
@@ -352,6 +441,8 @@ namespace src.command
             gamePaused = !gamePaused;
         }
 
+        // Adds a flat 100 HP to the caller's own pawn (AddHealth respects the pawn's
+        // MaxHealth handling in SkillUtils).
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_Heal(CCSPlayerController? player, CommandInfo command)
         {
@@ -362,6 +453,9 @@ namespace src.command
             player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("healed")}");
         }
 
+        // Sets an absolute HP value. AddHealth only takes a delta and clamps to a max,
+        // so the requested value is passed both as the delta (value - current) and as
+        // the new maximum - that is what allows HP above the default 100.
         [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_Health(CCSPlayerController? player, CommandInfo command)
         {
@@ -376,6 +470,8 @@ namespace src.command
             player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("set_health")}");
         }
 
+        // Test helper: spawns an already-planted, ticking C4 at the caller's feet.
+        // Optional argument is the fuse in seconds (default 40).
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_PlantedBomb(CCSPlayerController? player, CommandInfo command)
         {
@@ -394,10 +490,15 @@ namespace src.command
             if (!int.TryParse(command.GetArg(1), out int time))
                 time = 40;
 
+            // C4Blow is an absolute game time, not a countdown.
             bomb.C4Blow = Server.CurrentTime + time;
             player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("planted_bomb_spawned", [time])}");
         }
 
+        // Test helper: teleports a bot onto the caller's position and rotation.
+        // Arg 1 = bot slot (-1 / omitted picks any alive bot).
+        // Arg 2 = godmode, accepted as either "true"/"false" or 1/0; when set it
+        //         clears the bot pawn's TakesDamage so skills cannot hurt it.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_BotPlace(CCSPlayerController? player, CommandInfo command)
         {
@@ -428,6 +529,11 @@ namespace src.command
             player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("bot_placed")}");
         }
 
+        // Toggles the plugin's own skill HUD for the caller.
+        // playerInfo.HideHUD is a "hidden until this tick" watermark (the HUD draws
+        // only while HideHUD < Server.TickCount), so int.MaxValue means hidden forever
+        // and int.MinValue means always shown. This is plugin state and unrelated to
+        // the pawn's engine-side m_iHideHUD bit field.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_HUD(CCSPlayerController? player, CommandInfo command)
         {
@@ -446,6 +552,7 @@ namespace src.command
             player.PrintToChat($" {(!isDisplayHUD ? ChatColors.Green : ChatColors.Red)}{player.GetTranslation(!isDisplayHUD ? "hud_on" : "hud_off")}");
         }
 
+        // Voting command: overwrites both team scores. Usage: <command> <ct> <t>.
         [CommandHelper(minArgs: 2, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_SetScore(CCSPlayerController? player, CommandInfo command)
         {
@@ -469,9 +576,15 @@ namespace src.command
                 return;
             }
 
+            // Scores are engine shorts. SetTeamScores also terminates the current round
+            // (needed for the new scores to stick), using RoundDraw so neither side is
+            // credited with a win.
             SkillUtils.SetTeamScores((short)ctScore, (short)tScore, RoundEndReason.RoundDraw);
         }
 
+        // Runs the argument string as a raw server console command. This grants full
+        // server control, so the ConsoleCommand.Permissions entry should stay
+        // restricted; note the permission check is the only gate here.
         [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_CustomCommand(CCSPlayerController? player, CommandInfo command)
         {
@@ -482,6 +595,9 @@ namespace src.command
             Server.ExecuteCommand(param);
         }
 
+        // Like Command_SetSkill, but the assignment is remembered in Event.staticSkills
+        // and re-applied every round instead of being replaced by the random roll.
+        // Assigning Skills.None removes the player's static entry again.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_SetStaticSkill(CCSPlayerController? player, CommandInfo command)
         {
@@ -538,6 +654,9 @@ namespace src.command
                 skillPlayer.SpecialSkill = Skills.None;
                 Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
+                // The round-start draw checks staticSkills first (RoundEvents), so an
+                // entry here pins the player's hero across rounds. Entries are cleared
+                // on map change.
                 if (skill.Skill == Skills.None)
                     Event.staticSkills.TryRemove(targetPlayer.Index, out _);
                 else
@@ -567,6 +686,11 @@ namespace src.command
             }
         }
 
+        // Live-reloads config.json, skillsInfo.json and the language file, then
+        // re-registers commands and rebuilds the active hero list by calling
+        // "LoadSkill" on every Skills value whose skillsInfo "active" flag is true.
+        // Finally it downgrades any player currently holding a hero that was just
+        // deactivated, so nobody keeps a skill that is no longer loaded.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_Reload(CCSPlayerController? player, CommandInfo command)
         {
@@ -585,6 +709,9 @@ namespace src.command
                     if (SkillsInfo.GetValue<bool>(skill, "active"))
                         Instance.SkillAction(skill.ToString()!, "LoadSkill");
 
+                // Both are lazy caches derived from the list just rebuilt: the
+                // Skills -> info lookup map and the set of disableOnFreezeTime heroes.
+                // They must be dropped here or they keep describing the old skill list.
                 SkillData.Invalidate();
                 Event.InvalidateFreezeDisabledCache();
 
@@ -603,6 +730,11 @@ namespace src.command
             }
         }
 
+        // Testing aid: steps a target player through the alphabetically sorted hero
+        // list, one hero per invocation, remembering the position per player index in
+        // nextSkill. Usage: <command> <steamid|name> [index], where the optional
+        // second argument is "-1" to step backwards or an absolute list index to jump
+        // to. Note a target argument is required - without one the command returns.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_Next(CCSPlayerController? player, CommandInfo command)
         {

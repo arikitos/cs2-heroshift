@@ -8,6 +8,36 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Fortnite - Build an instant barricade wall in front of you.
+     *
+     * LOGIC
+     *   UseSkill: spawns the wall prop at your aim position.
+     *   OnTakeDamage: the wall absorbs damage until barricadeHealth runs out.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown        = 2f
+     *                       -> seconds before you can build again
+     *   barricadeHealth = 115
+     *                       -> hit points of the spawned wall before it breaks
+     *   propModel       = "models/props/de_aztec/hr_aztec/aztec_scaffolding/aztec_scaffold_wall_support_128.vmdl"
+     *                       -> model path of the barricade prop
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 5
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Fortnite : ISkill
     {
         private const Skills skillName = Skills.Fortnite;

@@ -8,6 +8,44 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * ToxicSmoke - Your smoke grenades poison everyone standing inside them.
+     *
+     * LOGIC
+     *   SmokegrenadeDetonate: registers the smoke position in the 'smokes'
+     *     dictionary.
+     *   SmokegrenadeExpired: removes it again.
+     *   OnEntitySpawned: recolours your smoke purple so it is recognisable.
+     *   OnTick: every tickCooldown ticks, everyone within smokeRadius of a
+     *     registered smoke takes smokeDamage - the thrower is credited for the
+     *     kill.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   smokeDamage  = 2
+     *                    -> damage per tick to players inside the smoke
+     *   smokeRadius  = 180
+     *                    -> radius of the damaging cloud (game units)
+     *   tickCooldown = 17
+     *                    -> server ticks between damage pulses (64 ticks = 1
+     *                       second, so 17 is ~4x/sec)
+     *   grenadeLimit = 1
+     *                    -> how many smoke grenades the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class ToxicSmoke : ISkill
     {
         private const Skills skillName = Skills.ToxicSmoke;

@@ -18,8 +18,62 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player
 {
+    /*
+     * RoundEvents.cs - the ROUND LIFECYCLE and the hero draw.
+     *
+     * Second half of the partial `Event` class (see PlayerEvents.cs for the event
+     * routing). This file owns the question "who gets which hero, and when".
+     *
+     * ROUND TIMELINE
+     *   RoundEnd
+     *     +0.5s  optional chat summary of everyone's hero
+     *     +0.6s  PrecomputeNextRoundSkills - the expensive draw is done HERE, at round
+     *            end, and cached in nextRoundPicks so round start stays cheap. It runs
+     *            before the optional disable below on purpose, so the "do not repeat
+     *            your current hero" rule can still see this round's heroes.
+     *     +1.0s  DisableAll (only when DisableSkillsOnRoundEnd is set)
+     *   RoundStart
+     *     +0.1s  DisableAll - reset every hero and player back to a clean state
+     *     +Xs    SetSkill, where X is derived from mp_freezetime (minus
+     *            SkillTimeBeforeStart, plus 7s if the team-intro cinematic plays).
+     *            Until it fires, IsDrawing == true and the HUD shows the slot-machine
+     *            animation of random hero names.
+     *   SetSkillCore
+     *     applies the cached pick if it is still legal (IsPickStillValid), otherwise
+     *     re-draws, then DisableSkill(old) -> assign -> +0.2s EnableSkill(new).
+     *
+     * WHY THE 0.2s DELAY BEFORE EnableSkill
+     *   Pawns are not fully networked at the instant the round flips; enabling a hero
+     *   that immediately touches the pawn on the same frame is unreliable. Heroes
+     *   flagged disableOnFreezeTime are delayed further, until freeze time is over.
+     *   Every deferred callback re-resolves the controller from the stored INDEX and
+     *   re-checks that the player still holds that hero, because they can disconnect
+     *   or be reassigned inside the delay.
+     *
+     * DRAW RULES applied to the candidate list (in order, PickSkillForPlayer):
+     *   admin permission (requiredPermission) -> not the hero you just had ->
+     *   NeedsTeammates when alone -> team restriction (OnlyTeam) -> NoRepeat history
+     *   -> rarity roll + MaxPerServer cap (ChooseSkillByRarityAndMax).
+     *
+     * GAME MODES (Config.LoadedConfig.GameMode)
+     *   Normal / FullRandom / NoRepeat - per player, full rule set above
+     *   TeamSkills - one hero per team; SameSkills - one hero for everyone
+     *   Debug      - walks the whole hero list one at a time, for testing
+     *
+     * MAP CHANGE
+     *   OnMapChange wipes everything, including per-map history and the CheckTransmit
+     *   listener, because controller indices are reused on the next map and stale
+     *   state would be applied to whoever inherits the index.
+     */
     public static partial class Event
     {
+        // Weighted hero pick: roll a rarity tier (RarityManager), keep only candidates
+        // in that tier that are still under their MaxPerServer cap, pick one at random.
+        // Retried up to 6 times because a rolled tier can be empty after filtering.
+        // Then two fallbacks: any candidate under its cap, else any candidate at all -
+        // so a player always gets something rather than Skills.None.
+        // SameSkills/TeamSkills ignore MaxPerServer, since by definition the whole team
+        // shares one hero.
         private static jSkill_SkillInfo ChooseSkillByRarityAndMax(List<jSkill_SkillInfo> candidates, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
         {
             if (candidates == null || candidates.Count == 0) return noneSkill;
@@ -69,6 +123,9 @@ namespace src.player
             return candidates[Random.Shared.Next(candidates.Count)];
         }
 
+        // Resets round-scoped state, puts everyone into the "drawing" HUD animation and
+        // schedules the draw. During warmup there is no timed draw - it just polls once
+        // a second until warmup ends.
         private static HookResult RoundStart(EventRoundStart @event, GameEventInfo info)
         {
             lock (setLock)
@@ -87,10 +144,16 @@ namespace src.player
                     skillPlayer.PrintHTML = null;
                 }
 
+                // CheckTransmit is the most expensive listener in the plugin, so it is
+                // dropped whenever no hero needs visibility filtering and re-registered
+                // by EnableTransmit() (see EntityEvents.cs) when one does.
                 Instance.RemoveListener<CheckTransmit>(CheckTransmit);
+                // The team-intro cinematic adds ~7s that mp_freezetime does not account
+                // for, so every freeze-time deadline in this file adds it back manually.
                 int freezetime = ConVar.Find("mp_freezetime")?.GetPrimitiveValue<Int32>() ?? 0;
                 freezeTimeEnd = DateTime.Now.AddSeconds(freezetime + (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0));
 
+                // Kill any pending draw from a round that ended early (e.g. instant win).
                 setSkillTimer?.Kill();
 
                 if (isWarmup)
@@ -99,12 +162,16 @@ namespace src.player
                     return HookResult.Continue;
                 }
 
+                // Land the draw SkillTimeBeforeStart seconds before freeze time ends, so
+                // players can read their hero before they can move. The +0.3s is slack
+                // so the timer never fires on the exact boundary tick.
                 float timeToDraw = (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0) + Math.Max(freezetime - Config.LoadedConfig.SkillTimeBeforeStart, 0) + .3f;
                 setSkillTimer = Instance?.AddTimer(timeToDraw, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 return HookResult.Continue;
             }
         }
 
+        // Perf wrapper around DisableAllCore.
         private static void DisableAll()
         {
             long perfStart = PerfLog.Start();
@@ -112,6 +179,10 @@ namespace src.player
             PerfLog.End("DisableAll total", perfStart, 2.0);
         }
 
+        // The round reset. Per player: DisableSkill on their hero, then clear their
+        // per-round record (Skill, SpecialSkill, PrintHTML, SkillChance, SkillUsed) and
+        // restore their view/HUD. Then a NewRound sweep over every hero used so far on
+        // this map. Also destroys all tracked entities heroes spawned.
         private static void DisableAllCore()
         {
             lock (setLock)
@@ -158,6 +229,12 @@ namespace src.player
             }
         }
 
+        // Full wipe on map change (called from PlayerOnTick's OnMapStart).
+        // SuppressKills is raised around the NewRound sweep because the old map's
+        // entities are already gone with the level - trying to kill them would just log
+        // errors against freed handles. Player records, per-map history, precomputed
+        // picks and the team/global mode picks are all cleared, since controller indices
+        // are reused on the new map and stale state would land on the wrong player.
         public static void OnMapChange()
         {
             lock (setLock)
@@ -186,10 +263,16 @@ namespace src.player
 
                 PlayerManager.Clear();
 
+                // Forced back to 1 on every map change. No other code in the plugin
+                // writes this ConVar, so this is a defensive reset of the jump
+                // behaviour the plugin expects rather than the undo of a hero effect.
                 ConVar.Find("sv_legacy_jump")?.SetValue("1");
             }
         }
 
+        // Round end: stop the Illiterate text scrambler, tell every hero the round is
+        // over, then schedule the summary, the next-round precompute and (optionally)
+        // the reset. See the timeline in the class header for the ordering rationale.
         private static HookResult RoundEnd(EventRoundEnd @event, GameEventInfo info)
         {
             Illiterate.Disable();
@@ -197,6 +280,8 @@ namespace src.player
 
             lock (setLock)
             {
+                // Deferred half a second so the round-end messages the game itself
+                // prints do not interleave with the summary block.
                 Instance.AddTimer(.5f, () =>
                 {
                     if (!Config.LoadedConfig.SummaryAfterTheRound) return;
@@ -242,6 +327,7 @@ namespace src.player
             }
         }
 
+        // Perf wrapper around SetSkillCore; also the timer callback target.
         private static void SetSkill()
         {
             long perfStart = PerfLog.Start();
@@ -249,6 +335,8 @@ namespace src.player
             PerfLog.End("SetSkill total", perfStart, 2.0);
         }
 
+        // Everything the draw filters on, resolved ONCE per draw instead of per player.
+        // The team counts are snapshots taken at build time.
         private sealed class PickContext
         {
             public required List<jSkill_SkillInfo> BaseList { get; init; }
@@ -260,6 +348,8 @@ namespace src.player
             public required int CounterTerroristCount { get; init; }
         }
 
+        // Flattens skillsInfo.json into fast lookup sets for one draw pass.
+        // Skills.None is excluded from BaseList so it is never drawn on purpose.
         private static PickContext BuildPickContext(List<CCSPlayerController> validPlayers)
         {
             Dictionary<Skills, string> perms = [];
@@ -282,6 +372,9 @@ namespace src.player
             };
         }
 
+        // Config stores hero names as strings; anything that does not parse to a Skills
+        // member is silently dropped, so a typo in skillsInfo.json disables that entry
+        // instead of throwing during the draw.
         private static HashSet<Skills> ToSkillSet(IEnumerable<string> names)
         {
             HashSet<Skills> set = [];
@@ -290,16 +383,24 @@ namespace src.player
             return set;
         }
 
+        // Builds this player's candidate list by removing everything they may not have,
+        // then hands it to the weighted picker. Filters, in order:
+        //   admin permission, previous hero, needs-teammates, team restriction, NoRepeat
+        // history. assignmentCounts is the running per-hero tally used for MaxPerServer.
         private static jSkill_SkillInfo PickSkillForPlayer(CCSPlayerController player, jSkill_PlayerInfo skillPlayer, PickContext ctx, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
         {
             List<jSkill_SkillInfo> skillList = [.. ctx.BaseList];
 
+            // Bots bypass permission checks - they have no SteamID to hold admin flags.
             if (!player.IsBot && ctx.RequiredPermissions.Count != 0)
                 skillList.RemoveAll(s => ctx.RequiredPermissions.TryGetValue(s.Skill, out var perm) && !AdminManager.PlayerHasPermissions(player, perm));
 
+            // Every mode except FullRandom refuses to hand out the same hero twice in a
+            // row (both the current hero and the one it was transformed from).
             if (gameMode != Config.GameModes.FullRandom)
                 skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
 
+            // Heroes whose ability needs someone to target/buff are unusable solo.
             int teamCount = player.Team == CsTeam.Terrorist ? ctx.TerroristCount : ctx.CounterTerroristCount;
             if (teamCount == 1)
                 skillList.RemoveAll(s => ctx.NeedsTeammates.Contains(s.Skill));
@@ -309,6 +410,8 @@ namespace src.player
             else
                 skillList.RemoveAll(s => ctx.TOnly.Contains(s.Skill));
 
+            // NoRepeat: exclude every hero this player already had. Once the history has
+            // consumed all of them the history is wiped and the cycle starts over.
             if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
             {
                 skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
@@ -328,6 +431,10 @@ namespace src.player
             return randomSkill;
         }
 
+        // Re-validates a pick made at the END of the previous round against the state at
+        // the START of this one. Between those two moments a player can switch teams,
+        // teammates can leave (breaking NeedsTeammates), a hero can hit MaxPerServer, or
+        // a config reload can remove the hero entirely - each of those forces a re-draw.
         private static bool IsPickStillValid(jSkill_SkillInfo pick, CCSPlayerController player, List<CCSPlayerController> validPlayers, Dictionary<Skills, int> assignmentCounts)
         {
             if (pick.Skill == Skills.None) return true;
@@ -354,10 +461,14 @@ namespace src.player
             {
                 nextRoundPicks.Clear();
 
+                // Only the per-player modes benefit from precomputing; TeamSkills,
+                // SameSkills and Debug pick a single hero at draw time anyway.
                 var gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
                 if (gameMode is not (Config.GameModes.Normal or Config.GameModes.FullRandom or Config.GameModes.NoRepeat)) return;
                 if (Instance?.GameRules == null || Instance.GameRules.WarmupPeriod == true) return;
 
+                // Reading .Team can throw on a controller that is being torn down between
+                // the IsValid check and the read, so the whole read is guarded.
                 var validPlayers = Utilities.GetPlayers()
                     .Where(p => p != null && p.IsValid && !p.IsHLTV)
                     .Where(p => { try { return p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist; } catch { return false; } }).ToList();
@@ -380,6 +491,11 @@ namespace src.player
             PerfLog.End("PrecomputeSkills total", perfStart, 2.0);
         }
 
+        // Stamps the two HUD deadlines on the player record: how long the hero name
+        // stays on screen, and how long its description does. A per-hero value from
+        // skillsInfo.json ("hudDuration" / "descriptionHudDuration") wins over the
+        // global Config value; -1 in either place means "never expire" and is stored as
+        // DateTime.MaxValue, which PlayerOnTick then compares against DateTime.Now.
         public static void UpdateSkillHudExpired(jSkill_PlayerInfo skillPlayer, Skills skill)
         {
             float globalHudExpired = Config.LoadedConfig.SkillHudDuration;
@@ -401,6 +517,13 @@ namespace src.player
                 : DateTime.Now.AddSeconds(skillDescriptionHudExpired.Value);
         }
 
+        // THE DRAW. Ends the drawing animation and gives every player their hero for the
+        // round. Clearing setSkillTimer first is what tells PlayerSpawned that the draw
+        // is no longer pending. Per player the sequence is:
+        //   resolve the hero (cached precompute -> re-draw -> or mode-specific pick)
+        //   -> DisableSkill(previous) -> write Skill/SpecialSkill on the record
+        //   -> +0.2s EnableSkill(new), delayed past freeze time for freeze-disabled heroes
+        //   -> stamp the HUD expiry, announce in chat, optionally list teammates' heroes.
         private static void SetSkillCore()
         {
             setSkillTimer = null;
@@ -424,6 +547,9 @@ namespace src.player
                         catch { return false; }
                     }).ToList();
 
+                // TeamSkills / SameSkills draw their shared hero ONCE here, before the
+                // per-player loop; excluding the previous pick avoids two identical
+                // rounds in a row, and the team filters keep a CT-only hero off the Ts.
                 if (Config.LoadedConfig.GameMode == (int)Config.GameModes.TeamSkills)
                 {
                     List<jSkill_SkillInfo> tSkills = [.. SkillData.Skills];
@@ -443,6 +569,9 @@ namespace src.player
                 else if (Config.LoadedConfig.GameMode == (int)Config.GameModes.Debug && debugSkills.Count == 0)
                     debugSkills = [.. SkillData.Skills];
 
+                // Live per-hero headcount, seeded from whatever players already hold and
+                // incremented as picks are applied below. This is what enforces
+                // MaxPerServer across the whole draw.
                 Dictionary<Skills, int> assignmentCounts = new();
                 foreach (var sp in Instance.SkillPlayer)
                 {
@@ -451,6 +580,7 @@ namespace src.player
                     else assignmentCounts[sp.Skill] = 1;
                 }
 
+                // Built lazily: if every precomputed pick is still valid it is never needed.
                 PickContext? pickContext = null;
 
                 foreach (var player in validPlayers)
@@ -462,8 +592,12 @@ namespace src.player
                     var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                     if (skillPlayer == null) continue;
 
+                    // Ends the slot-machine HUD for this player. HudOnDeathBlocked is the
+                    // cached admin-permission answer used by the death HUD; reset so it is
+                    // re-evaluated (permissions can change between rounds).
                     skillPlayer.IsDrawing = false;
                     skillPlayer.HudOnDeathBlocked = null;
+                    // No pawn = nothing a hero could act on, so leave them on None.
                     if (player.PlayerPawn.Value == null || !player.PlayerPawn.IsValid)
                     {
                         skillPlayer.Skill = Skills.None;
@@ -511,6 +645,9 @@ namespace src.player
                     if (randomSkill.Skill == Skills.Illiterate)
                         Illiterate.Enable();
 
+                    // Only the INDEX is captured, never the controller: the deferred
+                    // callbacks below re-resolve it, so a player who disconnected inside
+                    // the delay cannot be acted on through a stale reference.
                     var playerIndex = player.Index;
                     Instance?.AddTimer(.2f, () =>
                     {
@@ -521,12 +658,18 @@ namespace src.player
                             SkillUtils.PrintToChat(playerTarget, $"{ChatColors.DarkRed}{playerTarget.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {playerTarget.GetSkillDescription(randomSkill.Skill)}",
                                 border: !Utilities.GetPlayers().Any(p => p != null && p.IsValid && p.Team == playerTarget.Team && p != playerTarget) ? "tb" : "t");
 
+                        // A hero flagged disableOnFreezeTime must not activate while players
+                        // are still frozen, so its EnableSkill waits out the remaining
+                        // freeze time instead of firing now.
                         if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
                             Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                             {
                                 var playerTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
                                 if (playerTarget == null || !playerTarget.IsValid) return;
 
+                                // The hero may have been replaced during the wait (death,
+                                // transform, admin command) - enabling it now would leave a
+                                // hero running that the player no longer has.
                                 if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
                                 Debug.WriteToDebug("Enabling skill after freeze time: " + randomSkill.Skill);
                                 Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
@@ -542,6 +685,8 @@ namespace src.player
                     Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");
                     UpdateSkillHudExpired(skillPlayer, randomSkill.Skill);
 
+                    // Deferred to 0.6s - later than the 0.2s block above - so every player
+                    // in the loop already has their hero assigned and the list is complete.
                     if (Config.LoadedConfig.TeamMateSkillChatInfo)
                     {
                         Instance?.AddTimer(.6f, () =>
@@ -570,10 +715,17 @@ namespace src.player
                     }
                 }
 
+                // Consumed - the cache must not leak into a later round, where the picks
+                // would be stale.
                 nextRoundPicks.Clear();
             }
         }
 
+        // Single-player draw for someone who joined the round late (see PlayerSpawned).
+        // Same rule set as PickSkillForPlayer but written out inline, and it honours
+        // staticSkills (an admin-forced hero) before drawing anything random. Unlike
+        // SetSkillCore it does not use nextRoundPicks, since there is no cached pick for
+        // a player who was not present at the previous round end.
         public static void SetRandomSkill(CCSPlayerController player)
         {
             lock (setLock)
@@ -687,6 +839,8 @@ namespace src.player
             }
         }
 
+        // Wall-clock moment this round's freeze time ends (team-intro period included).
+        // Heroes use it to schedule their own "start acting now" logic.
         public static DateTime GetFreezeTimeEnd() => freezeTimeEnd;
     }
 }

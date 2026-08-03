@@ -2,6 +2,20 @@
 
 namespace src.utils
 {
+    /*
+     * RarityManager - controls how likely each hero is to be drawn.
+     *
+     * Every skill declares a Rarity in its SkillConfig. RollRarity() first picks
+     * a rarity bucket using the weights below, then the round logic picks a
+     * random skill from that bucket. So a Legendary hero is rare because its
+     * BUCKET is only rolled 1% of the time - not because of a per-skill chance.
+     *
+     * The default weights (percent) are:
+     *   Common 70, Uncommon 14, Rare 10, Epic 5, Legendary 1
+     *
+     * SetRarityPercentages() normalises whatever it is given to total 100, so
+     * the numbers do not have to add up exactly.
+     */
     public enum Rarity
     {
         Common,

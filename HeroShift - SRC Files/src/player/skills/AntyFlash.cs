@@ -7,6 +7,37 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * AntyFlash - You are immune to long flashes and get extra flashbangs.
+     *
+     * LOGIC
+     *   PlayerBlind: if your blind time exceeds flashDuration it gets
+     *     clamped/removed.
+     *   GrenadeThrown/WeaponEquip/WeaponPickup: keeps the extra flashbang count
+     *     in the HUD.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   flashDuration = 7f
+     *                     -> max blind seconds you can suffer; above this you are
+     *                        protected
+     *   grenadeLimit  = 2
+     *                     -> how many flashbangs the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class AntyFlash : ISkill
     {
         private const Skills skillName = Skills.AntyFlash;

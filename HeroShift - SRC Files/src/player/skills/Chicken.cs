@@ -7,6 +7,32 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Chicken - You are turned into a chicken - tiny, fast and hard to hit.
+     *
+     * LOGIC
+     *   EnableSkill: swaps the player model to the chicken and adjusts
+     *     scale/speed.
+     *   OnTick: keeps the chicken state applied; DisableSkill restores the player
+     *     model.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Chicken : ISkill
     {
         private const Skills skillName = Skills.Chicken;

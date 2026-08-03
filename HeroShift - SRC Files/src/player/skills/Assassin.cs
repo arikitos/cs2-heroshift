@@ -5,6 +5,36 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Assassin - Hitting an enemy from behind deals multiplied damage.
+     *
+     * LOGIC
+     *   OnTakeDamage: compares your view angle to the victim's, and if you are
+     *     within toleranceDeg of their back, multiplies the damage.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   damageMultiplier = 2f
+     *                        -> damage multiplier for a successful backstab-style
+     *                           hit
+     *   toleranceDeg     = 45f
+     *                        -> angle window (degrees) that still counts as 'from
+     *                           behind'
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Assassin : ISkill
     {
         private const Skills skillName = Skills.Assassin;

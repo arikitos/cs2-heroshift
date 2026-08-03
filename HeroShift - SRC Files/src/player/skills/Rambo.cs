@@ -6,6 +6,35 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Rambo - You start with a large random health bonus.
+     *
+     * LOGIC
+     *   EnableSkill/AddHealth: rolls extra health between minExtraHealth and
+     *     maxExtraHealth.
+     *   DisableSkill/ResetHealth: restores normal health.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   minExtraHealth = 50
+     *                      -> fewest bonus HP that can be rolled
+     *   maxExtraHealth = 501
+     *                      -> most bonus HP that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Rambo : ISkill
     {
         private const Skills skillName = Skills.Rambo;

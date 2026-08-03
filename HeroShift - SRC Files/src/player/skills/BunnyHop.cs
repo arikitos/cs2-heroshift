@@ -6,6 +6,37 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * BunnyHop - Automatic bunny hopping - hold jump to keep bouncing and gaining
+     * speed.
+     *
+     * LOGIC
+     *   OnTick: re-applies the jump while the jump key is held and caps the
+     *     speed.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   maxSpeed     = 500f
+     *                    -> speed cap while bhopping (units/s)
+     *   jumpVelocity = 300f
+     *                    -> upward velocity given per hop
+     *   jumpBoost    = 2f
+     *                    -> how much speed each successful hop adds
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class BunnyHop : ISkill
     {
         private const Skills skillName = Skills.BunnyHop;

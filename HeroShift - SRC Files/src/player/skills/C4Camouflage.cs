@@ -9,6 +9,31 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * C4Camouflage - You look like the dropped C4 to the enemy team.
+     *
+     * LOGIC
+     *   OnTick/CheckTransmit: hides your real model and shows the bomb prop
+     *     instead.
+     *   PlayerHurt: taking damage breaks the disguise.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.Terrorist
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Uncommon
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class C4Camouflage : ISkill
     {
         private const Skills skillName = Skills.C4Camouflage;

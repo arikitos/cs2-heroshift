@@ -6,6 +6,34 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace src.player.skills
 {
+    /*
+     * LastGasp - On death you deal a final burst of damage to your killer.
+     *
+     * LOGIC
+     *   PlayerDeath: applies damageAfterDeath to the killer.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   damageAfterDeath = 30
+     *                        -> damage dealt to the killer as you die
+     *   canKill          = true
+     *                        -> true = this damage can finish the killer off,
+     *                           false = leaves them at 1 HP
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Rare
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class LastGasp : ISkill
     {
         private const Skills skillName = Skills.LastGasp;

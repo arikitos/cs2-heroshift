@@ -10,6 +10,31 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Ghost - You are invisible to the enemy team.
+     *
+     * LOGIC
+     *   CheckTransmit: removes your pawn from what enemies are allowed to
+     *     receive.
+     *   PlayerHurt/OnTick: shooting or taking damage can briefly reveal you.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Epic
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Ghost : ISkill
     {
         private const Skills skillName = Skills.Ghost;

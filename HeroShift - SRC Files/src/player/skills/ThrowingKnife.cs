@@ -15,6 +15,35 @@ using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
 namespace src.player.skills
 {
+    /*
+     * ThrowingKnife - Throw your knife as a lethal projectile.
+     *
+     * LOGIC
+     *   UseSkill: launches the knife entity from your view.
+     *   OnTriggerEnter: a player it touches takes 'damage' (9999 = instant kill).
+     *   CheckTransmit: controls who can see the flying knife.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   friendlyFire = false
+     *                    -> true = the thrown knife can also kill teammates
+     *   damage       = 9999
+     *                    -> damage on hit (9999 = guaranteed kill)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class ThrowingKnife : ISkill
     {
         private const Skills skillName = Skills.ThrowingKnife;

@@ -9,6 +9,34 @@ using System.Drawing;
 
 namespace src.player.skills
 {
+    /*
+     * HotBomb - Carrying the C4 slowly burns your health.
+     *
+     * LOGIC
+     *   OnTick: every 'cooldown' seconds, the bomb carrier loses 'damage' health.
+     *   WeaponPickup/PlayerDeath: tracks who is currently holding the bomb.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown = 1
+     *                -> seconds between each damage tick while carrying the bomb
+     *   damage   = 2
+     *                -> health lost per tick
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.CounterTerrorist
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class HotBomb : ISkill
     {
         private const Skills skillName = Skills.HotBomb;

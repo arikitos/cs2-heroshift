@@ -7,6 +7,34 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Hermit - Killing an enemy grants you bonus health.
+     *
+     * LOGIC
+     *   PlayerDeath: when you are the killer, adds healthToAdd and plays the
+     *     effect.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   healthToAdd    = 100
+     *                      -> health gained per kill
+     *   effectDuration = 1.0f
+     *                      -> how long (seconds) the visual effect is shown
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Hermit : ISkill
     {
         private const Skills skillName = Skills.Hermit;

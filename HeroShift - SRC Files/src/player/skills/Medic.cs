@@ -7,6 +7,36 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Medic - You carry healthshots and can heal yourself or teammates.
+     *
+     * LOGIC
+     *   UseSkill: consumes a healthshot and restores healthToAdd.
+     *   OnTick: enforces the cooldown between uses.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   healthToAdd     = 50
+     *                       -> health restored per use
+     *   healthShotLimit = 3
+     *                       -> how many heals you get per round
+     *   cooldown        = 1f
+     *                       -> seconds between two heals
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Medic : ISkill
     {
         private const Skills skillName = Skills.Medic;

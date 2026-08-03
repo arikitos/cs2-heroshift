@@ -7,6 +7,40 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * HealingSmoke - Your smoke grenades heal everyone standing inside them.
+     *
+     * LOGIC
+     *   SmokegrenadeDetonate/Expired: registers/removes the smoke position.
+     *   OnTick: every tickCooldown ticks, heals players within smokeRadius by
+     *     smokeHeal.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   smokeHeal    = 1
+     *                    -> health restored per heal tick
+     *   smokeRadius  = 180
+     *                    -> radius of the healing cloud (game units)
+     *   tickCooldown = 16
+     *                    -> server ticks between heal pulses (64 ticks = 1
+     *                       second)
+     *   grenadeLimit = 1
+     *                    -> how many smoke grenades the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class HealingSmoke : ISkill
     {
         private const Skills skillName = Skills.HealingSmoke;

@@ -7,6 +7,32 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * SoundMaker - You can play fake footstep/noise sounds to bait enemies.
+     *
+     * LOGIC
+     *   UseSkill/PlayerMakeSound: emits the decoy sound.
+     *   OnTick: enforces the cooldown between sounds.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown = 2
+     *                -> seconds between two fake sounds
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class SoundMaker : ISkill
     {
         private const Skills skillName = Skills.SoundMaker;

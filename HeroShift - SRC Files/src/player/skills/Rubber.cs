@@ -7,6 +7,35 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Rubber - Damage taken slows you down briefly instead of hurting as much.
+     *
+     * LOGIC
+     *   PlayerHurt: starts the slow effect on you.
+     *   OnTick: applies slownessModifier for slownessTime seconds, then restores
+     *     speed.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   slownessTime     = 2f
+     *                        -> how long (seconds) the slow lasts
+     *   slownessModifier = .2f
+     *                        -> speed multiplier while slowed (0.2 = 20% speed)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Rubber : ISkill
     {
         private const Skills skillName = Skills.Rubber;

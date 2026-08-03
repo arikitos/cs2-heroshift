@@ -7,6 +7,41 @@ using System.Drawing;
 
 namespace src.player.skills
 {
+    /*
+     * HealingChicken - Chickens follow you and heal nearby teammates.
+     *
+     * LOGIC
+     *   EnableSkill: spawns 'amount' chickens that follow you.
+     *   OnTick: every tickCooldown ticks, heals players within healRadius by
+     *     'heal'.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   amount       = 3
+     *                    -> how many healing chickens are spawned
+     *   heal         = 2
+     *                    -> health restored per healing tick
+     *   tickCooldown = 16
+     *                    -> server ticks between heal pulses (64 ticks = 1
+     *                       second)
+     *   healRadius   = 150.0f
+     *                    -> radius around the chicken that gets healed (game
+     *                       units)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Legendary
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class HealingChicken : ISkill
     {
         private const Skills skillName = Skills.HealingChicken;

@@ -8,6 +8,34 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Spectator - Free-look camera that detaches from your body.
+     *
+     * LOGIC
+     *   UseSkill: moves the view out to 'distance' units.
+     *   OnTick: keeps the camera positioned; useCooldown limits toggling.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   distance    = 100f
+     *                   -> how far the camera is placed from you (game units)
+     *   useCooldown = .5f
+     *                   -> seconds between two toggles
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Spectator : ISkill
     {
         private const Skills skillName = Skills.Spectator;

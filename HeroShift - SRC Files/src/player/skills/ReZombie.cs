@@ -8,6 +8,40 @@ using System.Drawing;
 
 namespace src.player.skills
 {
+    /*
+     * ReZombie - You become a zombie - big health pool, knife only.
+     *
+     * LOGIC
+     *   EnableSkill/TryBecomeZombie: sets zombieHealth and tints the model red.
+     *   OnWeaponCanAcquire: blocks picking up guns so you stay on knife.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   zombieHealth = 500
+     *                    -> health the zombie form gets
+     *   r            = 255
+     *                    -> model tint red channel (0-255)
+     *   g            = 0
+     *                    -> model tint green channel (0-255)
+     *   b            = 0
+     *                    -> model tint blue channel (0-255)
+     *   a            = 60
+     *                    -> model tint opacity (0-255)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class ReZombie : ISkill
     {
         private const Skills skillName = Skills.ReZombie;

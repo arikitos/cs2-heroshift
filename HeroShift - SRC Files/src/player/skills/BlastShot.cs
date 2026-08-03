@@ -11,6 +11,43 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
+    /*
+     * BlastShot - Fires an explosive blast that damages and pushes everyone
+     * nearby.
+     *
+     * LOGIC
+     *   OnTick/OnEntitySpawned: tracks the projectile and triggers the explosion.
+     *   OnTakeDamage: applies explosionDamage falling off inside explosionRadius.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   explosionRadius         = 400.0f
+     *                               -> blast radius in game units
+     *   explosionDamage         = 60
+     *                               -> max damage at the centre of the blast
+     *   dmgReductionForTeamates = 0.5f
+     *                               -> damage multiplier applied to teammates
+     *                                  (0.5 = half)
+     *   cooldown                = 10f
+     *                               -> seconds before the skill can be used again
+     *   force                   = 1000f
+     *                               -> push strength applied to players caught in
+     *                                  the blast
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class BlastShot : ISkill
     {
         private const Skills skillName = Skills.BlastShot;

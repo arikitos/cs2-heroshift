@@ -7,6 +7,40 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Nightmare - Curse: the victim's screen gets a horror post-processing
+     * effect.
+     *
+     * LOGIC
+     *   TypeSkill: pick the victim.
+     *   OnTick/CheckTransmit: applies the post-processing and exposure changes.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   postProcessing = "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost"
+     *                      -> post-process effect file applied to the victim's
+     *                         screen
+     *   fadeTime       = .25f
+     *                      -> seconds the effect takes to fade in/out
+     *   minExposure    = .5f
+     *                      -> lowest screen exposure (darker)
+     *   maxExposure    = 2f
+     *                      -> highest screen exposure (brighter)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Rare
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Nightmare : ISkill
     {
         private const Skills skillName = Skills.Nightmare;

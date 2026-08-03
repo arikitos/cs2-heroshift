@@ -7,6 +7,36 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Pilot - A jetpack with a fuel tank - hold jump to fly.
+     *
+     * LOGIC
+     *   OnTick: burns fuelConsumption per tick while flying and refills at
+     *     'refuelling' per tick while on the ground, capped at maximumFuel.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   maximumFuel     = 150f
+     *                       -> size of the fuel tank
+     *   fuelConsumption = .64f
+     *                       -> fuel burned per tick while flying
+     *   refuelling      = .1f
+     *                       -> fuel regained per tick while on the ground
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Pilot : ISkill
     {
         private const Skills skillName = Skills.Pilot;

@@ -5,6 +5,12 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Regeneration - Your health regenerates over time.
+     *
+     * LOGIC
+     *   OnTick: periodically adds health back up to the normal maximum.
+     */
     public class Regeneration : ISkill
     {
         private const Skills skillName = Skills.Regeneration;

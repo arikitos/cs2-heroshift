@@ -7,6 +7,35 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * PsychicDefusing - You can defuse the bomb from a distance.
+     *
+     * LOGIC
+     *   BombPlanted/OnTick: if you are within maxDefusingRange, a defuse
+     *     progresses over defusingTime seconds without touching the C4.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   maxDefusingRange = 80f
+     *                        -> how far from the C4 you can start defusing (game
+     *                           units)
+     *   defusingTime     = 10f
+     *                        -> seconds the remote defuse takes
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.CounterTerrorist
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class PsychicDefusing : ISkill
     {
         private const Skills skillName = Skills.PsychicDefusing;

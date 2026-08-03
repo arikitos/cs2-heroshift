@@ -6,6 +6,36 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Astronaut - Low gravity - you jump much higher and fall slowly.
+     *
+     * LOGIC
+     *   EnableSkill: rolls a gravity scale between chanceFrom and chanceTo and
+     *     applies it to the pawn.
+     *   DisableSkill/NewRound: restores normal gravity (1.0).
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   chanceFrom = .1f
+     *                  -> lowest gravity scale that can be rolled (0.1 = almost
+     *                     no gravity)
+     *   chanceTo   = .7f
+     *                  -> highest gravity scale that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Astronaut : ISkill
     {
         private const Skills skillName = Skills.Astronaut;

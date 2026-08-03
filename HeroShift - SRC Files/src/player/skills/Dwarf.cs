@@ -6,6 +6,35 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Dwarf - You are shrunk down - smaller hitbox, lower viewpoint.
+     *
+     * LOGIC
+     *   NewRound/EnableSkill: rolls a scale between minScale and maxScale and
+     *     applies it.
+     *   DisableSkill: restores scale 1.0.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   minScale = .6f
+     *                -> smallest body scale that can be rolled (0.6 = 60% size)
+     *   maxScale = .95f
+     *                -> largest body scale that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Dwarf : ISkill
     {
         private const Skills skillName = Skills.Dwarf;

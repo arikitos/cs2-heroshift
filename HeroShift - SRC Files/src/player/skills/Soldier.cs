@@ -7,6 +7,35 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Soldier - You deal increased damage with all weapons.
+     *
+     * LOGIC
+     *   EnableSkill: rolls a damage multiplier between chanceFrom and chanceTo.
+     *   OnTakeDamage: multiplies the damage you deal by that value.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   chanceFrom = 1.15f
+     *                  -> lowest damage multiplier that can be rolled (1.15 =
+     *                     +15% damage)
+     *   chanceTo   = 1.35f
+     *                  -> highest damage multiplier that can be rolled
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Soldier : ISkill
     {
         private const Skills skillName = Skills.Soldier;

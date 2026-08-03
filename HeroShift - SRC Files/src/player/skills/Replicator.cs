@@ -8,6 +8,36 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Replicator - Spawns a copy of you that damages enemies who shoot it.
+     *
+     * LOGIC
+     *   UseSkill: spawns the replica.
+     *   OnTakeDamage: shooting the replica hurts the shooter.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown        = 15f
+     *                       -> seconds before the skill can be used again
+     *   yourTeamDamage  = 10
+     *                       -> damage dealt to teammates who shoot the replica
+     *   enemyTeamDamage = 20
+     *                       -> damage dealt to enemies who shoot the replica
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 2
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Replicator : ISkill
     {
         private const Skills skillName = Skills.Replicator;

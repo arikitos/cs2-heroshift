@@ -6,6 +6,31 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Magneto - Nearby dropped weapons and items fly to you.
+     *
+     * LOGIC
+     *   OnEntitySpawned/OnTick: pulls pickups within 'radius' toward you.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   radius = 100
+     *              -> pickup attraction radius in game units
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Magneto : ISkill
     {
         private const Skills skillName = Skills.Magneto;

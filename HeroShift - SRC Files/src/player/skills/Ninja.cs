@@ -9,6 +9,38 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * Ninja - You are partly invisible - more so when still, crouched or on
+     * knife.
+     *
+     * LOGIC
+     *   CheckTransmit/OnTick: sets your transparency from your current state.
+     *   PlayerHurt: taking damage can reveal you.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   idlePercentInvisibility  = .3f
+     *                                -> invisibility while standing still (0.3 =
+     *                                   30%)
+     *   duckPercentInvisibility  = .3f
+     *                                -> extra invisibility while crouching
+     *   knifePercentInvisibility = .3f
+     *                                -> extra invisibility while holding a knife
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Ninja : ISkill
     {
         private const Skills skillName = Skills.Ninja;

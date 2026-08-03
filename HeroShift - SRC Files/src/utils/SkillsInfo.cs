@@ -9,6 +9,33 @@ using static src.HeroShift;
 
 namespace src.utils
 {
+    /*
+     * SkillsInfo - THIS IS WHERE EVERY HERO'S TUNABLE VALUES COME FROM.
+     *
+     * If you want to change how much damage a hero does, how long an effect
+     * lasts, a radius, a chance or a grenade count - this is the pipeline:
+     *
+     *   1. Each skill file declares a `SkillConfig` class whose constructor
+     *      parameters ARE the tunables (e.g. KillerFlash: flashDuration,
+     *      friendlyFire, grenadeLimit). Those parameter defaults are the
+     *      shipped balance values.
+     *
+     *   2. SkillsInfoModel's constructor finds every SkillConfig class in the
+     *      assembly by reflection and instantiates it with its defaults, so a
+     *      newly added hero appears in the config automatically.
+     *
+     *   3. LoadSkillsInfo() reads configs/skillsInfo.json and uses
+     *      JsonConvert.PopulateObject to overwrite those defaults per skill
+     *      (matched on the "Name" field). Anything absent keeps its default.
+     *
+     *   4. At runtime a skill reads a value with
+     *          SkillsInfo.GetValue<float>(skillName, "flashDuration")
+     *      Lookup is case-insensitive and cached (_memberCache), so passing
+     *      "FlashDuration" or "flashDuration" both work.
+     *
+     * So: to rebalance a hero, edit configs/skillsInfo.json on the server (no
+     * recompile), or change the SkillConfig default to alter the shipped value.
+     */
     public static class SkillsInfo
     {
         private static readonly string configsFolder = Path.Combine(Instance.ModuleDirectory, "configs");
@@ -84,6 +111,14 @@ namespace src.utils
             }
         }
 
+    /*
+         * Reads one tunable for one skill.
+         *   skill - the Skills enum value (or anything whose ToString is the name)
+         *   key   - the SkillConfig property name, case-insensitive
+         * Returns default(T) if the skill or key is unknown, so a typo in the key
+         * silently yields 0 / false / null rather than throwing. Worth knowing
+         * when a value "does nothing" - check the spelling first.
+         */
         public static T GetValue<T>(object skill, string key)
         {
             if (config == null) return default!;
@@ -147,6 +182,17 @@ namespace src.utils
             }
         }
 
+    /*
+         * The settings EVERY hero has. Each skill's own SkillConfig derives from
+         * this and appends its hero-specific values on top.
+         *   Active           - false removes the hero from the draw entirely
+         *   Color            - HUD/chat colour (hex)
+         *   OnlyTeam         - 0 both sides, otherwise a CsTeam value
+         *   NeedsTeammates   - only drawn if the player has living teammates
+         *   RequiredPermission - admin flag needed to receive it
+         *   MaxPerServer     - simultaneous holders allowed (-1 = unlimited)
+         *   Rarity           - draw weight bucket, see RarityManager
+         */
         public class DefaultSkillInfo(Skills skill, bool active = true, string color = "#ffffff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common)
         {
             public bool NeedsTeammates { get; set; } = needsTeammates;

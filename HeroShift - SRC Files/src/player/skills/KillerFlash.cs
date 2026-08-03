@@ -9,6 +9,43 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * KillerFlash - Any enemy you blind for long enough dies instantly.
+     *
+     * LOGIC
+     *   PlayerBlind: fires when someone is flashed. If YOU are the attacker and
+     *     the victim's pawn FlashDuration is >= flashDuration, the victim is
+     *     killed (TakeHealth 9999) with the flashbang kill-feed icon. Victims who
+     *     have the AntyFlash skill are immune.
+     *   GrenadeThrown/WeaponEquip/WeaponPickup: keeps the extra flashbang count
+     *     in sync in the HUD when grenadeLimit is above the server limit.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   flashDuration = 1f
+     *                     -> blind seconds required to trigger the instant kill
+     *                        (lower = deadlier)
+     *   friendlyFire  = true
+     *                     -> true = also kills blinded teammates, false = enemies
+     *                        only
+     *   grenadeLimit  = 1
+     *                     -> how many flashbangs the hero gets (uses
+     *                        ammo_grenade_limit_flashbang as base)
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = 1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Epic
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class KillerFlash : ISkill
     {
         private const Skills skillName = Skills.KillerFlash;

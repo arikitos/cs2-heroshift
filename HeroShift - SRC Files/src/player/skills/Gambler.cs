@@ -7,6 +7,31 @@ using src.utils;
 
 namespace src.player.skills
 {
+    /*
+     * Gambler - Buy a re-roll of your skill for money.
+     *
+     * LOGIC
+     *   TypeSkill: charges refreshPrice and gives you a new random skill.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   refreshPrice = 150
+     *                    -> money charged for one skill re-roll
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Gambler : ISkill
     {
         private const Skills skillName = Skills.Gambler;

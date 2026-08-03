@@ -11,6 +11,35 @@ using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
 namespace src.player.skills
 {
+    /*
+     * Iana - Deploy a temporary invulnerable duplicate/scan form.
+     *
+     * LOGIC
+     *   UseSkill: activates the form for 'duration' seconds.
+     *   OnTakeDamage/PlayerHurt: damage is ignored/redirected while active.
+     *   OnWeaponCanAcquire/WeaponDrop: restricts weapon handling during the form.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   cooldown = 30
+     *                -> seconds before the skill can be used again
+     *   duration = 10
+     *                -> how long (seconds) the form stays active
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Iana : ISkill
     {
         private const Skills skillName = Skills.Iana;

@@ -7,6 +7,36 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * MagneticDecoy - Your decoys pull nearby players toward them.
+     *
+     * LOGIC
+     *   DecoyStarted/DecoyDetonate: registers the active decoy.
+     *   OnTick: drags players inside triggerRadius toward it with 'strenght'.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   triggerRadius = 180
+     *                     -> radius in which players are pulled (game units)
+     *   strenght      = 30
+     *                     -> pull strength applied per tick
+     *   grenadeLimit  = 3
+     *                     -> how many decoys the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class MagneticDecoy : ISkill
     {
         private const Skills skillName = Skills.MagneticDecoy;

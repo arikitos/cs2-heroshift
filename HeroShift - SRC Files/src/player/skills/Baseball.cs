@@ -8,6 +8,40 @@ using System.Collections.Concurrent;
 
 namespace src.player.skills
 {
+    /*
+     * Baseball - Your decoy grenades become bats - they launch and kill on
+     * contact.
+     *
+     * LOGIC
+     *   OnEntitySpawned/DecoyStarted: grabs your thrown decoy projectile.
+     *   OnTick: accelerates the decoy up to maxSpeed along its flight.
+     *   PlayerHurt: a player struck by it takes damageDeal (9999 = instant kill).
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   speedMultipier = 2f
+     *                      -> how strongly the decoy is accelerated each tick
+     *   maxSpeed       = 900f
+     *                      -> speed cap for the flying decoy (units/s)
+     *   damageDeal     = 9999
+     *                      -> damage dealt on contact (9999 = guaranteed kill)
+     *   grenadeLimit   = 3
+     *                      -> how many decoys the hero gets
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class Baseball : ISkill
     {
         private const Skills skillName = Skills.Baseball;

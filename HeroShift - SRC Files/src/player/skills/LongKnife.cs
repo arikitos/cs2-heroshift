@@ -9,6 +9,35 @@ using static src.HeroShift;
 
 namespace src.player.skills
 {
+    /*
+     * LongKnife - Your knife reaches across the whole map.
+     *
+     * LOGIC
+     *   WeaponFire: traces up to maxDistance from your crosshair and applies the
+     *     knife hit.
+     *
+     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
+     * SkillConfig constructor at the bottom of this file)
+     *   maxDistance  = 4096f
+     *                    -> knife reach in game units (4096 = practically
+     *                       map-wide)
+     *   friendlyFire = true
+     *                    -> true = can also hit teammates
+     *
+     *   Shared settings:
+     *   active       = true
+     *                    -> false disables this hero entirely (it will not be
+     *                       handed out)
+     *   onlyTeam     = CsTeam.None
+     *                    -> restrict to one side: None = both, Terrorist /
+     *                       CounterTerrorist
+     *   maxPerServer = -1
+     *                    -> how many players may have this hero at once (-1 =
+     *                       unlimited)
+     *   rarity       = Rarity.Common
+     *                    -> draw chance bucket - see RarityManager
+     *                       (Common..Legendary)
+     */
     public class LongKnife : ISkill
     {
         private const Skills skillName = Skills.LongKnife;
