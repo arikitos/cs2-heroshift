@@ -1,0 +1,104 @@
+name: Refactor Runtime Cutover
+
+on:
+  pull_request:
+    branches: [main]
+    types: [edited]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: refactor-runtime-cutover
+  cancel-in-progress: false
+
+jobs:
+  cutover:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'refactor' &&
+      github.event.pull_request.user.login == 'arikitos' &&
+      contains(github.event.pull_request.body || '', '<!-- cutover:runtime-config')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout refactor
+        uses: actions/checkout@v4
+        with:
+          ref: refactor
+          fetch-depth: 0
+
+      - name: Decode reviewed patch
+        shell: python
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          import base64
+          import gzip
+          import os
+          from pathlib import Path
+
+          body = os.environ['PR_BODY']
+          start = '<!-- cutover:runtime-config\n'
+          end = '\n-->'
+          if start not in body:
+              raise SystemExit('Runtime-config cutover payload is missing')
+          encoded = body.split(start, 1)[1].split(end, 1)[0].strip()
+          patch = gzip.decompress(base64.b64decode(encoded))
+          Path('runtime-config.patch').write_bytes(patch)
+
+      - name: Apply reviewed patch
+        shell: bash
+        run: |
+          git apply --check runtime-config.patch
+          git apply runtime-config.patch
+          rm runtime-config.patch
+          git diff --check
+          test -n "$(git status --porcelain)" || { echo 'Cutover produced no changes' >&2; exit 1; }
+
+      - name: Validate runtime cutover invariants
+        shell: bash
+        run: |
+          test -f "HeroShift - SRC Files/src/Configuration/ConfigurationStore.cs"
+          test -f "HeroShift - Server Files/plugins/HeroShift/configs/heroshift.json"
+          ! grep -q 'JsonConvert' "HeroShift - SRC Files/src/utils/Config.cs"
+          ! grep -q 'System.Reflection' "HeroShift - SRC Files/src/utils/SkillsInfo.cs"
+          grep -q 'Config.Initialize(BuiltInSkillCatalog.BuildRegistry())' "HeroShift - SRC Files/src/HeroShift.cs"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore "HeroShift - SRC Files/HeroShift.sln"
+
+      - name: Test
+        run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Build
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Commit runtime cutover checkpoint
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'refactor: cut over to typed runtime configuration'
+          git push origin HEAD:refactor
+
+      - name: Clear cutover request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const cleaned = body.replace(/<!-- cutover:runtime-config\n[\s\S]*?\n-->/, '<!-- cutover:runtime-config-complete -->');
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              body: cleaned,
+            });

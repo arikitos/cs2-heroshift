@@ -30,6 +30,8 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Added an owner-gated cutover workflow that applies the reviewed runtime-configuration patch, validates it on Linux, and commits only after tests and Release build succeed.
+
 - `tools/refactor-migration/` and `.github/workflows/refactor-migration.yml`: deterministic, owner-gated generation of typed skill migration batches from the committed baseline, with diff validation, tests and Release build required before each checkpoint commit.
 - `.github/workflows/refactor-validation.yml`: Linux restore, test and Release-build validation for the `refactor` branch, plus a source snapshot artifact used to continue and verify the end-to-end refactor outside GitHub's file-by-file API.
 - `HeroShift - SRC Files/tools/refactor-baseline/`: a development-only baseline extractor
