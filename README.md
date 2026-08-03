@@ -18,7 +18,7 @@ HeroShift brings chaos and fun to CS2 gameplay. Each round, every player is rand
 ## 📁 Project Structure
 
 ```
-cs2-hero-shift/
+cs2-heroshift/
 ├── HeroShift - SRC Files/          # Plugin source code (C# / CounterStrikeSharp)
 │   └── src/
 │       ├── HeroShift.cs            # Main plugin entry point (BasePlugin, lifecycle hooks)
@@ -53,30 +53,30 @@ cs2-hero-shift/
 <details>
 <summary>The table below lists all available skills in the game, along with their descriptions.</summary>
 
-| Name               | Description                                                                                         | Cooldown / Range |
-| ------------------ | ---------------------------------------------------------------------------------------------------- | ----------------- |
-| Absorbing Man      | You have a random damage taken multiplier                                                            | (0.65 - 0.85)x    |
-| Ant-Man            | Random character size at the start of the round                                                      | (60 - 95)%        |
+| Name               | Description                                                                                           | Cooldown / Range |
+| ------------------ | ----------------------------------------------------------------------------------------------------  | ----------------- |
+| Absorbing Man      | You have a random damage taken multiplier                                                             | (0.65 - 0.85)x    |
+| Ant-Man            | Random character size at the start of the round                                                       | (60 - 95)%        |
 | Anti-Venom         | Shooting teammates heals them                                                                         | -                 |
-| Arcade             | Your HE grenade only explodes when there is an enemy nearby                                          | -                 |
+| Arcade             | Your HE grenade only explodes when there is an enemy nearby                                           | -                 |
 | Armor              | Armor absorbs the first damage taken                                                                  | 15 s              |
-| Arsenal            | You receive infinite ammo for all your weapons                                                       | -                 |
-| Azazel             | You teleport behind the back of a hit enemy                                                          | -                 |
-| Banshee            | Every now and then, you hear player screams                                                          | 2 s               |
-| Basilisk           | You deal damage to every enemy you are looking at                                                    | 2 s               |
-| Bishop             | Your opponent will receive a portion of the damage that they inflicted on you                        | -                 |
-| Black Cat          | Choose the player who will lose all their money                                                      | -                 |
-| Black Panther      | Perform a second jump to dash                                                                        | -                 |
+| Arsenal            | You receive infinite ammo for all your weapons                                                        | -                 |
+| Azazel             | You teleport behind the back of a hit enemy                                                           | -                 |
+| Banshee            | Every now and then, you hear player screams                                                           | 2 s               |
+| Basilisk           | You deal damage to every enemy you are looking at                                                     | 2 s               |
+| Bishop             | Your opponent will receive a portion of the damage that they inflicted on you                         | -                 |
+| Black Cat          | Choose the player who will lose all their money                                                       | -                 |
+| Black Panther      | Perform a second jump to dash                                                                         | -                 |
 | Black Widow        | Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33%       | -                 |
-| Blade              | Click [css_useSkill] to throw a knife. But watch out for others                                      | -                 |
+| Blade              | Click [css_useSkill] to throw a knife. But watch out for others                                       | -                 |
 | Blink              | The first hit on an enemy sends them back to their spawn                                              | -                 |
 | Bullseye           | Every bullet you hit counts as a headshot                                                             | -                 |
 | Cable              | Random chance to fire an explosive bullet while shooting                                              | (15 - 30)%        |
 | Captain America    | Your decoy bounces off walls and instantly kills an enemy on impact                                   | -                 |
 | Carnage            | Killing restores ammo and a portion of health                                                         | -                 |
 | Cloak              | Applies a darkness effect to a chosen enemy                                                           | -                 |
-| Colossus           | You take no damage from headshots                                                                    | -                 |
-| Crossbones         | You can plant the bomb anywhere, with a detonation time of 60 seconds                                | -                 |
+| Colossus           | You take no damage from headshots                                                                     | -                 |
+| Crossbones         | You can plant the bomb anywhere, with a detonation time of 60 seconds                                 | -                 |
 | Cyclops            | Firing while airborne pushes you backwards                                                            | -                 |
 | Dagger             | Click [css_useSkill] to turn the flashlight on or off. Its light can blind enemies                    | 2 s               |
 | Daredevil          | You can see enemies through walls                                                                     | -                 |
@@ -92,7 +92,7 @@ cs2-hero-shift/
 | Elixir             | Your smoke grenades heal                                                                              | -                 |
 | Explodey Boy       | You explode upon death, killing nearby players                                                        | -                 |
 | Eye-Boy            | Click [css_useSkill] to activate third-person view                                                    | 0 s               |
-| Falcon             | Enemies are visible on the radar                                                                       | -                 |
+| Falcon             | Enemies are visible on the radar                                                                      | -                 |
 | Fantomex           | Click [css_useSkill] to take the active weapon's magazine from a random enemy                         | -                 |
 | Firestar           | As long as you are alive, the bomb deals damage to its carrier                                        | -                 |
 | Fixer              | You can plant and defuse bombs faster                                                                 | -                 |
@@ -111,24 +111,24 @@ cs2-hero-shift/
 | Hela               | A primary knife attack deals damage regardless of distance                                            | -                 |
 | Howard the Duck    | You get a chicken model + 10% faster movement - 50 HP                                                 | -                 |
 | Hulk               | You have a random chance to launch an enemy upwards                                                   | (20 - 40)%        |
-| Human Torch        | Throw a decoy to call down a rain of Molotovs                                                          | -                 |
+| Human Torch        | Throw a decoy to call down a rain of Molotovs                                                         | -                 |
 | Iceman             | Your decoy freezes all nearby players                                                                 | -                 |
 | Invisible Woman    | You are completely invisible                                                                          | -                 |
 | Iron Man           | Fly for a limited time. Hold [USE - E] to fly                                                         | -                 |
 | Jack of Hearts     | Choose a player to swap health with                                                                   | -                 |
 | Jean Grey          | Choose a player who will have trouble throwing grenades                                               | -                 |
-| Joaquin Torres     | Your chickens heal you while you are nearby                                                            | 1 s = 5 HP        |
-| Jubilee            | Anyone fully blinded by your flashbang dies (including you)                                            | -                 |
+| Joaquin Torres     | Your chickens heal you while you are nearby                                                           | 1 s = 5 HP        |
+| Jubilee            | Anyone fully blinded by your flashbang dies (including you)                                           | -                 |
 | Juggernaut         | You have a random chance to push an enemy back when hitting them                                      | 100%              |
-| Justin Hammer      | A chosen enemy has to pay for every shot                                                               | -                 |
+| Justin Hammer      | A chosen enemy has to pay for every shot                                                              | -                 |
 | Kang the Conqueror | Every grenade throw alters the round time                                                             | -                 |
 | Kingpin            | Choose a player to swap money with                                                                    | -                 |
 | Kraven the Hunter  | Choose a player who will leave a trail behind them                                                    | -                 |
 | Lockjaw            | Click [css_useSkill] to return to spawn                                                               | 15 s              |
 | Loki               | Click [css_useSkill] to swap places with a random enemy                                               | 30 s              |
-| M.O.D.O.K.         | You only take damage to the head                                                                     | -                 |
+| M.O.D.O.K.         | You only take damage to the head                                                                      | -                 |
 | Magik              | Press [css_useSkill] to teleport to the teammate you're looking at.                                   | 15 s              |
-| Magma              | Molotov restores health                                                                                | -                 |
+| Magma              | Molotov restores health                                                                               | -                 |
 | Magneto            | You have a random chance to make an enemy drop their weapon on hit                                    | (20 - 35)%        |
 | Mastermind         | Forces the enemy's screen to zoom in, reducing their field of view                                    | -                 |
 | Mister Immortal    | After death, you respawn with the same amount of health                                               | -                 |
@@ -136,12 +136,12 @@ cs2-hero-shift/
 | Mockingbird        | Click [css_useSkill] to string a wire between two walls. Enemies who touch it appear on your radar    | 20 s              |
 | Moon Knight        | In jester mode, you cannot get or take any damage. This mode changes every few seconds                | (10 - 25) s       |
 | Moonstone          | Your grenades are not affected by gravity and fly faster                                              | -                 |
-| Morbius            | Hitting an enemy restores health equal to a percentage of the damage dealt                             | -                 |
+| Morbius            | Hitting an enemy restores health equal to a percentage of the damage dealt                            | -                 |
 | Morph              | Choose a player to copy their skill                                                                   | -                 |
 | Multiple Man       | Click [css_useSkill] to deploy a replica that walks straight ahead                                    | 30 s              |
 | Mysterio           | Click [css_useSkill] to control your hologram for a few seconds                                       | 30 s              |
 | Mystique           | You start the round with an enemy player model                                                        | -                 |
-| Nebula             | Arms and legs are bulletproof                                                                          | -                 |
+| Nebula             | Arms and legs are bulletproof                                                                         | -                 |
 | Nick Fury          | Click [css_useSkill] to create/switch to a camera                                                     | 30 s              |
 | Night Nurse        | Click [css_useSkill] to use a healing charge that restores 50 health                                  | 1 s               |
 | Nightcrawler       | Click [css_useSkill] to teleport to the enemy spawn                                                   | 15 s              |
@@ -163,7 +163,7 @@ cs2-hero-shift/
 | Rogue              | Choose a player whose skill you want to disable                                                       | -                 |
 | Sabretooth         | You deal more damage and move faster as your health gets lower                                        | -                 |
 | Sandman            | Choose a player who cannot jump                                                                       | -                 |
-| Scarlet Witch      | You can choose a bomb site to deactivate                                                               | -                 |
+| Scarlet Witch      | You can choose a bomb site to deactivate                                                              | -                 |
 | Scorpion           | Choose a player who will take damage every few seconds                                                | -                 |
 | Sentry             | Click [css_useSkill] to become immortal for a short time                                              | 30 s              |
 | Shadowcat          | Your footsteps and jumps are silent to other players                                                  | -                 |
@@ -177,10 +177,10 @@ cs2-hero-shift/
 | Storm              | Zeus x27 instantly recharges                                                                          | -                 |
 | Sunspot            | You receive a random amount of money at the start of the round                                        | (5000 - 15000)$   |
 | Super-Adaptoid     | You can steal a skill from a chosen player                                                            | -                 |
-| Taskmaster         | No recoil while shooting                                                                               | -                 |
+| Taskmaster         | No recoil while shooting                                                                              | -                 |
 | Tempo              | Planting the bomb takes significantly longer                                                          | -                 |
 | The Thing          | Grenades deal no damage to you                                                                        | -                 |
-| The Watcher        | Click [css_useSkill] to activate a bird's-eye view camera                                              | -                 |
+| The Watcher        | Click [css_useSkill] to activate a bird's-eye view camera                                             | -                 |
 | Thor               | Zeus deals damage regardless of distance                                                              | -                 |
 | Throg              | You get auto "BunnyHop"                                                                               | -                 |
 | Tinkerer           | Click [css_useSkill] to swap weapons with a random enemy                                              | 30 s              |
@@ -189,7 +189,7 @@ cs2-hero-shift/
 | U.S. Agent         | You have a random damage multiplier                                                                   | (1.15 - 1.35)x    |
 | Ultron             | Disables the radar for a chosen enemy                                                                 | -                 |
 | Vision             | Click [css_useSkill] to enable noclip for a short time                                                | 30 s              |
-| War Machine        | Click [css_useSkill] to lock your aim on the nearest enemy                                             | 20 s              |
+| War Machine        | Click [css_useSkill] to lock your aim on the nearest enemy                                            | 20 s              |
 | Wasp               | Enlarge an enemy of your choice                                                                       | (110 - 140)%      |
 | Whirlwind          | You have a random chance to turn an enemy 180° when hitting them                                      | (20 - 40)%        |
 | Wolverine          | You restore health every few seconds                                                                  | -                 |
@@ -209,8 +209,8 @@ cs2-hero-shift/
    - Edit the `gameinfo.gi` file by adding a new line
 
      ```json
-         Game_LowViolence csgo_lv // Perfect World content override
          Game csgo/addons/metamod // <-- Line to add
+         Game_LowViolence csgo_lv // Perfect World content override
 
          Game csgo
      ```
@@ -224,7 +224,7 @@ cs2-hero-shift/
    - Download [RayTrace-MM](https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases)
    - Extract it to the `CS2Server/game/csgo/addons/` folder.
 5. Install **HeroShift**
-   - Download [HeroShift](https://github.com/arikitos/cs2-hero-shift/releases)
+   - Download [HeroShift](https://github.com/arikitos/cs2-heroshift/releases)
 
 ## 🖥️ Server Commands
 
