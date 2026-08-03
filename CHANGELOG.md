@@ -35,3 +35,15 @@ All notable changes to this project are documented in this file.
   scrambling. `TranslationValidator` checks an external catalog's keys and placeholder sets
   against the embedded English baseline. Additive only: plugin load still reads the legacy
   `src/utils/Localization.cs`.
+- `src/Skills/SkillDispatcher.cs`: typed hook dispatcher replacing reflection-based
+  `HeroShift.SkillAction`/`DispatchToActiveSkills`. `src/Skills/BOOLEAN_HOOK_SEMANTICS.md`
+  characterizes the exact legacy fan-out and short-circuit rules for `PlayerHurtPre` (victim's
+  skill asked first, attacker's only if the victim didn't suppress and holds a different
+  skill), `OnWeaponCanAcquire` (every distinct active skill asked, first `true` wins — not
+  just the acquiring player's own skill), and `WeaponDrop` (declared and implemented by
+  `Iana`, but never dispatched anywhere in the legacy codebase — a pre-existing dead hook,
+  preserved as-is rather than "fixed"), plus the `OnTick` skill-order and
+  `OnTakeDamage`/`OnTakeDamagePost` late-damage-skill ordering rules. `SkillDispatcherTests`
+  pins every one of these rules with fakes. Deliberately decoupled from player runtime state
+  (callers pass the active `SkillId` list) since that migrates in a later commit — not yet
+  wired into the live event pipeline.
