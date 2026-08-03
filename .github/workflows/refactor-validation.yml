@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -30,14 +32,19 @@ jobs:
       - name: Build
         run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
 
-      - name: Archive refactor source
+      - name: Archive refactor source and history
         shell: bash
         run: |
           git archive --format=zip --output=refactor-source.zip HEAD
+          git bundle create refactor.bundle HEAD
+          git rev-parse 'HEAD^{tree}' > refactor-tree-sha.txt
 
       - name: Upload refactor source
         uses: actions/upload-artifact@v4
         with:
           name: refactor-source
-          path: refactor-source.zip
+          path: |
+            refactor-source.zip
+            refactor.bundle
+            refactor-tree-sha.txt
           if-no-files-found: error
