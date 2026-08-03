@@ -30,6 +30,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Staged the reviewed compressed runtime-configuration patch for the owner-gated cutover workflow; payload files are removed automatically by the validated cutover commit.
 - Added an owner-gated cutover workflow that applies the reviewed runtime-configuration patch, validates it on Linux, and commits only after tests and Release build succeed.
 
 - `tools/refactor-migration/` and `.github/workflows/refactor-migration.yml`: deterministic, owner-gated generation of typed skill migration batches from the committed baseline, with diff validation, tests and Release build required before each checkpoint commit.
