@@ -1,0 +1,43 @@
+name: Refactor Validation
+
+on:
+  push:
+    branches: [refactor]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore "HeroShift - SRC Files/HeroShift.sln"
+
+      - name: Test
+        run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Build
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Archive refactor source
+        shell: bash
+        run: |
+          git archive --format=zip --output=refactor-source.zip HEAD
+
+      - name: Upload refactor source
+        uses: actions/upload-artifact@v4
+        with:
+          name: refactor-source
+          path: refactor-source.zip
+          if-no-files-found: error
