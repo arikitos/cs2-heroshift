@@ -20,7 +20,16 @@ public static class BuiltInSkillCatalog
     {
         var registry = new SkillRegistry();
 
+        registry.Register(AntyFlashDefinition.Create());
+        registry.Register(AstronautDefinition.Create());
+        registry.Register(BehindDefinition.Create());
         registry.Register(DashDefinition.Create());
+        registry.Register(DraculaDefinition.Create());
+        registry.Register(DwarfDefinition.Create());
+        registry.Register(FastReloadDefinition.Create());
+        registry.Register(IlliterateDefinition.Create());
+        registry.Register(PushDefinition.Create());
+        registry.Register(RobinHoodDefinition.Create());
 
         return registry;
     }

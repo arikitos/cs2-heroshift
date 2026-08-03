@@ -1,4 +1,5 @@
 using src.SkillsCore.Abstractions;
+using src.utils;
 
 namespace src.SkillsCore;
 
@@ -6,42 +7,69 @@ namespace src.SkillsCore;
  * SkillConfigurationResolver - typed replacement for
  * SkillsInfo.GetValue<T>(skillName, "key") (REFACTOR.md section 9).
  *
- * Skills are static classes with static hook methods (preserved as-is per
- * REFACTOR.md section 23 migration procedure - "preserve all static and
- * per-player state"), so there is no per-skill instance to inject a typed
- * options object into. This resolver is the static access point every
- * migrated skill's hook body calls instead:
+ * During migration, skillsInfo.json remains the active server configuration.
+ * The first typed read builds an immutable typed snapshot for every migrated
+ * definition. A successful legacy reload replaces SkillsInfo.LoadedConfig;
+ * reference comparison detects that change and rebuilds the snapshot once.
+ * No reflection or JSON conversion occurs in gameplay hot paths after that.
  *
- *   SkillConfigurationResolver.Get<DashOptions>(BuiltInSkillIds.Dash).CooldownSeconds
- *
- * SetSnapshot is called once per effective configuration snapshot (initial
- * load and every successful !reload), matching REFACTOR.md section 14's
- * atomic-snapshot-replacement requirement - readers either see the fully old
- * or fully new options, never a partial mix.
+ * The final heroshift.json bootstrap calls SetSnapshot, which permanently
+ * disables this temporary legacy source for the running plugin instance.
  */
 public static class SkillConfigurationResolver
 {
-    private static IReadOnlyDictionary<SkillId, ISkillOptions> _options = new Dictionary<SkillId, ISkillOptions>();
+    private static readonly object SnapshotLock = new();
+    private static IReadOnlyDictionary<SkillId, ISkillOptions> _options =
+        new Dictionary<SkillId, ISkillOptions>();
+    private static SkillsInfo.SkillsInfoModel? _legacySource;
+    private static bool _usesLegacySource = true;
 
     public static void SetSnapshot(IReadOnlyDictionary<SkillId, ISkillOptions> options)
     {
-        _options = options;
+        ArgumentNullException.ThrowIfNull(options);
+
+        lock (SnapshotLock)
+        {
+            _options = options;
+            _legacySource = null;
+            _usesLegacySource = false;
+        }
     }
 
-    // Throws if the skill was never registered or its options type doesn't match
-    // TOptions - both indicate a programming error (a skill referencing the
-    // wrong options type), not a runtime/configuration problem, so this is
-    // intentionally not a silent-default fallback like the legacy
-    // SkillsInfo.GetValue<T> (REFACTOR.md section 9: "Invalid values must not
-    // silently become default(T)").
-    public static TOptions Get<TOptions>(SkillId id) where TOptions : class, ISkillOptions
+    // Throws if the skill was never registered or its options type doesn't
+    // match TOptions. Both indicate a programming error, not a recoverable
+    // server configuration problem.
+    public static TOptions Get<TOptions>(SkillId id)
+        where TOptions : class, ISkillOptions
     {
+        EnsureMigrationSnapshot();
+
         if (!_options.TryGetValue(id, out var options))
-            throw new InvalidOperationException($"No options snapshot registered for skill '{id}'. SkillConfigurationResolver.SetSnapshot must run before any skill hook executes.");
+            throw new InvalidOperationException(
+                $"No options snapshot registered for skill '{id}'.");
 
         if (options is not TOptions typed)
-            throw new InvalidOperationException($"Skill '{id}' options are '{options.GetType().Name}', not the requested '{typeof(TOptions).Name}'.");
+            throw new InvalidOperationException(
+                $"Skill '{id}' options are '{options.GetType().Name}', not the requested '{typeof(TOptions).Name}'.");
 
         return typed;
+    }
+
+    private static void EnsureMigrationSnapshot()
+    {
+        if (!_usesLegacySource) return;
+
+        var currentLegacySource = SkillsInfo.LoadedConfig;
+        if (ReferenceEquals(_legacySource, currentLegacySource)) return;
+
+        lock (SnapshotLock)
+        {
+            if (!_usesLegacySource || ReferenceEquals(_legacySource, currentLegacySource))
+                return;
+
+            var registry = BuiltInSkillCatalog.BuildRegistry();
+            _options = LegacySkillConfigurationBridge.Resolve(registry, currentLegacySource);
+            _legacySource = currentLegacySource;
+        }
     }
 }

@@ -28,6 +28,8 @@ public sealed class SkillRegistry
 
         if (!_byId.TryAdd(definition.Id, definition))
             throw new InvalidOperationException($"Duplicate skill ID '{definition.Id}': every skill must be registered exactly once.");
+
+        InvalidateHookIndexes();
     }
 
     public bool TryGet(SkillId id, out SkillDefinition definition) => _byId.TryGetValue(id, out definition!);

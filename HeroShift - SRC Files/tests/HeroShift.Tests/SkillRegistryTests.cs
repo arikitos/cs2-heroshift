@@ -32,9 +32,7 @@ public class SkillRegistryTests
     {
         var registry = new SkillRegistry();
         var definition = MakeDefinition(BuiltInSkillIds.Dash);
-
         registry.Register(definition);
-
         Assert.True(registry.Contains(BuiltInSkillIds.Dash));
         Assert.Same(definition, registry.Get(BuiltInSkillIds.Dash));
     }
@@ -44,7 +42,6 @@ public class SkillRegistryTests
     {
         var registry = new SkillRegistry();
         registry.Register(MakeDefinition(BuiltInSkillIds.Dash));
-
         Assert.Throws<InvalidOperationException>(() => registry.Register(MakeDefinition(BuiltInSkillIds.Dash)));
     }
 
@@ -68,7 +65,6 @@ public class SkillRegistryTests
         var registry = new SkillRegistry();
         registry.Register(MakeDefinition(BuiltInSkillIds.Dash, new SkillHookSet { OnTick = () => { } }));
         registry.Register(MakeDefinition(BuiltInSkillIds.None));
-
         Assert.Single(registry.TickSkills);
         Assert.Equal(BuiltInSkillIds.Dash, registry.TickSkills[0].Id);
     }
@@ -79,7 +75,17 @@ public class SkillRegistryTests
         var registry = new SkillRegistry();
         registry.Register(MakeDefinition(BuiltInSkillIds.Dash));
         registry.Register(MakeDefinition(BuiltInSkillIds.KillerFlash));
-
         Assert.Equal(2, registry.All.Count);
+    }
+
+    [Fact]
+    public void Register_AfterHookIndexWasRead_InvalidatesCachedIndex()
+    {
+        var registry = new SkillRegistry();
+        registry.Register(MakeDefinition(BuiltInSkillIds.None));
+        Assert.Empty(registry.TickSkills);
+        registry.Register(MakeDefinition(BuiltInSkillIds.Dash, new SkillHookSet { OnTick = () => { } }));
+        Assert.Single(registry.TickSkills);
+        Assert.Equal(BuiltInSkillIds.Dash, registry.TickSkills[0].Id);
     }
 }

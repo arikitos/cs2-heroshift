@@ -14,16 +14,22 @@ public class BuiltInSkillCatalogTests
     {
         var registry = BuiltInSkillCatalog.BuildRegistry();
 
+        Assert.Equal(10, registry.All.Count);
+        Assert.True(registry.Contains(BuiltInSkillIds.AntyFlash));
+        Assert.True(registry.Contains(BuiltInSkillIds.Astronaut));
+        Assert.True(registry.Contains(BuiltInSkillIds.Behind));
         Assert.True(registry.Contains(BuiltInSkillIds.Dash));
+        Assert.True(registry.Contains(BuiltInSkillIds.Dracula));
+        Assert.True(registry.Contains(BuiltInSkillIds.Dwarf));
+        Assert.True(registry.Contains(BuiltInSkillIds.FastReload));
+        Assert.True(registry.Contains(BuiltInSkillIds.Illiterate));
+        Assert.True(registry.Contains(BuiltInSkillIds.Push));
+        Assert.True(registry.Contains(BuiltInSkillIds.RobinHood));
     }
 
     [Fact]
     public void DashDefinition_MatchesBaselineMetadataAndOptions()
     {
-        // Cross-checked against tools/refactor-baseline/snapshot/baseline.json's
-        // "Dash" entry: color "#42bbfc", onlyTeam CsTeam.None, maxPerServer -1,
-        // rarity Rarity.Common, options jumpVelocity=150f, pushVelocity=600f,
-        // anyDirection=true, cooldown=2f.
         var definition = DashDefinition.Create();
 
         Assert.Equal(BuiltInSkillIds.Dash, definition.Id);
@@ -41,7 +47,6 @@ public class BuiltInSkillCatalogTests
     [Fact]
     public void DashDefinition_RegistersExpectedHooksMatchingBaseline()
     {
-        // Baseline hooks for Dash: LoadSkill, EnableSkill, DisableSkill, OnTick, NewRound.
         var definition = DashDefinition.Create();
 
         Assert.NotNull(definition.Hooks.LoadSkill);
