@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -35,6 +37,7 @@ namespace src.player.skills
     public class ReactiveArmor : ISkill
     {
         private const Skills skillName = Skills.ReactiveArmor;
+        private static ReactiveArmorOptions Options => SkillConfigurationResolver.Get<ReactiveArmorOptions>(BuiltInSkillIds.ReactiveArmor);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
@@ -102,7 +105,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)

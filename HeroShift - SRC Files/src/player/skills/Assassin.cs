@@ -3,6 +3,8 @@ using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class Assassin : ISkill
     {
         private const Skills skillName = Skills.Assassin;
+        private static AssassinOptions Options => SkillConfigurationResolver.Get<AssassinOptions>(BuiltInSkillIds.Assassin);
         private static readonly string[] nadeWeapons =
         [
             "weapon_inferno", "weapon_molotov", "weapon_incgrenade", "weapon_flashbang",
@@ -79,7 +82,7 @@ namespace src.player.skills
             if (nadeWeapons.Contains(weapon.DesignerName)) return;
 
             if (IsBehind(attacker, victim))
-                param2.Damage *= SkillsInfo.GetValue<float>(skillName, "damageMultiplier");
+                param2.Damage *= Options.DamageMultiplier;
         }
 
         private static bool IsBehind(CCSPlayerController attacker, CCSPlayerController victim)
@@ -96,7 +99,7 @@ namespace src.player.skills
 
         private static (float, float) GetAngleRange(float angle)
         {
-            var toleranceDeg = SkillsInfo.GetValue<float>(skillName, "toleranceDeg");
+            var toleranceDeg = Options.ToleranceDeg;
             float min = angle - toleranceDeg;
             float max = angle + toleranceDeg;
 

@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -36,6 +38,7 @@ namespace src.player.skills
     public class FriendlyFire : ISkill
     {
         private const Skills skillName = Skills.FriendlyFire;
+        private static FriendlyFireOptions Options => SkillConfigurationResolver.Get<FriendlyFireOptions>(BuiltInSkillIds.FriendlyFire);
         private static bool defaultAutoKick = true;
         private static bool autoKickOverridden;
 
@@ -104,7 +107,7 @@ namespace src.player.skills
 
             SkillUtils.AddHealth(
                 victimPawn,
-                (int)(damage * SkillsInfo.GetValue<float>(skillName, "healthDamageMultiplier")),
+                (int)(damage * Options.HealthDamageMultiplier),
                 victimPawn.MaxHealth
             );
         }

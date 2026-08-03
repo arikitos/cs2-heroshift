@@ -6,6 +6,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -45,6 +47,7 @@ namespace src.player.skills
     public class ReZombie : ISkill
     {
         private const Skills skillName = Skills.ReZombie;
+        private static ReZombieOptions Options => SkillConfigurationResolver.Get<ReZombieOptions>(BuiltInSkillIds.ReZombie);
         private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<uint, int> zombies = [];
         private static readonly object setLock = new();
@@ -149,7 +152,7 @@ namespace src.player.skills
 
                 zombies[victim.Index] = Server.TickCount;
 
-                int zombieHealth = SkillsInfo.GetValue<int>(skillName, "zombieHealth");
+                int zombieHealth = Options.ZombieHealth;
                 DropAllBotWeapons(victim);
                 SetPlayerColor(victimPawn, false);
                 SkillUtils.SetHealth(victimPawn, zombieHealth, zombieHealth);
@@ -162,13 +165,13 @@ namespace src.player.skills
 
         private static void ApplyTurnTint(CCSPlayerController victim)
         {
-            int alpha = SkillsInfo.GetValue<int>(skillName, "A");
+            int alpha = Options.A;
             if (alpha <= 0) return;
 
             SkillUtils.ApplyScreenColor(victim,
-                r: SkillsInfo.GetValue<int>(skillName, "R"),
-                g: SkillsInfo.GetValue<int>(skillName, "G"),
-                b: SkillsInfo.GetValue<int>(skillName, "B"),
+                r: Options.R,
+                g: Options.G,
+                b: Options.B,
                 a: alpha,
                 duration: 200,
                 holdTime: 600);

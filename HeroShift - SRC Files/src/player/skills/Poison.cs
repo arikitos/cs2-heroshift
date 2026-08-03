@@ -5,6 +5,8 @@ using HeroShift.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -41,6 +43,7 @@ namespace src.player.skills
     public class Poison : ISkill
     {
         private const Skills skillName = Skills.Poison;
+        private static PoisonOptions Options => SkillConfigurationResolver.Get<PoisonOptions>(BuiltInSkillIds.Poison);
         private static readonly ConcurrentDictionary<uint, byte> poisonedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly ConcurrentDictionary<uint, uint> targetToPlayer = [];
@@ -79,7 +82,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int cooldown = Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "Cooldown")));
+            int cooldown = Math.Max(1, (int)(64 * Options.Cooldown));
 
             if (Server.TickCount % cooldown == 0)
             {
@@ -95,9 +98,9 @@ namespace src.player.skills
 
                     if (Jester.IsActiveJester(playerIndex)) continue;
 
-                    if (pawn.Health <= SkillsInfo.GetValue<int>(skillName, "MinHealth")) continue;
+                    if (pawn.Health <= Options.MinHealth) continue;
 
-                    SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"), GetSkillOwner(playerIndex), KillfeedIcons.Spray);
+                    SkillUtils.TakeHealth(pawn, Options.Damage, GetSkillOwner(playerIndex), KillfeedIcons.Spray);
 
                     if (Server.TickCount % cooldown2 == 0)
                         PlayerManager.GetPlayerFromEvent(player)?.ExecuteClientCommand($"play player/player_damagebody_0{HeroShift.Instance.Random.Next(4, 8)}");

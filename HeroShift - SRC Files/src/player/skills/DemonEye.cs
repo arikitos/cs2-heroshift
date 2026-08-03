@@ -5,6 +5,8 @@ using HeroShift.src.utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     public class DemonEye : ISkill
     {
         private const Skills skillName = Skills.DemonEye;
+        private static DemonEyeOptions Options => SkillConfigurationResolver.Get<DemonEyeOptions>(BuiltInSkillIds.DemonEye);
         private static readonly Skills[] hidingSkills = [Skills.Ghost, Skills.Ninja, Skills.C4Camouflage];
 
         public static void LoadSkill()
@@ -48,10 +51,10 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int tickCooldown = (int)(64 * SkillsInfo.GetValue<float>(skillName, "SecondCooldown"));
+            int tickCooldown = (int)(64 * Options.SecondCooldown);
             if (Server.TickCount % tickCooldown != 0) return;
 
-            int damage = SkillsInfo.GetValue<int>(skillName, "damage");
+            int damage = Options.Damage;
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {

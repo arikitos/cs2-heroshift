@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -40,6 +42,7 @@ namespace src.player.skills
     public class HotBomb : ISkill
     {
         private const Skills skillName = Skills.HotBomb;
+        private static HotBombOptions Options => SkillConfigurationResolver.Get<HotBombOptions>(BuiltInSkillIds.HotBomb);
         private readonly static ConcurrentDictionary<uint, byte> players = [];
 
         public static void LoadSkill()
@@ -49,11 +52,11 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int cooldown = Math.Max(1, (int)(SkillsInfo.GetValue<float>(skillName, "cooldown") * 64));
+            int cooldown = Math.Max(1, (int)(Options.Cooldown * 64));
             if (Server.TickCount % cooldown != 0) return;
 
             if (players.IsEmpty || HeroShift.Instance.GameRules?.FreezePeriod == true) return;
-            int damage = SkillsInfo.GetValue<int>(skillName, "damage");
+            int damage = Options.Damage;
 
             var owner = GetSkillOwner();
 

@@ -6,6 +6,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     public class Berserker : ISkill
     {
         private const Skills skillName = Skills.Berserker;
+        private static BerserkerOptions Options => SkillConfigurationResolver.Get<BerserkerOptions>(BuiltInSkillIds.Berserker);
         public static readonly ConcurrentDictionary<uint, int> jumpedPlayers = [];
 
         public static void LoadSkill()
@@ -87,7 +90,7 @@ namespace src.player.skills
 
             if (playerInfo.Skill == skillName)
             {
-                float damageMultiplier = CalculateNewVelocity(attackerPawn, SkillsInfo.GetValue<float>(skillName, "maxDamageVelocity"));
+                float damageMultiplier = CalculateNewVelocity(attackerPawn, Options.MaxDamageVelocity);
                 param2.Damage *= damageMultiplier;
             }
         }
@@ -129,7 +132,7 @@ namespace src.player.skills
                 if (playerPawn == null || playerPawn.VelocityModifier == 0) continue;
 
                 var buttons = player.Buttons;
-                float newSpeedVelocity = CalculateNewVelocity(playerPawn, SkillsInfo.GetValue<float>(skillName, "maxSpeedVelocity"));
+                float newSpeedVelocity = CalculateNewVelocity(playerPawn, Options.MaxSpeedVelocity);
 
                 if (buttons.HasFlag(PlayerButtons.Moveleft) || buttons.HasFlag(PlayerButtons.Moveright) || buttons.HasFlag(PlayerButtons.Forward) || buttons.HasFlag(PlayerButtons.Back))
                     playerPawn.VelocityModifier = newSpeedVelocity;

@@ -3,6 +3,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using HeroShift.src.utils;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -40,6 +42,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Thorns;
 
+        private static ThornsOptions Options => SkillConfigurationResolver.Get<ThornsOptions>(BuiltInSkillIds.Thorns);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -67,8 +70,8 @@ namespace src.player.skills
             var victimInfo = PlayerManager.GetPlayerByIndex(victimEvent!.Index);
             if (victimInfo?.Skill == skillName)
             {
-                int damage = (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale"));
-                damage = Math.Min(damage, SkillsInfo.GetValue<int>(skillName, "maxTakenDamagePerShot"));
+                int damage = (int)(@event.DmgHealth * Options.HealthTakenScale);
+                damage = Math.Min(damage, Options.MaxTakenDamagePerShot);
 
                 SkillUtils.TakeHealth(attackerEvent.PlayerPawn.Value, damage, victimEvent, KillfeedIcons.Armor);
                 attackerEvent.EmitSound("Player.DamageBody.Onlooker");

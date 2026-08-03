@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     public class CarefulBullets : ISkill
     {
         private const Skills skillName = Skills.CarefulBullets;
+        private static CarefulBulletsOptions Options => SkillConfigurationResolver.Get<CarefulBulletsOptions>(BuiltInSkillIds.CarefulBullets);
         private static readonly ConcurrentDictionary<uint, byte> targetPlayers = [];
         private static readonly ConcurrentDictionary<uint, bool> lastShot = [];
         private static readonly ConcurrentDictionary<uint, int> hitPlayer = [];
@@ -182,7 +185,7 @@ namespace src.player.skills
                         {
                             eventPlayer.ExecuteClientCommand($"play player/player_damagebody_0{Instance.Random.Next(4, 8)}");
 
-                            SkillUtils.TakeHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "damageAfterMiss"), GetSkillOwner(playerIndex), KillfeedIcons.Fist);
+                            SkillUtils.TakeHealth(playerPawn, Options.DamageAfterMiss, GetSkillOwner(playerIndex), KillfeedIcons.Fist);
                         }
                         lastShot.TryRemove(playerIndex, out _);
                     });

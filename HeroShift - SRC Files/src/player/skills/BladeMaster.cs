@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -42,6 +44,7 @@ namespace src.player.skills
     public class BladeMaster : ISkill
     {
         private const Skills skillName = Skills.BladeMaster;
+        private static BladeMasterOptions Options => SkillConfigurationResolver.Get<BladeMasterOptions>(BuiltInSkillIds.BladeMaster);
         private static readonly string[] noReflectionWeapon = ["inferno", "flashbang", "smokegrenade", "decoy", "hegrenade", "knife", "taser", "bayonet"];
 
         public static void LoadSkill()
@@ -51,7 +54,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            var modifier = SkillsInfo.GetValue<float>(skillName, "velocityModifier");
+            var modifier = Options.VelocityModifier;
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -93,8 +96,8 @@ namespace src.player.skills
             if (string.IsNullOrEmpty(weapon) || noReflectionWeapon.Contains(weapon)) return false;
 
             float chance = (hitgroup == (int)HitGroup_t.HITGROUP_LEFTLEG || hitgroup == (int)HitGroup_t.HITGROUP_RIGHTLEG)
-                ? SkillsInfo.GetValue<float>(skillName, "legReflectionChance")
-                : SkillsInfo.GetValue<float>(skillName, "torseReflectionChance");
+                ? Options.LegReflectionChance
+                : Options.TorseReflectionChance;
 
             var victimPawn = victim.PlayerPawn?.Value;
             if (victimPawn == null || !victimPawn.IsValid || Instance.Random.NextDouble() > chance)

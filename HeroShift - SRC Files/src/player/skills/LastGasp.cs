@@ -4,6 +4,8 @@ using HeroShift.src.utils;
 using src.utils;
 using static System.Net.Mime.MediaTypeNames;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -38,6 +40,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.LastGasp;
 
+        private static LastGaspOptions Options => SkillConfigurationResolver.Get<LastGaspOptions>(BuiltInSkillIds.LastGasp);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -61,8 +64,8 @@ namespace src.player.skills
             if (victimInfo?.Skill != skillName)
                 return;
 
-            int damageAfterDeath = SkillsInfo.GetValue<int>(skillName, "DamageAfterDeath");
-            bool canKill = SkillsInfo.GetValue<bool>(skillName, "CanKill");
+            int damageAfterDeath = Options.DamageAfterDeath;
+            bool canKill = Options.CanKill;
 
             if (!canKill)
             {

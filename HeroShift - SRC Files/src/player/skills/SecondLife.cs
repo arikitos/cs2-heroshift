@@ -6,6 +6,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -37,6 +39,7 @@ namespace src.player.skills
     public class SecondLife : ISkill
     {
         private const Skills skillName = Skills.SecondLife;
+        private static SecondLifeOptions Options => SkillConfigurationResolver.Get<SecondLifeOptions>(BuiltInSkillIds.SecondLife);
         private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<nint, int> usedThisRound = [];
         private static readonly object setLock = new();
@@ -120,7 +123,7 @@ namespace src.player.skills
 
                 usedThisRound.TryAdd(victim.Handle, Server.TickCount);
 
-                victimPawn.Health = SkillsInfo.GetValue<int>(skillName, "startHealth");
+                victimPawn.Health = Options.StartHealth;
                 Utilities.SetStateChanged(victimPawn, "CBaseEntity", "m_iHealth");
 
                 Server.NextFrame(() =>
@@ -139,14 +142,14 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SetHealth(player, SkillsInfo.GetValue<int>(skillName, "startHealth"));
+            SetHealth(player, Options.StartHealth);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             usedThisRound.TryRemove(player.Handle, out _);
             if (player.PlayerPawn.Value == null) return;
-            SetHealth(player, Math.Min(player.PlayerPawn.Value.Health + SkillsInfo.GetValue<int>(skillName, "startHealth"), 100));
+            SetHealth(player, Math.Min(player.PlayerPawn.Value.Health + Options.StartHealth, 100));
         }
 
         private static void SetHealth(CCSPlayerController player, int health)
