@@ -14,7 +14,7 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
-- Restrict typed option discovery to the nested `SkillConfig` body and normalize fully qualified enum defaults, preventing runtime-state properties from being emitted as options.
+- Restrict typed option discovery to the nested `SkillConfig` body, prefer its constructor parameter types, and normalize fully qualified enum defaults so generated options match the effective configuration contract.
 
 - Make typed skill identity available to every migrated gameplay implementation through a core global using, preventing generated option accessors from failing compilation when a source file did not already import the abstractions namespace.
 - Initialize typed skill option snapshots lazily from the active legacy configuration during migration, automatically rebuilding once after a successful config reload so partially migrated skills remain runtime-safe before the final `heroshift.json` cutover.
