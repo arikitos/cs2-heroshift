@@ -5,6 +5,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -40,6 +42,7 @@ namespace src.player.skills
     public class Medic : ISkill
     {
         private const Skills skillName = Skills.Medic;
+        private static MedicOptions Options => SkillConfigurationResolver.Get<MedicOptions>(BuiltInSkillIds.Medic);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
@@ -73,7 +76,7 @@ namespace src.player.skills
                 SteamID = player.Index,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
-                Count = SkillsInfo.GetValue<int>(skillName, "healthShotLimit"),
+                Count = Options.HealthShotLimit,
             });
         }
 
@@ -88,7 +91,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -103,7 +106,7 @@ namespace src.player.skills
 
             string remainingLine = cooldown != 0
                 ? $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}"
-                : $"<font color='#{(skillInfo == null || skillInfo.Count == 0 ? "FF0000" : "00FF00")}'>{(skillInfo == null ? 0 : skillInfo.Count)}/{SkillsInfo.GetValue<int>(skillName, "healthShotLimit")}</font>";
+                : $"<font color='#{(skillInfo == null || skillInfo.Count == 0 ? "FF0000" : "00FF00")}'>{(skillInfo == null ? 0 : skillInfo.Count)}/{Options.HealthShotLimit}</font>";
 
             playerInfo.PrintHTML = remainingLine;
         }
@@ -121,7 +124,7 @@ namespace src.player.skills
                     skillInfo.CanUse = false;
                     skillInfo.Cooldown = DateTime.Now;
                     skillInfo.Count -= 1;
-                    SkillUtils.AddHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
+                    SkillUtils.AddHealth(playerPawn, Options.HealthToAdd);
                     player.EmitSound("Healthshot.Success");
                 }
             }

@@ -6,6 +6,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -47,6 +49,7 @@ namespace src.player.skills
     public class Flash : ISkill
     {
         private const Skills skillName = Skills.Flash;
+        private static FlashOptions Options => SkillConfigurationResolver.Get<FlashOptions>(BuiltInSkillIds.Flash);
         public static readonly ConcurrentDictionary<uint, int> jumpedPlayers = [];
 
         public static void LoadSkill()
@@ -91,7 +94,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerPawn == null || playerInfo == null) return;
 
-            float newSpeed = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
+            float newSpeed = (float)Instance.Random.NextDouble() * (Options.ChanceTo - Options.ChanceFrom) + Options.ChanceFrom;
             newSpeed = (float)Math.Round(newSpeed, 2);
             playerInfo.SkillChance = newSpeed;
 

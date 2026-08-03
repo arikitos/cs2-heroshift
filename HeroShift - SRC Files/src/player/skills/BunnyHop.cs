@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -40,6 +42,7 @@ namespace src.player.skills
     public class BunnyHop : ISkill
     {
         private const Skills skillName = Skills.BunnyHop;
+        private static BunnyHopOptions Options => SkillConfigurationResolver.Get<BunnyHopOptions>(BuiltInSkillIds.BunnyHop);
         private static readonly ConcurrentDictionary<uint, int> playersLastJump = [];
 
         public static void NewRound()
@@ -91,8 +94,8 @@ namespace src.player.skills
 
             if (jumpPressed && flags.HasFlag(PlayerFlags.FL_ONGROUND) && !eventPlayerPawn.MoveType.HasFlag(MoveType_t.MOVETYPE_LADDER))
             {
-                eventPlayerPawn.AbsVelocity.Z = SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
-                var maxSpeed = SkillsInfo.GetValue<float>(skillName, "maxSpeed");
+                eventPlayerPawn.AbsVelocity.Z = Options.JumpVelocity;
+                var maxSpeed = Options.MaxSpeed;
 
                 var vX = eventPlayerPawn.AbsVelocity.X;
                 var vY = eventPlayerPawn.AbsVelocity.Y;
@@ -101,7 +104,7 @@ namespace src.player.skills
 
                 if (speed2D < maxSpeed)
                 {
-                    var newSpeed = Math.Min(speed2D * SkillsInfo.GetValue<float>(skillName, "jumpBoost"), maxSpeed);
+                    var newSpeed = Math.Min(speed2D * Options.JumpBoost, maxSpeed);
                     scale = newSpeed / (speed2D == 0 ? 1 : speed2D);
                 }
                 else if (speed2D > maxSpeed)

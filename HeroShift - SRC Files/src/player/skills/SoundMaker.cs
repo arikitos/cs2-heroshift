@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -36,6 +38,7 @@ namespace src.player.skills
     public class SoundMaker : ISkill
     {
         private const Skills skillName = Skills.SoundMaker;
+        private static SoundMakerOptions Options => SkillConfigurationResolver.Get<SoundMakerOptions>(BuiltInSkillIds.SoundMaker);
         private static readonly ConcurrentDictionary<uint, byte> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
@@ -122,7 +125,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % (60 * SkillsInfo.GetValue<int>(skillName, "cooldown")) != 0) return;
+            if (Server.TickCount % (60 * Options.Cooldown) != 0) return;
 
             foreach (var player in PlayerManager.GetTickPlayers()
                 .Where(p => p != null && p.IsValid && p.PlayerPawn.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0))

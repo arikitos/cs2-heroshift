@@ -5,6 +5,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -46,6 +48,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.HealingChicken;
 
+        private static HealingChickenOptions Options => SkillConfigurationResolver.Get<HealingChickenOptions>(BuiltInSkillIds.HealingChicken);
         private class ChickenState
         {
             public CChicken? Chicken { get; set; }
@@ -85,7 +88,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
-            int amount = SkillsInfo.GetValue<int>(skillName, "amount");
+            int amount = Options.Amount;
             var list = new List<ChickenState>();
 
             for (int i = 0; i < amount; i++)
@@ -112,12 +115,12 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int tickCooldown = SkillsInfo.GetValue<int>(skillName, "tickCooldown");
+            int tickCooldown = Options.TickCooldown;
             if (Server.TickCount % tickCooldown == 0) return;
 
             var players = PlayerManager.GetTickPlayers().ToArray();
-            int healAmount = SkillsInfo.GetValue<int>(skillName, "heal");
-            float healRadius = SkillsInfo.GetValue<float>(skillName, "healRadius");
+            int healAmount = Options.Heal;
+            float healRadius = Options.HealRadius;
 
             foreach (var player in players)
             {

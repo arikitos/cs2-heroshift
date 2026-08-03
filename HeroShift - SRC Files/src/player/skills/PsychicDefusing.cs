@@ -5,6 +5,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     public class PsychicDefusing : ISkill
     {
         private const Skills skillName = Skills.PsychicDefusing;
+        private static PsychicDefusingOptions Options => SkillConfigurationResolver.Get<PsychicDefusingOptions>(BuiltInSkillIds.PsychicDefusing);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static Vector? bombLocation = null;
         private static readonly float tickRate = 64f;
@@ -89,10 +92,10 @@ namespace src.player.skills
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
 
-                if (pawn.AbsOrigin == null || SkillUtils.GetDistance(pawn.AbsOrigin, bombLocation) > SkillsInfo.GetValue<float>(skillName, "maxDefusingRange"))
+                if (pawn.AbsOrigin == null || SkillUtils.GetDistance(pawn.AbsOrigin, bombLocation) > Options.MaxDefusingRange)
                 {
                     info.Defusing = false;
-                    info.DefusingTime = SkillsInfo.GetValue<float>(skillName, "defusingTime");
+                    info.DefusingTime = Options.DefusingTime;
                     SkillUtils.ResetPrintHTML(player);
                     continue;
                 }
@@ -127,7 +130,7 @@ namespace src.player.skills
             {
                 SteamID = player.Index,
                 Defusing = false,
-                DefusingTime = SkillsInfo.GetValue<float>(skillName, "defusingTime"),
+                DefusingTime = Options.DefusingTime,
             });
         }
 

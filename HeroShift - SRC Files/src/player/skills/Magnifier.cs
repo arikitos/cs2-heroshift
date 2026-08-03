@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -36,6 +38,7 @@ namespace src.player.skills
     public class Magnifier : ISkill
     {
         private const Skills skillName = Skills.Magnifier;
+        private static MagnifierOptions Options => SkillConfigurationResolver.Get<MagnifierOptions>(BuiltInSkillIds.Magnifier);
         private static readonly ConcurrentDictionary<uint, uint> playersFOV = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 
@@ -124,7 +127,7 @@ namespace src.player.skills
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
             if (enemyEvent == null || !enemyEvent.IsValid) return;
 
-            enemyEvent.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            enemyEvent.DesiredFOV = Options.CustomFOV;
             Utilities.SetStateChanged(enemyEvent, "CBasePlayerController", "m_iDesiredFOV");
             playerInfo.SkillUsed = true;
 
@@ -142,7 +145,7 @@ namespace src.player.skills
 
             if (!playersFOV.ContainsKey(bot.Index)) return;
 
-            player.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            player.DesiredFOV = Options.CustomFOV;
             Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
         }
 

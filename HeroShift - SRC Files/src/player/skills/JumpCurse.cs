@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -36,6 +38,7 @@ namespace src.player.skills
     public class JumpCurse : ISkill
     {
         private const Skills skillName = Skills.JumpCurse;
+        private static JumpCurseOptions Options => SkillConfigurationResolver.Get<JumpCurseOptions>(BuiltInSkillIds.JumpCurse);
         private static readonly ConcurrentDictionary<uint, byte> cursedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 
@@ -75,7 +78,7 @@ namespace src.player.skills
             if (jumperPawn == null || !jumperPawn.IsValid) return;
             if (jumperPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || jumperPawn.Health <= 0) return;
 
-            float jumpVelocity = SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
+            float jumpVelocity = Options.JumpVelocity;
 
             foreach (var cursedIndex in cursedPlayers.Keys)
             {

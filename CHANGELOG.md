@@ -6,9 +6,13 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Migrated the tick and movement skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.
+
 - Migrated the passive skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.
 
 ### Fixed
+
+- Restrict typed option discovery to the nested `SkillConfig` body and normalize fully qualified enum defaults, preventing runtime-state properties from being emitted as options.
 
 - Make typed skill identity available to every migrated gameplay implementation through a core global using, preventing generated option accessors from failing compilation when a source file did not already import the abstractions namespace.
 - Initialize typed skill option snapshots lazily from the active legacy configuration during migration, automatically rebuilding once after a successful config reload so partially migrated skills remain runtime-safe before the final `heroshift.json` cutover.

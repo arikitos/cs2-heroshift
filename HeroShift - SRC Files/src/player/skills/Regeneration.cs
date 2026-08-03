@@ -3,6 +3,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,6 +17,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Regeneration;
 
+        private static RegenerationOptions Options => SkillConfigurationResolver.Get<RegenerationOptions>(BuiltInSkillIds.Regeneration);
         public static void LoadSkill()
         {
             SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
@@ -22,7 +25,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int cooldown = Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "cooldown")));
+            int cooldown = Math.Max(1, (int)(64 * Options.Cooldown));
             if (Server.TickCount % cooldown != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -31,7 +34,7 @@ namespace src.player.skills
 
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
-                SkillUtils.AddHealth(pawn, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
+                SkillUtils.AddHealth(pawn, Options.HealthToAdd);
             }
         }
 

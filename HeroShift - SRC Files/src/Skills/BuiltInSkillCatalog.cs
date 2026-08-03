@@ -3,46 +3,89 @@ using src.SkillsCore.BuiltIn;
 
 namespace src.SkillsCore;
 
-/*
- * BuiltInSkillCatalog - registers every migrated skill's typed definition in
- * stable legacy skill order. The catalog remains additive until the live
- * runtime is switched from reflection to SkillDispatcher.
- */
 public static class BuiltInSkillCatalog
 {
     public static SkillRegistry BuildRegistry()
     {
         var registry = new SkillRegistry();
-
         registry.Register(NoneDefinition.Create());
+        registry.Register(AimLockDefinition.Create());
+        registry.Register(AnomalyDefinition.Create());
         registry.Register(AntyFlashDefinition.Create());
+        registry.Register(AreaReaperDefinition.Create());
         registry.Register(AstronautDefinition.Create());
+        registry.Register(BankruptDefinition.Create());
         registry.Register(BehindDefinition.Create());
+        registry.Register(BunnyHopDefinition.Create());
+        registry.Register(C4CamouflageDefinition.Create());
         registry.Register(CatapultDefinition.Create());
+        registry.Register(ChickenDefinition.Create());
+        registry.Register(ChillOutDefinition.Create());
+        registry.Register(DarknessDefinition.Create());
+        registry.Register(DeactivatorDefinition.Create());
+        registry.Register(DeafDefinition.Create());
         registry.Register(DisarmamentDefinition.Create());
+        registry.Register(DistancerDefinition.Create());
         registry.Register(DashDefinition.Create());
         registry.Register(DraculaDefinition.Create());
+        registry.Register(DuplicatorDefinition.Create());
         registry.Register(DwarfDefinition.Create());
+        registry.Register(EnemySpawnDefinition.Create());
+        registry.Register(ExpensiveAmmoDefinition.Create());
+        registry.Register(FalconEyeDefinition.Create());
         registry.Register(FastReloadDefinition.Create());
+        registry.Register(FlashDefinition.Create());
         registry.Register(FragileBombDefinition.Create());
+        registry.Register(FrozenDecoyDefinition.Create());
+        registry.Register(GhostDefinition.Create());
+        registry.Register(GiantDefinition.Create());
+        registry.Register(GlitchDefinition.Create());
         registry.Register(GrenadierDefinition.Create());
+        registry.Register(HealingChickenDefinition.Create());
         registry.Register(IlliterateDefinition.Create());
         registry.Register(ImpostorDefinition.Create());
         registry.Register(InfiniteAmmoDefinition.Create());
+        registry.Register(JammerDefinition.Create());
+        registry.Register(JetKickDefinition.Create());
+        registry.Register(JumpBanDefinition.Create());
+        registry.Register(JumpCurseDefinition.Create());
         registry.Register(JumpingJackDefinition.Create());
         registry.Register(KnockbackDefinition.Create());
+        registry.Register(LifeSwapDefinition.Create());
+        registry.Register(MagneticDecoyDefinition.Create());
+        registry.Register(MagnifierDefinition.Create());
+        registry.Register(MedicDefinition.Create());
+        registry.Register(MoneySwapDefinition.Create());
+        registry.Register(NinjaDefinition.Create());
+        registry.Register(NoRecoilDefinition.Create());
+        registry.Register(PawelJumperDefinition.Create());
+        registry.Register(PsychicDefusingDefinition.Create());
+        registry.Register(PilotDefinition.Create());
+        registry.Register(PlanterDefinition.Create());
+        registry.Register(PrimaryBanDefinition.Create());
         registry.Register(PushDefinition.Create());
         registry.Register(PyroDefinition.Create());
+        registry.Register(QuickShotDefinition.Create());
+        registry.Register(RadarHackDefinition.Create());
         registry.Register(RamboDefinition.Create());
+        registry.Register(RegenerationDefinition.Create());
+        registry.Register(RetreatDefinition.Create());
         registry.Register(ReturnToSenderDefinition.Create());
         registry.Register(RichBoyDefinition.Create());
         registry.Register(RobinHoodDefinition.Create());
+        registry.Register(RubberDefinition.Create());
         registry.Register(SaperDefinition.Create());
         registry.Register(ShortBombDefinition.Create());
         registry.Register(SilentDefinition.Create());
+        registry.Register(SoundMakerDefinition.Create());
+        registry.Register(SpectatorDefinition.Create());
+        registry.Register(SwapPositionDefinition.Create());
+        registry.Register(TakeAmmoDefinition.Create());
         registry.Register(TeleporterDefinition.Create());
+        registry.Register(ThiefDefinition.Create());
+        registry.Register(ThirdEyeDefinition.Create());
+        registry.Register(WeaponsSwapDefinition.Create());
         registry.Register(ZeusDefinition.Create());
-
         return registry;
     }
 }

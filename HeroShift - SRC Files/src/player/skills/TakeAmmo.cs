@@ -6,6 +6,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class TakeAmmo : ISkill
     {
         private const Skills skillName = Skills.TakeAmmo;
+        private static TakeAmmoOptions Options => SkillConfigurationResolver.Get<TakeAmmoOptions>(BuiltInSkillIds.TakeAmmo);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
         private static readonly ConcurrentDictionary<string, (int, string)> OriginalWeaponMaxAmmo = new();
@@ -120,7 +123,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)

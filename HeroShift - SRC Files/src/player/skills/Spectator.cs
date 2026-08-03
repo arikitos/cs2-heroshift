@@ -6,6 +6,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     public class Spectator : ISkill
     {
         private const Skills skillName = Skills.Spectator;
+        private static SpectatorOptions Options => SkillConfigurationResolver.Get<SpectatorOptions>(BuiltInSkillIds.Spectator);
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint, uint)> cameras = [];
         private static readonly ConcurrentDictionary<uint, DateTime> lastUse = [];
@@ -84,7 +87,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            float cooldown = SkillsInfo.GetValue<float>(skillName, "useCooldown");
+            float cooldown = Options.UseCooldown;
             if (lastUse.TryGetValue(player.Index, out var last) && (DateTime.Now - last).TotalSeconds < cooldown) return;
             lastUse[player.Index] = DateTime.Now;
 
@@ -201,7 +204,7 @@ namespace src.player.skills
 
             QAngle angle = new(0, pawn.EyeAngles.Y, 0);
 
-            var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(angle) * SkillsInfo.GetValue<float>(skillName, "distance");
+            var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(angle) * Options.Distance;
             pos.Z += pawn.ViewOffset.Z;
 
             Server.NextFrame(() =>

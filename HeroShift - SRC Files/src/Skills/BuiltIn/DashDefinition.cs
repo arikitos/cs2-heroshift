@@ -3,11 +3,6 @@ using src.SkillsCore.Abstractions;
 
 namespace src.SkillsCore.BuiltIn;
 
-/*
- * DashOptions - typed replacement for the legacy Dash.SkillConfig tunables
- * (src/player/skills/Dash.cs). Defaults transcribed verbatim from that
- * SkillConfig's constructor parameters.
- */
 public sealed record DashOptions : ISkillOptions
 {
     public float JumpVelocity { get; init; } = 150f;
@@ -16,13 +11,6 @@ public sealed record DashOptions : ISkillOptions
     public float Cooldown { get; init; } = 2f;
 }
 
-/*
- * DashDefinition - typed SkillDefinition for Dash. Hooks reference the
- * skill's existing public static methods directly as delegates (REFACTOR.md
- * section 23) - Dash.cs's hook bodies are unchanged except for the
- * SkillsInfo.GetValue calls, which now read SkillConfigurationResolver's
- * typed DashOptions snapshot instead.
- */
 public static class DashDefinition
 {
     public static SkillDefinition<DashOptions> Create() => new()
@@ -38,7 +26,7 @@ public static class DashDefinition
             HudDuration: null,
             DescriptionHudDuration: null,
             MaxPerServer: -1,
-            Rarity: utils.Rarity.Common),
+            Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new DashOptions(),
         Hooks = new SkillHookSet
         {

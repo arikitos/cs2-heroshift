@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -36,6 +38,7 @@ namespace src.player.skills
     public class ThirdEye : ISkill
     {
         private const Skills skillName = Skills.ThirdEye;
+        private static ThirdEyeOptions Options => SkillConfigurationResolver.Get<ThirdEyeOptions>(BuiltInSkillIds.ThirdEye);
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint)> cameras = [];
         private static readonly object setLock = new();
@@ -83,7 +86,7 @@ namespace src.player.skills
                         continue;
                     }
 
-                    var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(pawn.EyeAngles) * SkillsInfo.GetValue<float>(skillName, "distance");
+                    var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(pawn.EyeAngles) * Options.Distance;
                     pos.Z += pawn.ViewOffset.Z;
 
                     var cam = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);

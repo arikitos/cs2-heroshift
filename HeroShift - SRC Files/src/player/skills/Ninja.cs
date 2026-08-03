@@ -7,6 +7,8 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -44,6 +46,7 @@ namespace src.player.skills
     public class Ninja : ISkill
     {
         private const Skills skillName = Skills.Ninja;
+        private static NinjaOptions Options => SkillConfigurationResolver.Get<NinjaOptions>(BuiltInSkillIds.Ninja);
         private static readonly ConcurrentDictionary<nint, float> invisibilityChanged = [];
         private static readonly ConcurrentDictionary<uint, byte> invisiblePlayers = [];
         private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
@@ -227,11 +230,11 @@ namespace src.player.skills
             float percentInvisibility = 0;
 
             if (buttons.HasFlag(PlayerButtons.Duck))
-                percentInvisibility += SkillsInfo.GetValue<float>(skillName, "duckPercentInvisibility");
+                percentInvisibility += Options.DuckPercentInvisibility;
             if (activeWeapon != null && (activeWeapon.DesignerName == "weapon_knife" || activeWeapon.DesignerName == "weapon_bayonet"))
-                percentInvisibility += SkillsInfo.GetValue<float>(skillName, "knifePercentInvisibility");
+                percentInvisibility += Options.KnifePercentInvisibility;
             if (!buttons.HasFlag(PlayerButtons.Moveleft) && !buttons.HasFlag(PlayerButtons.Moveright) && !buttons.HasFlag(PlayerButtons.Forward) && !buttons.HasFlag(PlayerButtons.Back) && flags.HasFlag(PlayerFlags.FL_ONGROUND))
-                percentInvisibility += SkillsInfo.GetValue<float>(skillName, "idlePercentInvisibility");
+                percentInvisibility += Options.IdlePercentInvisibility;
 
             if (invisibilityChanged.TryGetValue(playerEvent.Handle, out float oldInvisibility))
                 if (percentInvisibility == oldInvisibility)

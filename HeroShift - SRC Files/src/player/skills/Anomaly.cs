@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class Anomaly : ISkill
     {
         private const Skills skillName = Skills.Anomaly;
+        private static AnomalyOptions Options => SkillConfigurationResolver.Get<AnomalyOptions>(BuiltInSkillIds.Anomaly);
         private static readonly float tickRate = 64;
 
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
@@ -76,7 +79,7 @@ namespace src.player.skills
                             skillInfo.LastPositions.Enqueue(new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z));
                             skillInfo.LastRotations.Enqueue(new QAngle(pawn.V_angle.X, pawn.V_angle.Y, 0));
 
-                            if (skillInfo.LastRotations.Count > SkillsInfo.GetValue<int>(skillName, "secondsInBack"))
+                            if (skillInfo.LastRotations.Count > Options.SecondsInBack)
                             {
                                 skillInfo.LastPositions.TryDequeue(out _);
                                 skillInfo.LastRotations.TryDequeue(out _);
@@ -112,7 +115,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid || skillInfo == null) return;
 
             float cooldown = 0;
-            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
             cooldown = Math.Max(time, 0);
 
             if (cooldown == 0 && !skillInfo.CanUse)

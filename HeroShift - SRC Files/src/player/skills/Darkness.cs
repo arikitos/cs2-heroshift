@@ -7,6 +7,8 @@ using System.Collections.Concurrent;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -44,6 +46,7 @@ namespace src.player.skills
     public class Darkness : ISkill
     {
         private const Skills skillName = Skills.Darkness;
+        private static DarknessOptions Options => SkillConfigurationResolver.Get<DarknessOptions>(BuiltInSkillIds.Darkness);
         private static readonly ConcurrentDictionary<uint, byte> playersInDark = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();
@@ -247,10 +250,10 @@ namespace src.player.skills
         private static void ApplyColor(CCSPlayerController? player)
         {
             SkillUtils.ApplyScreenColor(player,
-                r: SkillsInfo.GetValue<int>(skillName, "R"),
-                g: SkillsInfo.GetValue<int>(skillName, "G"),
-                b: SkillsInfo.GetValue<int>(skillName, "B"),
-                a: SkillsInfo.GetValue<int>(skillName, "A"),
+                r: Options.R,
+                g: Options.G,
+                b: Options.B,
+                a: Options.A,
                 duration: 100,
                 holdTime: 3000);
         }

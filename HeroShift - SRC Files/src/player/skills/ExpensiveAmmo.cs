@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -36,6 +38,7 @@ namespace src.player.skills
     public class ExpensiveAmmo : ISkill
     {
         private const Skills skillName = Skills.ExpensiveAmmo;
+        private static ExpensiveAmmoOptions Options => SkillConfigurationResolver.Get<ExpensiveAmmoOptions>(BuiltInSkillIds.ExpensiveAmmo);
         private static readonly ConcurrentDictionary<uint, byte> cursedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 
@@ -73,7 +76,7 @@ namespace src.player.skills
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
 
-            int cost = SkillsInfo.GetValue<int>(skillName, "moneyPerShot");
+            int cost = Options.MoneyPerShot;
             if (cost <= 0) return;
 
             moneyServices.Account = Math.Max(moneyServices.Account - cost, 0);
@@ -135,7 +138,7 @@ namespace src.player.skills
             if (enemyEvent == null || !enemyEvent.IsValid) return;
 
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("expensiveammo_player_info", enemy.PlayerName));
-            enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("expensiveammo_enemy_info", SkillsInfo.GetValue<int>(skillName, "moneyPerShot")));
+            enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("expensiveammo_enemy_info", Options.MoneyPerShot));
         }
 
         public static void EnableSkill(CCSPlayerController player)

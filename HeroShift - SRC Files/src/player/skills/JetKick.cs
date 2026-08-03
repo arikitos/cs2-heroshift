@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -36,6 +38,7 @@ namespace src.player.skills
     public class JetKick : ISkill
     {
         private const Skills skillName = Skills.JetKick;
+        private static JetKickOptions Options => SkillConfigurationResolver.Get<JetKickOptions>(BuiltInSkillIds.JetKick);
         private static readonly ConcurrentDictionary<uint, byte> targetedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();
@@ -181,7 +184,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn == null || !playerPawn.IsValid || playerPawn.Health <= 0) return;
 
-            Vector newVelocity = -SkillUtils.GetForwardVector(playerPawn.V_angle) * SkillsInfo.GetValue<float>(skillName, "pushVelocity");
+            Vector newVelocity = -SkillUtils.GetForwardVector(playerPawn.V_angle) * Options.PushVelocity;
             playerPawn.Teleport(null, null, newVelocity);
         }
 

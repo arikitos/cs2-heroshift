@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class EnemySpawn : ISkill
     {
         private const Skills skillName = Skills.EnemySpawn;
+        private static EnemySpawnOptions Options => SkillConfigurationResolver.Get<EnemySpawnOptions>(BuiltInSkillIds.EnemySpawn);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
@@ -66,12 +69,12 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var cooldownBeforeUse = SkillsInfo.GetValue<float>(skillName, "cooldownBeforeUse");
+            var cooldownBeforeUse = Options.CooldownBeforeUse;
             SkillPlayerInfo.TryAdd(player.Index, new PlayerSkillInfo
             {
                 SteamID = player.Index,
                 CanUse = false,
-                Cooldown = cooldownBeforeUse <= 0 ? DateTime.MinValue : Event.GetFreezeTimeEnd().AddSeconds(cooldownBeforeUse - SkillsInfo.GetValue<float>(skillName, "cooldown")),
+                Cooldown = cooldownBeforeUse <= 0 ? DateTime.MinValue : Event.GetFreezeTimeEnd().AddSeconds(cooldownBeforeUse - Options.Cooldown),
             });
         }
 
@@ -86,7 +89,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)

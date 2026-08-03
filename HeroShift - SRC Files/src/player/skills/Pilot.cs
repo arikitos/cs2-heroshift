@@ -5,6 +5,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -40,6 +42,7 @@ namespace src.player.skills
     public class Pilot : ISkill
     {
         private const Skills skillName = Skills.Pilot;
+        private static PilotOptions Options => SkillConfigurationResolver.Get<PilotOptions>(BuiltInSkillIds.Pilot);
         private static readonly ConcurrentDictionary<uint, Pilot_PlayerInfo> PlayerPilotInfo = [];
 
         public static void LoadSkill()
@@ -115,9 +118,9 @@ namespace src.player.skills
 
             bool inUse = pilotInfo.IsFlying && pilotInfo.Fuel > 0 && !isOnGround;
 
-            float maximumFuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
-            float consumption = SkillsInfo.GetValue<float>(skillName, "fuelConsumption");
-            float refuelling = SkillsInfo.GetValue<float>(skillName, "refuelling");
+            float maximumFuel = Options.MaximumFuel;
+            float consumption = Options.FuelConsumption;
+            float refuelling = Options.Refuelling;
 
             pilotInfo.Fuel = Math.Clamp(
                 pilotInfo.Fuel + (inUse ? -consumption : refuelling),
@@ -140,7 +143,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            var maximumFuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
+            var maximumFuel = Options.MaximumFuel;
             if (pilotInfo.Fuel == maximumFuel && playerInfo.SkillDescriptionHudExpired >= DateTime.Now)
             {
                 playerInfo.PrintHTML = null;
@@ -156,7 +159,7 @@ namespace src.player.skills
 
         private static string GetFuelColor(float fuelPercentage)
         {
-            var maximumFuel = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
+            var maximumFuel = Options.MaximumFuel;
             if (fuelPercentage > (maximumFuel / 2f)) return "#00FF00";
             if (fuelPercentage > (maximumFuel / 4f)) return "#FFFF00";
             return "#FF0000";
@@ -193,7 +196,7 @@ namespace src.player.skills
         public class Pilot_PlayerInfo
         {
             public required ulong SteamID { get; set; }
-            public float Fuel { get; set; } = SkillsInfo.GetValue<float>(skillName, "maximumFuel");
+            public float Fuel { get; set; } = Options.MaximumFuel;
             public PlayerButtons LastButtons { get; set; } = 0;
             public int JumpCount { get; set; } = 0;
             public float LastJumpTime { get; set; } = 0;

@@ -6,6 +6,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -37,6 +39,7 @@ namespace src.player.skills
     public class FalconEye : ISkill
     {
         private const Skills skillName = Skills.FalconEye;
+        private static FalconEyeOptions Options => SkillConfigurationResolver.Get<FalconEyeOptions>(BuiltInSkillIds.FalconEye);
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint)> cameras = [];
 
@@ -98,7 +101,7 @@ namespace src.player.skills
                         continue;
                     }
 
-                    Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + SkillsInfo.GetValue<float>(skillName, "distance"));
+                    Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + Options.Distance);
                     QAngle angle = new(90, 0, -pawn.V_angle.Y);
 
                     var camera = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
@@ -145,7 +148,7 @@ namespace src.player.skills
 
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return 0;
-            Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + SkillsInfo.GetValue<float>(skillName, "distance"));
+            Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + Options.Distance);
 
             Server.NextFrame(() =>
             {

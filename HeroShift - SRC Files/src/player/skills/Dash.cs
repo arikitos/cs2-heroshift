@@ -44,6 +44,7 @@ namespace src.player.skills
     public class Dash : ISkill
     {
         private const Skills skillName = Skills.Dash;
+        private static DashOptions Options => SkillConfigurationResolver.Get<DashOptions>(BuiltInSkillIds.Dash);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
@@ -84,7 +85,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillConfigurationResolver.Get<DashOptions>(BuiltInSkillIds.Dash).Cooldown) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -152,7 +153,7 @@ namespace src.player.skills
                     float moveY = 0;
 
                     PlayerButtons playerButtons = player.Buttons;
-                    var dashOptions = SkillConfigurationResolver.Get<DashOptions>(BuiltInSkillIds.Dash);
+                    var dashOptions = Options;
                     if (dashOptions.AnyDirection)
                     {
                         if (playerButtons.HasFlag(PlayerButtons.Forward))

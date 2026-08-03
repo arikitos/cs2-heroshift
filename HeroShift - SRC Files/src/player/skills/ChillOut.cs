@@ -6,6 +6,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -37,6 +39,7 @@ namespace src.player.skills
     public class ChillOut : ISkill
     {
         private const Skills skillName = Skills.ChillOut;
+        private static ChillOutOptions Options => SkillConfigurationResolver.Get<ChillOutOptions>(BuiltInSkillIds.ChillOut);
         private static readonly ConcurrentDictionary<uint, float> plantingPlayers = [];
 
         public static void LoadSkill()
@@ -77,7 +80,7 @@ namespace src.player.skills
             var bomb = PlayerManager.GetTickBomb();
             if (bomb == null || !bomb.IsValid) return;
 
-            bomb.ArmedTime = Server.CurrentTime + SkillsInfo.GetValue<float>(skillName, "bombArmedTime");
+            bomb.ArmedTime = Server.CurrentTime + Options.BombArmedTime;
         }
 
         private static bool IsAnyOwnerAlive()
@@ -107,7 +110,7 @@ namespace src.player.skills
             if (plantingPlayers.IsEmpty) return;
 
             float currentTime = Server.CurrentTime;
-            float extraTime = SkillsInfo.GetValue<float>(skillName, "bombArmedTime");
+            float extraTime = Options.BombArmedTime;
 
             foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.Team == CsTeam.Terrorist))
             {

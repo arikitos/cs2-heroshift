@@ -5,6 +5,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -39,6 +41,7 @@ namespace src.player.skills
     public class Giant : ISkill
     {
         private const Skills skillName = Skills.Giant;
+        private static GiantOptions Options => SkillConfigurationResolver.Get<GiantOptions>(BuiltInSkillIds.Giant);
         private static readonly ConcurrentDictionary<uint, uint> enlargedEnemies = [];
         private static readonly object setLock = new();
 
@@ -80,8 +83,8 @@ namespace src.player.skills
             if (playerInfo == null) return;
             playerInfo.SkillUsed = false;
 
-            float minScale = SkillsInfo.GetValue<float>(skillName, "minScale");
-            float maxScale = SkillsInfo.GetValue<float>(skillName, "maxScale");
+            float minScale = Options.MinScale;
+            float maxScale = Options.MaxScale;
             playerInfo.SkillChance = (float)Math.Round((float)Instance.Random.NextDouble() * (maxScale - minScale) + minScale, 2);
 
             var playerEvent = PlayerManager.GetPlayerFromEvent(player);

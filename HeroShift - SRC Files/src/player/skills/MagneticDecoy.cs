@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -40,6 +42,7 @@ namespace src.player.skills
     public class MagneticDecoy : ISkill
     {
         private const Skills skillName = Skills.MagneticDecoy;
+        private static MagneticDecoyOptions Options => SkillConfigurationResolver.Get<MagneticDecoyOptions>(BuiltInSkillIds.MagneticDecoy);
         private static readonly ConcurrentDictionary<Vector, byte> decoys = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
@@ -84,7 +87,7 @@ namespace src.player.skills
                     var eventPlayer = PlayerManager.GetPlayerEvent(player);
                     if (eventPlayer == null || !eventPlayer.IsValid) continue;
 
-                    var decoyRadius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
+                    var decoyRadius = Options.TriggerRadius;
 
                     var pawn = eventPlayer.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
@@ -97,7 +100,7 @@ namespace src.player.skills
 
                         Vector normalized = direction / length;
                         float ratio = 1 - (float)(distance / decoyRadius);
-                        float strenght = SkillsInfo.GetValue<float>(skillName, "strenght") * ratio;
+                        float strenght = Options.Strenght * ratio;
 
                         pawn.AbsVelocity.X += normalized.X * strenght;
                         pawn.AbsVelocity.Y += normalized.Y * strenght;
@@ -150,7 +153,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);

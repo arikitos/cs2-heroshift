@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -37,6 +39,7 @@ namespace src.player.skills
     public class PawelJumper : ISkill
     {
         private const Skills skillName = Skills.PawelJumper;
+        private static PawelJumperOptions Options => SkillConfigurationResolver.Get<PawelJumperOptions>(BuiltInSkillIds.PawelJumper);
         private static readonly int?[] J = new int?[64];
         private static readonly PlayerButtons[] LB = new PlayerButtons[64];
 
@@ -67,7 +70,7 @@ namespace src.player.skills
             var skillConfig = SkillsInfo.LoadedConfig.FirstOrDefault(s => s.Name == skillName.ToString());
             if (skillConfig == null) return;
 
-            float extraJumps = (float)Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "extraJumpsMin"), SkillsInfo.GetValue<int>(skillName, "extraJumpsMax") + 1);
+            float extraJumps = (float)Instance.Random.Next(Options.ExtraJumpsMin, Options.ExtraJumpsMax + 1);
             playerInfo.SkillChance = extraJumps;
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, extraJumps)}",
                 border: !PlayerManager.GetTickPlayers().Any(p => p.Team == player.Team && p != player) ? "tb" : "t");

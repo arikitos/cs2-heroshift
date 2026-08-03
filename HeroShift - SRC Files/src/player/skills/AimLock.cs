@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class AimLock : ISkill
     {
         private const Skills skillName = Skills.AimLock;
+        private static AimLockOptions Options => SkillConfigurationResolver.Get<AimLockOptions>(BuiltInSkillIds.AimLock);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
@@ -65,7 +68,7 @@ namespace src.player.skills
                     {
                         UpdateHUD(player, skillInfo);
 
-                        if (skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "duration")) > DateTime.Now)
+                        if (skillInfo.Cooldown.AddSeconds(Options.Duration) > DateTime.Now)
                             LookAtEnemy(player);
                     }
                 }
@@ -94,7 +97,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || skillInfo == null) return;
 
-            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
             float cooldown = Math.Max(time, 0);
 
             if (cooldown == 0 && !skillInfo.CanUse)
