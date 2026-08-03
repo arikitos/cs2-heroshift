@@ -22,6 +22,7 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- Decouple runtime-cutover code application from changelog context and update `Unreleased` idempotently after the reviewed patch applies.
 - Make runtime-cutover invariant checks deterministic and diagnostic, reporting the exact missing file, initialization, or remaining legacy dependency.
 - Restrict typed option discovery to the nested `SkillConfig` body, prefer its constructor parameter types, and normalize fully qualified enum defaults so generated options match the effective configuration contract.
 
