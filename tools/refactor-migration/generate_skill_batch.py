@@ -65,12 +65,18 @@ def option_properties(source: str, name: str, options: dict[str, str]) -> list[t
     body = class_body(source, "public class SkillConfig")
     declarations = [(m.group(1).strip(), m.group(2)) for m in
                     re.finditer(r"public\s+([^\n{=]+?)\s+(\w+)\s*\{\s*get;\s*set;\s*\}", body)]
+    constructor_match = re.search(r"public\s+class\s+SkillConfig\((.*?)\)\s*:", source, re.S)
+    constructor_types = {}
+    if constructor_match:
+        for match in re.finditer(r"(?:^|,)\s*([A-Za-z_][A-Za-z0-9_.<>?\[\]]*)\s+(\w+)\s*=", constructor_match.group(1)):
+            constructor_types[match.group(2).lower()] = match.group(1)
     result = []
     for key, default in options.items():
         match = next(((typ, prop) for typ, prop in declarations if prop.lower() == key.lower()), None)
         if not match:
             raise RuntimeError(f"{name}: option property {key} not found in SkillConfig")
-        result.append((key, match[1], match[0], default))
+        option_type = constructor_types.get(key.lower(), match[0])
+        result.append((key, match[1], option_type, default))
     return result
 
 
@@ -198,7 +204,7 @@ def update_test(names: list[str]) -> None:
 
 def update_changelog(batch: str, description: str) -> None:
     text = CHANGELOG.read_text(encoding="utf-8")
-    fixed = "- Restrict typed option discovery to the nested `SkillConfig` body and normalize fully qualified enum defaults, preventing runtime-state properties from being emitted as options."
+    fixed = "- Restrict typed option discovery to the nested `SkillConfig` body, prefer its constructor parameter types, and normalize fully qualified enum defaults so generated options match the effective configuration contract."
     if fixed not in text: text = text.replace("### Fixed\n", "### Fixed\n\n" + fixed + "\n", 1)
     bullet = f"- Migrated the {description} batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover."
     if bullet not in text:
