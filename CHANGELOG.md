@@ -27,3 +27,11 @@ All notable changes to this project are documented in this file.
   IDs, and produces an immutable `ConfigurationSnapshot` — or throws
   `ConfigurationValidationException` with one message per problem, each carrying its JSON path.
   Additive only: not yet wired into plugin load, which keeps reading the legacy `Config.cs`.
+- `src/Localization/` (namespace `src.LocalizationCore`): embeds `src/lang/en.json` as a DLL
+  resource (`Resources/en.json`) so English works without any external file.
+  `LocalizationService` resolves translations through an external-language → embedded-English
+  → raw-key fallback chain, preserving the legacy `CHATCOLORS.RED`/`css_useSkill` load-time
+  substitutions, the `"welcome"` unformatted-sentinel behavior, and illiterate-player text
+  scrambling. `TranslationValidator` checks an external catalog's keys and placeholder sets
+  against the embedded English baseline. Additive only: plugin load still reads the legacy
+  `src/utils/Localization.cs`.

@@ -21,6 +21,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="src\Localization\Resources\en.json" LogicalName="src.Localization.Resources.en.json" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="CounterStrikeSharp.API" Version="1.0.371" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
