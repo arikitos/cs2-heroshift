@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -29,13 +29,12 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
 
-	<ItemGroup>
-		<Reference Include="RayTraceApi">
-			<HintPath>libs/RayTraceApi.dll</HintPath>
-		</Reference>
-	</ItemGroup>
+    <ItemGroup>
+        <Reference Include="RayTraceApi">
+            <HintPath>libs/RayTraceApi.dll</HintPath>
+        </Reference>
+    </ItemGroup>
 
-	<!-- Relative path to the WASDMenuAPI source code -->
     <ItemGroup>
         <ProjectReference Include="..\WASDMenuAPI - SRC Files\WASDMenuAPI.csproj" />
     </ItemGroup>
@@ -55,34 +54,4 @@
         </EmbeddedResource>
     </ItemGroup>
 
-    <PropertyGroup>
-        <SourceDLL>$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)</SourceDLL>
-        <ServerDLL>$(MSBuildProjectDirectory)\..\HeroShift - Server Files\plugins\HeroShift</ServerDLL>
-        <SourceGamedataDir>$(MSBuildProjectDirectory)\src\gamedata</SourceGamedataDir>
-		<ServerGamedataDir>$(MSBuildProjectDirectory)\..\HeroShift - Server Files\gamedata</ServerGamedataDir>
-    </PropertyGroup>
-
-    <!-- Copy compiled DLL to server directory -->
-    <Target Name="CopyDLLToServer" AfterTargets="Build">
-        <Message Text="Copying compiled DLL from $(SourceDLL) to $(ServerDLL)" Importance="High" />
-        <ItemGroup>
-            <CompiledDLL Include="$(SourceDLL)\HeroShift.dll" />
-            <CompiledDLL Include="$(SourceDLL)\HeroShift.pdb" />
-            <CompiledDLL Include="$(SourceDLL)\WASDMenuAPI.dll" />
-            <CompiledDLL Include="$(SourceDLL)\WASDMenuAPI.pdb" />
-	        <CompiledDLL Include="$(SourceDLL)\Newtonsoft.Json.dll" />
-        </ItemGroup>
-        <MakeDir Directories="$(ServerDLL)" Condition="!Exists('$(ServerDLL)')" />
-        <Copy SourceFiles="@(CompiledDLL)" DestinationFiles="@(CompiledDLL->'$(ServerDLL)\\%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
-    </Target>
-
-	<!-- Copy gamedata files to server directory -->
-	<Target Name="CopyGamedataFilesToServer" AfterTargets="Build">
-		<Message Text="Copying gamedata files from $(SourceGamedataDir) to $(ServerGamedataDir)" Importance="High" />
-		<ItemGroup>
-			<GamedataFiles Include="$(SourceGamedataDir)\**\*.*" />
-		</ItemGroup>
-		<MakeDir Directories="$(ServerGamedataDir)" Condition="!Exists('$(ServerGamedataDir)')" />
-		<Copy SourceFiles="@(GamedataFiles)" DestinationFiles="@(GamedataFiles->'$(ServerGamedataDir)\\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
-	</Target>
 </Project>
