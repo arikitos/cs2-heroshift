@@ -1,0 +1,29 @@
+name: Export Source Snapshot
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/export-source.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create source archive
+        run: tar --exclude=.git -czf repository-source.tar.gz .
+
+      - name: Upload source archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-source
+          path: repository-source.tar.gz
+          if-no-files-found: error
+          retention-days: 1
