@@ -38,6 +38,8 @@ jobs:
           grep -Fq 'tests/HeroShift.Tests/RuntimeAdapterTests.cs' /tmp/adapters.patch
           git apply --check /tmp/adapters.patch
           git apply --index /tmp/adapters.patch
+          sed -i 's/managerFactory ?? static () => new WasdManager()/managerFactory ?? (static () => new WasdManager())/' 'HeroShift - SRC Files/src/Infrastructure/Menu/WasdGameMenuService.cs'
+          git add 'HeroShift - SRC Files/src/Infrastructure/Menu/WasdGameMenuService.cs'
           git rm -r tools/refactor-adapters '.github/workflows/refactor-adapters-v2.yml'
           git diff --cached --check
 
@@ -57,6 +59,7 @@ jobs:
           test -f "$trace"
           grep -Fq 'MenuService = new WasdGameMenuService();' "$hero"
           grep -Fq 'TraceService = new RayTraceService();' "$hero"
+          grep -Fq 'managerFactory ?? (static () => new WasdManager())' "$menu"
           grep -Fq 'new("raytrace:craytraceinterface")' "$trace"
           grep -Fq 'WASDMenuAPI.WASDMenuAPI.LoadPlugin(plugin, hotReload);' "$menu"
           grep -Fq 'WasdAdapterCreatesManagerLazilyAndDelegatesOperations' "$tests"
