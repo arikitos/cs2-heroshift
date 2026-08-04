@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+## [1.0.0] - 2026-08-04
+
 ### Added
 
 - Add stable typed skill IDs, canonical typed metadata, and typed option records for all 142 built-in skills.
