@@ -95,13 +95,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          hero='HeroShift - SRC Files/src/HeroShift.cs'
           test -f 'HeroShift - Server Files/plugins/HeroShift/HeroShift.dll'
           test -f 'HeroShift - Server Files/plugins/HeroShift/WASDMenuAPI.dll'
-          test -f 'HeroShift - Server Files/shared/RayTraceApi/RayTraceApi.dll'
-          test -f 'HeroShift - Server Files/plugins/RayTraceImpl/RayTraceImpl.dll'
-          test -f 'HeroShift - Server Files/metamod/RayTrace.vdf'
+          test -f 'HeroShift - Server Files/plugins/HeroShift/Newtonsoft.Json.dll'
           test -f 'HeroShift - Server Files/gamedata/HeroShift.gamedata.json'
           test -f 'HeroShift - Server Files/plugins/HeroShift/configs/heroshift.json'
+          test -f 'HeroShift - SRC Files/libs/RayTraceApi.dll'
+          grep -Fq '{ "RayTraceApi", "./../../shared/RayTraceApi/RayTraceApi.dll" }' "$hero"
+          grep -Fq '{ "RayTraceImpl", "./../../plugins/RayTraceImpl/RayTraceImpl.dll" }' "$hero"
+          grep -Fq '{ "RayTrace MetaMod", "./../../../metamod/RayTrace.vdf" }' "$hero"
 
       - name: Commit cleanup
         shell: bash
