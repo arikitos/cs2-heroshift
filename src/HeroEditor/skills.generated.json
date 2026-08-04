@@ -1,0 +1,4102 @@
+[
+  {
+    "id": "armored",
+    "className": "Armored",
+    "displayName": "Absorbing Man",
+    "description": "You have a random damage taken multiplier",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "OnTakeDamage"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#d1430a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 0.65,
+      "chanceTo": 0.85
+    }
+  },
+  {
+    "id": "dwarf",
+    "className": "Dwarf",
+    "displayName": "Ant-Man",
+    "description": "Random character size at the start of the round",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ffff00",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "minScale": 0.6,
+      "maxScale": 0.95
+    }
+  },
+  {
+    "id": "friendlyfire",
+    "className": "FriendlyFire",
+    "displayName": "Anti-Venom",
+    "description": "Shooting teammates heals them",
+    "hooks": [
+      "LoadSkill",
+      "OnTakeDamage",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff0000",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": true,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "healthDamageMultiplier": 0.3
+    }
+  },
+  {
+    "id": "miner",
+    "className": "Miner",
+    "displayName": "Arcade",
+    "description": "Your HE grenade only explode when there is an enemy nearby",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#adf542",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "detonationRange": 130,
+      "grenadeLimit": 3
+    }
+  },
+  {
+    "id": "reactivearmor",
+    "className": "ReactiveArmor",
+    "displayName": "Armor",
+    "description": "Armor absorbs the first damage taken",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerHurtPre"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#3cded3",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 15
+    }
+  },
+  {
+    "id": "infiniteammo",
+    "className": "InfiniteAmmo",
+    "displayName": "Arsenal",
+    "description": "You receive infinite ammo for all your weapons",
+    "hooks": [
+      "LoadSkill",
+      "WeaponFire",
+      "WeaponReload",
+      "GrenadeThrown"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#0000FF",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "shade",
+    "className": "Shade",
+    "displayName": "Azazel",
+    "description": "You have a random chance to teleport behind the back of a hit enemy",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#4d4d4d",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "teleportDistance": 100,
+      "chanceFrom": 0.3,
+      "chanceTo": 0.45
+    }
+  },
+  {
+    "id": "soundmaker",
+    "className": "SoundMaker",
+    "displayName": "Banshee",
+    "description": "Every now and then, you hear player screams",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerMakeSound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#e3ed8c",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 2
+    }
+  },
+  {
+    "id": "demoneye",
+    "className": "DemonEye",
+    "displayName": "Basilisk",
+    "description": "You deal damage to every enemy you are looking at",
+    "hooks": [
+      "LoadSkill",
+      "OnTick"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#c91243",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "secondCooldown": 1,
+      "damage": 5
+    }
+  },
+  {
+    "id": "thorns",
+    "className": "Thorns",
+    "displayName": "Bishop",
+    "description": "Your opponent will receive a portion of the damage that they inflicted on you",
+    "hooks": [
+      "LoadSkill",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#962631",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "healthTakenScale": 0.3,
+      "maxTakenDamagePerShot": 37
+    }
+  },
+  {
+    "id": "bankrupt",
+    "className": "Bankrupt",
+    "displayName": "Black Cat",
+    "description": "Choose the player who will lose all their money",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#abab33",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "dash",
+    "className": "Dash",
+    "displayName": "Black Panther",
+    "description": "Perform a second jump to dash",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#42bbfc",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "jumpVelocity": 150,
+      "pushVelocity": 600,
+      "anyDirection": true,
+      "cooldown": 2
+    }
+  },
+  {
+    "id": "ninja",
+    "className": "Ninja",
+    "displayName": "Black Widow",
+    "description": "Standing still increases your invisibility by 33%, crouching by 33%, and holding a knife by 33%",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "CheckTransmit",
+      "NewRound",
+      "PlayerHurt",
+      "WeaponEquip",
+      "WeaponPickup"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#dedede",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "idlePercentInvisibility": 0.3,
+      "duckPercentInvisibility": 0.3,
+      "knifePercentInvisibility": 0.3
+    }
+  },
+  {
+    "id": "throwingknife",
+    "className": "ThrowingKnife",
+    "displayName": "Blade",
+    "description": "Click [css_useSkill] to throw a knife. But watch out for others",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "CheckTransmit",
+      "NewRound",
+      "RoundEnd",
+      "PlayerMakeSound",
+      "OnTriggerEnter",
+      "OnWeaponCanAcquire"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8f108f",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {
+      "friendlyFire": false,
+      "damage": 9999
+    }
+  },
+  {
+    "id": "returntosender",
+    "className": "ReturnToSender",
+    "displayName": "Blink",
+    "description": "The first hit on an enemy sends them back to their spawn",
+    "hooks": [
+      "LoadSkill",
+      "DisableSkill",
+      "NewRound",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#a68132",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "aimbot",
+    "className": "Aimbot",
+    "displayName": "Bullseye",
+    "description": "Every bullet you hit counts as a headshot",
+    "hooks": [
+      "LoadSkill",
+      "OnTakeDamage",
+      "OnTakeDamagePost"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff0000",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "explosiveshot",
+    "className": "ExplosiveShot",
+    "displayName": "Cable",
+    "description": "Random chance to fire an explosive bullet while shooting",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "OnEntitySpawned",
+      "BulletImpact"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#9c0000",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "damage": 25,
+      "damageRadius": 210,
+      "chanceFrom": 0.15,
+      "chanceTo": 0.3
+    }
+  },
+  {
+    "id": "baseball",
+    "className": "Baseball",
+    "displayName": "Captain America",
+    "description": "Your decoy bounces off walls and instantly kills an enemy on impact",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound",
+      "PlayerHurt",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown",
+      "DecoyStarted"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#2effc7",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "speedMultipier": 2,
+      "maxSpeed": 900,
+      "damageDeal": 9999,
+      "grenadeLimit": 3
+    }
+  },
+  {
+    "id": "hermit",
+    "className": "Hermit",
+    "displayName": "Carnage",
+    "description": "Killing restores ammo and a portion of health",
+    "hooks": [
+      "LoadSkill",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ded678",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "healthToAdd": 100,
+      "effectDuration": 1.0
+    }
+  },
+  {
+    "id": "darkness",
+    "className": "Darkness",
+    "displayName": "Cloak",
+    "description": "Applies a darkness effect to a chosen enemy",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "BotTakeover"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#383838",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Rare"
+    },
+    "options": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 230
+    }
+  },
+  {
+    "id": "antyhead",
+    "className": "AntyHead",
+    "displayName": "Colossus",
+    "description": "You take no damage from headshots",
+    "hooks": [
+      "LoadSkill",
+      "PlayerHurtPre"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8B4513",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "planter",
+    "className": "Planter",
+    "displayName": "Crossbones",
+    "description": "You can plant the bomb anywhere, with a detonation time of 60 seconds.",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "BombBeginplant",
+      "BombAbortplant",
+      "BombPlanted"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#7d7d7d",
+      "onlyTeam": "Terrorist",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {
+      "extraC4BlowTime": 60
+    }
+  },
+  {
+    "id": "knockback",
+    "className": "Knockback",
+    "displayName": "Cyclops",
+    "description": "Firing while airborne pushes you backwards",
+    "hooks": [
+      "LoadSkill",
+      "WeaponFire"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff8c42",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "knockbackUnits": 120,
+      "maxSpeed": 1200
+    }
+  },
+  {
+    "id": "flashlight",
+    "className": "Flashlight",
+    "displayName": "Dagger",
+    "description": "Click [css_useSkill] to turn the flashlight on or off. Its light can blind enemies",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound",
+      "RoundEnd",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#a3000b",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 2,
+      "rarity": "Legendary"
+    },
+    "options": {
+      "cooldown": 2,
+      "colorR": 255,
+      "colorG": 255,
+      "colorB": 255,
+      "brightness": 1.5,
+      "range": 1200.0,
+      "blindDuration": 5,
+      "blindAngle": 10.0,
+      "blindAlpha": 200
+    }
+  },
+  {
+    "id": "wallhack",
+    "className": "Wallhack",
+    "displayName": "Daredevil",
+    "description": "You can see enemies through walls",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "CheckTransmit",
+      "NewRound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#5d00ff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Epic"
+    },
+    "options": {}
+  },
+  {
+    "id": "antyflash",
+    "className": "AntyFlash",
+    "displayName": "Dazzler",
+    "description": "You are immune to flashbangs, and your flashbangs last 7 seconds",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "PlayerBlind",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#D6E6FF",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "flashDuration": 7,
+      "grenadeLimit": 2
+    }
+  },
+  {
+    "id": "fastreload",
+    "className": "FastReload",
+    "displayName": "Deadpool",
+    "description": "Click [css_useSkill] to reload the weapon you are currently holding",
+    "hooks": [
+      "LoadSkill",
+      "UseSkill"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ffc061",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "oneshot",
+    "className": "OneShot",
+    "displayName": "Death",
+    "description": "Hitting an enemy instantly kills them",
+    "hooks": [
+      "LoadSkill",
+      "OnTakeDamage"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff5CD9",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "quickshot",
+    "className": "QuickShot",
+    "displayName": "Deathlok",
+    "description": "All bullets are fired very quickly",
+    "hooks": [
+      "LoadSkill",
+      "OnTick"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8a42f5",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "anomaly",
+    "className": "Anomaly",
+    "displayName": "Doctor Strange",
+    "description": "Click [css_useSkill] to rewind a few seconds back in time",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#a86eff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "secondsInBack": 5,
+      "cooldown": 15
+    }
+  },
+  {
+    "id": "gambler",
+    "className": "Gambler",
+    "displayName": "Domino",
+    "description": "Select a skill from the list provided.",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#7eff47",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "refreshPrice": 150
+    }
+  },
+  {
+    "id": "smoker",
+    "className": "Smoker",
+    "displayName": "Dust",
+    "description": "Your smoke grenades never run out",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "NewRound",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown",
+      "SmokegrenadeDetonate"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#b5ab8f",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {
+      "grenadeLimit": 1
+    }
+  },
+  {
+    "id": "deaf",
+    "className": "Deaf",
+    "displayName": "Echo",
+    "description": "Choose a player to mute all sounds for",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerMakeSound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#dae01f",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "assassin",
+    "className": "Assassin",
+    "displayName": "Elektra",
+    "description": "You deal increased damage to enemies from behind",
+    "hooks": [
+      "LoadSkill",
+      "OnTakeDamage"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#d9d9d9",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "damageMultiplier": 2,
+      "toleranceDeg": 45
+    }
+  },
+  {
+    "id": "healingsmoke",
+    "className": "HealingSmoke",
+    "displayName": "Elixir",
+    "description": "Your smoke grenades heal",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown",
+      "SmokegrenadeDetonate",
+      "SmokegrenadeExpired"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#1fe070",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "smokeHeal": 1,
+      "smokeRadius": 180,
+      "tickCooldown": 16,
+      "grenadeLimit": 1
+    }
+  },
+  {
+    "id": "deathbomb",
+    "className": "DeathBomb",
+    "displayName": "Explodey Boy",
+    "description": "You explode upon death, killing nearby players",
+    "hooks": [
+      "LoadSkill",
+      "OnTakeDamage",
+      "OnEntitySpawned",
+      "NewRound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#F5CB42",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "explosionRadius": 500.0,
+      "explosionDamage": 999,
+      "dmgReductionForTeamates": 0.5
+    }
+  },
+  {
+    "id": "thirdeye",
+    "className": "ThirdEye",
+    "displayName": "Eye-Boy",
+    "description": "Click [css_useSkill] to activate third-person view",
+    "hooks": [
+      "LoadSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#1b04cc",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "distance": 100
+    }
+  },
+  {
+    "id": "radarhack",
+    "className": "RadarHack",
+    "displayName": "Falcon",
+    "description": "Enemies are visible on the radar",
+    "hooks": [
+      "LoadSkill",
+      "OnTick"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#2effcb",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "takeammo",
+    "className": "TakeAmmo",
+    "displayName": "Fantomex",
+    "description": "Click [css_useSkill] to take the active weapon's magazine from a random enemy",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound",
+      "WeaponEquip"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#5eb8b0",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 30
+    }
+  },
+  {
+    "id": "hotbomb",
+    "className": "HotBomb",
+    "displayName": "Firestar",
+    "description": "As long as you are alive, the bomb deals damage to its carrier",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "WeaponPickup"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#baf081",
+      "onlyTeam": "CounterTerrorist",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 1,
+      "damage": 2
+    }
+  },
+  {
+    "id": "saper",
+    "className": "Saper",
+    "displayName": "Fixer",
+    "description": "You can plant and defuse bombs faster",
+    "hooks": [
+      "LoadSkill",
+      "BombBeginplant",
+      "BombBegindefuse"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8A2BE2",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "primaryban",
+    "className": "PrimaryBan",
+    "displayName": "Forge",
+    "description": "Choose a player who cannot use rifles",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "WeaponEquip"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ffc061",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "grenadier",
+    "className": "Grenadier",
+    "displayName": "Gambit",
+    "description": "You have infinite hegrenade",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "GrenadeThrown"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#4a6e21",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "c4camouflage",
+    "className": "C4Camouflage",
+    "displayName": "Ghost",
+    "description": "You are invisible while holding the bomb",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "CheckTransmit",
+      "NewRound",
+      "PlayerHurt",
+      "WeaponEquip",
+      "WeaponPickup"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#00911f",
+      "onlyTeam": "Terrorist",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Uncommon"
+    },
+    "options": {}
+  },
+  {
+    "id": "carefulbullets",
+    "className": "CarefulBullets",
+    "displayName": "Ghost Rider",
+    "description": "Select a player who takes damage for every missed shot",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTakeDamage",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "BulletImpact"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#db6c35",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "damageAfterMiss": 5
+    }
+  },
+  {
+    "id": "spectator",
+    "className": "Spectator",
+    "displayName": "Grandmaster",
+    "description": "Click [css_useSkill] to spectate a random enemy",
+    "hooks": [
+      "LoadSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound",
+      "WeaponPickup"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#42f5da",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "distance": 100,
+      "useCooldown": 0.5
+    }
+  },
+  {
+    "id": "magneticdecoy",
+    "className": "MagneticDecoy",
+    "displayName": "Graviton",
+    "description": "Your decoy attracts nearby players towards itself",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown",
+      "DecoyStarted",
+      "DecoyDetonate"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#81f0c4",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "triggerRadius": 180,
+      "strenght": 30,
+      "grenadeLimit": 3
+    }
+  },
+  {
+    "id": "astronaut",
+    "className": "Astronaut",
+    "displayName": "Gravity",
+    "description": "You receive a random gravity value at the start of the round",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#7E10AD",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 0.1,
+      "chanceTo": 0.7
+    }
+  },
+  {
+    "id": "holyhandgrenade",
+    "className": "HolyHandGrenade",
+    "displayName": "Green Goblin",
+    "description": "Your HE grenades deal double damage and have double range",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnEntitySpawned",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ffdd00",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "damageMultiplier": 2,
+      "damageRadiusMultiplier": 2,
+      "grenadeLimit": 1
+    }
+  },
+  {
+    "id": "fortnite",
+    "className": "Fortnite",
+    "displayName": "Groot",
+    "description": "Click [css_useSkill] to create a destructible barricade",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTakeDamage",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#1b04cc",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 5,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 2,
+      "barricadeHealth": 115,
+      "propModel": "models/props/de_aztec/hr_aztec/aztec_scaffolding/aztec_scaffold_wall_support_128.vmdl"
+    }
+  },
+  {
+    "id": "sniperelite",
+    "className": "SniperElite",
+    "displayName": "Hawkeye",
+    "description": "Click [css_useSkill] to swap your current weapon for an AWP",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "NewRound",
+      "PlayerDeath",
+      "WeaponEquip"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#e0873a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "toxicsmoke",
+    "className": "ToxicSmoke",
+    "displayName": "Hazmat",
+    "description": "Your smoke grenades deal damage",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown",
+      "SmokegrenadeDetonate",
+      "SmokegrenadeExpired"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#507529",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "smokeDamage": 2,
+      "smokeRadius": 180,
+      "tickCooldown": 17,
+      "grenadeLimit": 1
+    }
+  },
+  {
+    "id": "glaz",
+    "className": "Glaz",
+    "displayName": "Heimdall",
+    "description": "You can see through smoke grenades",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "CheckTransmit",
+      "NewRound",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown",
+      "SmokegrenadeDetonate",
+      "SmokegrenadeExpired"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#5d00ff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "grenadeLimit": 2
+    }
+  },
+  {
+    "id": "longknife",
+    "className": "LongKnife",
+    "displayName": "Hela",
+    "description": "A knife attack deals damage regardless of distance",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "NewRound",
+      "WeaponFire"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#c9f8ff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "maxDistance": 4096,
+      "friendlyFire": true
+    }
+  },
+  {
+    "id": "chicken",
+    "className": "Chicken",
+    "displayName": "Howard the Duck",
+    "description": "You get a chicken model + 10% faster movement - 50 HP",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "WeaponPickup"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#FF8B42",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "catapult",
+    "className": "Catapult",
+    "displayName": "Hulk",
+    "description": "You have a random chance to launch an enemy upwards",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#FF4500",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 0.2,
+      "chanceTo": 0.4
+    }
+  },
+  {
+    "id": "firerain",
+    "className": "FireRain",
+    "displayName": "Human Torch",
+    "description": "Throw a decoy to call down a rain of Molotovs",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "OnEntitySpawned",
+      "NewRound",
+      "DecoyStarted"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ffbf47",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Epic"
+    },
+    "options": {}
+  },
+  {
+    "id": "frozendecoy",
+    "className": "FrozenDecoy",
+    "displayName": "Iceman",
+    "description": "Your decoy freezes all nearby players",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown",
+      "DecoyStarted",
+      "DecoyDetonate"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#00eaff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "triggerRadius": 180,
+      "slownessMultiplier": 5,
+      "grenadeLimit": 3
+    }
+  },
+  {
+    "id": "ghost",
+    "className": "Ghost",
+    "displayName": "Invisible Woman",
+    "description": "You are completely invisible",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "CheckTransmit",
+      "NewRound",
+      "PlayerHurt",
+      "WeaponEquip",
+      "WeaponPickup"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#FFFFFF",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Epic"
+    },
+    "options": {}
+  },
+  {
+    "id": "pilot",
+    "className": "Pilot",
+    "displayName": "Iron Man",
+    "description": "Fly for a limited time. Double-click the jump to fly",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#1466F5",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "maximumFuel": 150,
+      "fuelConsumption": 0.64,
+      "refuelling": 0.1
+    }
+  },
+  {
+    "id": "lifeswap",
+    "className": "LifeSwap",
+    "displayName": "Jack of Hearts",
+    "description": "Choose a player to swap health with",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#a3651a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "wildthrow",
+    "className": "WildThrow",
+    "displayName": "Jean Grey",
+    "description": "Choose a player who will have trouble throwing grenades",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#384728",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "healingchicken",
+    "className": "HealingChicken",
+    "displayName": "Joaquin Torres",
+    "description": "Your chickens heal you while you are nearby",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#b5ab8f",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Legendary"
+    },
+    "options": {
+      "amount": 3,
+      "heal": 2,
+      "tickCooldown": 16,
+      "healRadius": 150.0
+    }
+  },
+  {
+    "id": "killerflash",
+    "className": "KillerFlash",
+    "displayName": "Jubilee",
+    "description": "Anyone fully blinded by your flashbang dies (including you)",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "PlayerBlind",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#57bcff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Epic"
+    },
+    "options": {
+      "flashDuration": 1,
+      "friendlyFire": true,
+      "grenadeLimit": 1
+    }
+  },
+  {
+    "id": "push",
+    "className": "Push",
+    "displayName": "Juggernaut",
+    "description": "You have a random chance to push an enemy back when hitting them",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#1e9ab0",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 0.3,
+      "chanceTo": 0.4,
+      "jumpVelocity": 300,
+      "pushVelocity": 400
+    }
+  },
+  {
+    "id": "expensiveammo",
+    "className": "ExpensiveAmmo",
+    "displayName": "Justin Hammer",
+    "description": "A chosen enemy has to pay for every shot",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "WeaponFire"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#e0c341",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "moneyPerShot": 50
+    }
+  },
+  {
+    "id": "watchmaker",
+    "className": "Watchmaker",
+    "displayName": "Kang the Conqueror",
+    "description": "Every grenade throw alters the round time",
+    "hooks": [
+      "LoadSkill",
+      "OnEntitySpawned",
+      "NewRound",
+      "BombPlanted"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff462e",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {
+      "changeRoundTime": 7,
+      "soundEvent": "UIPanorama.sidemenu_select"
+    }
+  },
+  {
+    "id": "moneyswap",
+    "className": "MoneySwap",
+    "displayName": "Kingpin",
+    "description": "Choose a player to swap money with",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#52f54c",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "jackal",
+    "className": "Jackal",
+    "displayName": "Kraven the Hunter",
+    "description": "Every opponent leaves a trail behind them",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "CheckTransmit",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#f542ef",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {
+      "particleName": "particles/ui/hud/ui_map_def_utility_trail.vpcf"
+    }
+  },
+  {
+    "id": "retreat",
+    "className": "Retreat",
+    "displayName": "Lockjaw",
+    "description": "Click [css_useSkill] to return to spawn",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#a86eff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 15
+    }
+  },
+  {
+    "id": "swapposition",
+    "className": "SwapPosition",
+    "displayName": "Loki",
+    "description": "Click [css_useSkill] to swap places with a random enemy",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#1466F5",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 30,
+      "cooldownBeforeUse": 10
+    }
+  },
+  {
+    "id": "onlyhead",
+    "className": "OnlyHead",
+    "displayName": "M.O.D.O.K.",
+    "description": "You only take damage to the head",
+    "hooks": [
+      "LoadSkill",
+      "PlayerHurtPre"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#3c47de",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "teamteleport",
+    "className": "TeamTeleport",
+    "displayName": "Magik",
+    "description": "Press [css_useSkill] to teleport to the teammate you're looking at",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#bcf542",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": true,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 2,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 15,
+      "teleportAngle": 10.0,
+      "teleportDistance": 100
+    }
+  },
+  {
+    "id": "pyro",
+    "className": "Pyro",
+    "displayName": "Magma",
+    "description": "Molotov restores health",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "PlayerHurt",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#3c47de",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "regenerationMultiplier": 1.5,
+      "grenadeLimit": 2
+    }
+  },
+  {
+    "id": "disarmament",
+    "className": "Disarmament",
+    "displayName": "Magneto",
+    "description": "You have a random chance to make an enemy drop their weapon on hit",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#FF4500",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 0.2,
+      "chanceTo": 0.35
+    }
+  },
+  {
+    "id": "magnifier",
+    "className": "Magnifier",
+    "displayName": "Mastermind",
+    "description": "Forces the enemy's screen to zoom in, reducing their field of view",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "BotTakeover"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#9ba882",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "customFOV": 50
+    }
+  },
+  {
+    "id": "secondlife",
+    "className": "SecondLife",
+    "displayName": "Mister Immortal",
+    "description": "After death, you respawn with the same amount of health",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTakeDamage",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#d41c1c",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "startHealth": 50
+    }
+  },
+  {
+    "id": "replicator",
+    "className": "Replicator",
+    "displayName": "Mister Sinister",
+    "description": "Click [css_useSkill] to create a replica that deals damage on hit",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTakeDamage",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#a3000b",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 2,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 15,
+      "yourTeamDamage": 10,
+      "enemyTeamDamage": 20
+    }
+  },
+  {
+    "id": "tripwire",
+    "className": "Tripwire",
+    "displayName": "Mockingbird",
+    "description": "Click [css_useSkill] to string a wire between two walls. Enemies who touch it appear on your radar",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff3b3b",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Rare"
+    },
+    "options": {
+      "radarDuration": 5,
+      "triggerRadius": 24,
+      "wireHeight": 30,
+      "wireWidth": 0.7,
+      "maxWallDistance": 400,
+      "cooldown": 20
+    }
+  },
+  {
+    "id": "jester",
+    "className": "Jester",
+    "displayName": "Moon Knight",
+    "description": "In jester mode, you cannot get or take any damage. This mode changes every few seconds.",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerHurtPre",
+      "BombBeginplant",
+      "BombBegindefuse"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8f108f",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "minTime": 10,
+      "maxTime": 25
+    }
+  },
+  {
+    "id": "weightless",
+    "className": "Weightless",
+    "displayName": "Moonstone",
+    "description": "Your grenades are not affected by gravity and fly faster",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8f6dc9",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "grenadeLimit": 2
+    }
+  },
+  {
+    "id": "dracula",
+    "className": "Dracula",
+    "displayName": "Morbius",
+    "description": "Hitting an enemy restores health equal to a percentage of the damage dealt",
+    "hooks": [
+      "LoadSkill",
+      "DisableSkill",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#FA050D",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "healthRegainScale": 0.3
+    }
+  },
+  {
+    "id": "duplicator",
+    "className": "Duplicator",
+    "displayName": "Morph",
+    "description": "Choose a player to copy their skill",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ffb73b",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "illusionist",
+    "className": "Illusionist",
+    "displayName": "Multiple Man",
+    "description": "Click [css_useSkill] to deploy a replica that walks straight ahead",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTakeDamage",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#42f5ef",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 2,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 30,
+      "durationRun": 5,
+      "durationCrouch": 12,
+      "yourTeamDamage": 10,
+      "enemyTeamDamage": 20
+    }
+  },
+  {
+    "id": "iana",
+    "className": "Iana",
+    "displayName": "Mysterio",
+    "description": "Click [css_useSkill] to control your hologram for a few seconds",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTakeDamage",
+      "OnTick",
+      "NewRound",
+      "PlayerHurt",
+      "WeaponEquip",
+      "WeaponPickup",
+      "WeaponDrop",
+      "OnWeaponCanAcquire"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#d0d930",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 30,
+      "duration": 10
+    }
+  },
+  {
+    "id": "impostor",
+    "className": "Impostor",
+    "displayName": "Mystique",
+    "description": "You start the round with an enemy player model",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#99140B",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "prosthesis",
+    "className": "Prosthesis",
+    "displayName": "Nebula",
+    "description": "Arms and legs are bulletproof",
+    "hooks": [
+      "LoadSkill",
+      "PlayerHurtPre"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#9c9c9c",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "cypher",
+    "className": "Cypher",
+    "displayName": "Nick Fury",
+    "description": "Click [css_useSkill] to create/switch to a camera",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTakeDamage",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#34ebd5",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 30
+    }
+  },
+  {
+    "id": "medic",
+    "className": "Medic",
+    "displayName": "Night Nurse",
+    "description": "Click [css_useSkill] to use a healing charge that restores 50 health",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#10c212",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "healthToAdd": 50,
+      "healthShotLimit": 3,
+      "cooldown": 1
+    }
+  },
+  {
+    "id": "enemyspawn",
+    "className": "EnemySpawn",
+    "displayName": "Nightcrawler",
+    "description": "Click [css_useSkill] to teleport to the enemy spawn",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff8c92",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 15,
+      "cooldownBeforeUse": 10
+    }
+  },
+  {
+    "id": "nightmare",
+    "className": "Nightmare",
+    "displayName": "Nightmare",
+    "description": "Force a chosen enemy to experience a terrifying vision",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "CheckTransmit",
+      "NewRound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#5b2c6f",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Rare"
+    },
+    "options": {
+      "postProcessing": "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost",
+      "fadeTime": 0.25,
+      "minExposure": 0.5,
+      "maxExposure": 2
+    }
+  },
+  {
+    "id": "fragilebomb",
+    "className": "FragileBomb",
+    "displayName": "Nitro",
+    "description": "Shooting the bomb damages it",
+    "hooks": [
+      "LoadSkill",
+      "NewRound",
+      "BulletImpact",
+      "BombPlanted"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#5d00ff",
+      "onlyTeam": "CounterTerrorist",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {
+      "maxBombHealth": 1000
+    }
+  },
+  {
+    "id": "none",
+    "className": "None",
+    "displayName": "None",
+    "description": "You have no skill",
+    "hooks": [
+      "LoadSkill"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#FFFFFF",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "lastgasp",
+    "className": "LastGasp",
+    "displayName": "Penance",
+    "description": "After you die, you deal damage to the enemy who killed you",
+    "hooks": [
+      "LoadSkill",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#88bdba",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Rare"
+    },
+    "options": {
+      "damageAfterDeath": 30,
+      "canKill": true
+    }
+  },
+  {
+    "id": "phoenix",
+    "className": "Phoenix",
+    "displayName": "Phoenix",
+    "description": "You have a random chance to respawn after death",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTakeDamage",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff5C0A",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 0.2,
+      "chanceTo": 0.4
+    }
+  },
+  {
+    "id": "magneto",
+    "className": "Magneto",
+    "displayName": "Polaris",
+    "description": "All enemy grenades are repelled away from you",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#f081ec",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "radius": 100
+    }
+  },
+  {
+    "id": "psychicdefusing",
+    "className": "PsychicDefusing",
+    "displayName": "Professor X",
+    "description": "When you are near the bomb, you start defusing it",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "BombPlanted"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#507529",
+      "onlyTeam": "CounterTerrorist",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "maxDefusingRange": 80,
+      "defusingTime": 10
+    }
+  },
+  {
+    "id": "robinhood",
+    "className": "RobinHood",
+    "displayName": "Prowler",
+    "description": "Dealing damage to an enemy steals their money",
+    "hooks": [
+      "LoadSkill",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#119125",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "moneyMultiplier": 35
+    }
+  },
+  {
+    "id": "blastshot",
+    "className": "BlastShot",
+    "displayName": "Punisher",
+    "description": "Press Attack2 with the MP5 to fire an HE grenade",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTakeDamage",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#7740c9",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "explosionRadius": 400.0,
+      "explosionDamage": 60,
+      "dmgReductionForTeamates": 0.5,
+      "cooldown": 10,
+      "force": 1000
+    }
+  },
+  {
+    "id": "jumpcurse",
+    "className": "JumpCurse",
+    "displayName": "Puppet Master",
+    "description": "A chosen enemy jumps whenever one of their teammates jumps",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "PlayerJump"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#7ad1c4",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "jumpVelocity": 301
+    }
+  },
+  {
+    "id": "illiterate",
+    "className": "Illiterate",
+    "displayName": "Purple Man",
+    "description": "As long as you are alive, your enemies cannot read",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#1466F5",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "flash",
+    "className": "Flash",
+    "displayName": "Quicksilver",
+    "description": "Random player speed at the beginning of the round",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerMakeSound",
+      "PlayerJump"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#A31912",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 1.2,
+      "chanceTo": 3.0
+    }
+  },
+  {
+    "id": "distancer",
+    "className": "Distancer",
+    "displayName": "Rangefinder",
+    "description": "You can see the distance to the nearest enemy",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#00f2ff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "rambo",
+    "className": "Rambo",
+    "displayName": "Red Hulk",
+    "description": "You receive a random amount of health at the start of the round",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#009905",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "minExtraHealth": 50,
+      "maxExtraHealth": 501
+    }
+  },
+  {
+    "id": "jetkick",
+    "className": "JetKick",
+    "displayName": "Rhino",
+    "description": "Select a player to jetkick",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "WeaponFire"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#5a4fd1",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "pushVelocity": 400
+    }
+  },
+  {
+    "id": "explodingbarrel",
+    "className": "ExplodingBarrel",
+    "displayName": "Rocket Raccoon",
+    "description": "Click [css_useSkill] to place a barrel that explodes when shot",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTakeDamage",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#c0392b",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 2,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 20,
+      "explosionRadius": 600,
+      "explosionDamage": 50,
+      "propModel": "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl",
+      "dmgReductionForTeamates": 0.5
+    }
+  },
+  {
+    "id": "deactivator",
+    "className": "Deactivator",
+    "displayName": "Rogue",
+    "description": "Choose a player whose skill you want to disable",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#919191",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "berserker",
+    "className": "Berserker",
+    "displayName": "Sabretooth",
+    "description": "You deal more damage and move faster as your health gets lower",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTakeDamage",
+      "OnTick",
+      "NewRound",
+      "PlayerJump"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#cc2929",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "maxSpeedVelocity": 2,
+      "maxDamageVelocity": 2
+    }
+  },
+  {
+    "id": "jumpban",
+    "className": "JumpBan",
+    "displayName": "Sandman",
+    "description": "Choose a player who cannot jump",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "PlayerJump"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#b01e5d",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "areareaper",
+    "className": "AreaReaper",
+    "displayName": "Scarlet Witch",
+    "description": "You can choose a bomb site to deactivate",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#edf5b5",
+      "onlyTeam": "CounterTerrorist",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "poison",
+    "className": "Poison",
+    "displayName": "Scorpion",
+    "description": "Choose a player who will take damage every few seconds",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#902eff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 2,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 0.85,
+      "damage": 1,
+      "minHealth": 30
+    }
+  },
+  {
+    "id": "godmode",
+    "className": "GodMode",
+    "displayName": "Sentry",
+    "description": "Click [css_useSkill] to become immortal for a short time",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#e0d83a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 30,
+      "duration": 2
+    }
+  },
+  {
+    "id": "silent",
+    "className": "Silent",
+    "displayName": "Shadowcat",
+    "description": "Your footsteps and jumps are silent to OTHER players",
+    "hooks": [
+      "LoadSkill",
+      "PlayerMakeSound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#333333",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "jammer",
+    "className": "Jammer",
+    "displayName": "Shuri",
+    "description": "Choose a player to disable their crosshair",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "BotTakeover"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#42f5a7",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "blademaster",
+    "className": "BladeMaster",
+    "displayName": "Silver Samurai",
+    "description": "While holding a knife, you have a high chance to deflect a shot",
+    "hooks": [
+      "LoadSkill",
+      "OnTick",
+      "PlayerHurtPre"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#cc7504",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "torseReflectionChance": 0.95,
+      "legReflectionChance": 0.7,
+      "velocityModifier": 0.85
+    }
+  },
+  {
+    "id": "shortbomb",
+    "className": "ShortBomb",
+    "displayName": "Speed Demon",
+    "description": "The bomb explodes much faster",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "NewRound",
+      "BombPlanted"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#f5b74c",
+      "onlyTeam": "Terrorist",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {
+      "detonationTime": 20
+    }
+  },
+  {
+    "id": "glue",
+    "className": "Glue",
+    "displayName": "Spider-Man",
+    "description": "Your grenades stick to walls",
+    "hooks": [
+      "LoadSkill",
+      "OnEntitySpawned"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#fff52e",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "teleporter",
+    "className": "Teleporter",
+    "displayName": "Spot",
+    "description": "You have the chance to swap places with a hit enemy",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8A2BE2",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 0.5,
+      "chanceTo": 0.6
+    }
+  },
+  {
+    "id": "paweljumper",
+    "className": "PawelJumper",
+    "displayName": "Squirrel Girl",
+    "description": "You get a random number of extra jumps",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "OnTick"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#FFA500",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "extraJumpsMin": 1,
+      "extraJumpsMax": 4
+    }
+  },
+  {
+    "id": "randomweapon",
+    "className": "RandomWeapon",
+    "displayName": "Star-Lord",
+    "description": "Click [css_useSkill] to receive a random weapon",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#e0873a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 15
+    }
+  },
+  {
+    "id": "zeus",
+    "className": "Zeus",
+    "displayName": "Storm",
+    "description": "Zeus x27 instantly recharges",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "WeaponFire"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#fbff00",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "richboy",
+    "className": "RichBoy",
+    "displayName": "Sunspot",
+    "description": "You receive a random amount of money at the start of the round",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#D4AF37",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "minMoney": 5000,
+      "maxMoney": 15000
+    }
+  },
+  {
+    "id": "thief",
+    "className": "Thief",
+    "displayName": "Super-Adaptoid",
+    "description": "You can steal a skill from a chosen player",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#adaec7",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "norecoil",
+    "className": "NoRecoil",
+    "displayName": "Taskmaster",
+    "description": "No recoil while shooting",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8a42f5",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "chillout",
+    "className": "ChillOut",
+    "displayName": "Tempo",
+    "description": "Planting the bomb takes significantly longer",
+    "hooks": [
+      "LoadSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "BombBeginplant",
+      "BombAbortplant",
+      "BombPlanted"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#343deb",
+      "onlyTeam": "CounterTerrorist",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 1,
+      "rarity": "Common"
+    },
+    "options": {
+      "bombArmedTime": 10
+    }
+  },
+  {
+    "id": "nonades",
+    "className": "NoNades",
+    "displayName": "The Thing",
+    "description": "Grenades deal no damage to you",
+    "hooks": [
+      "LoadSkill",
+      "PlayerHurtPre"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#a38c1a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "falconeye",
+    "className": "FalconEye",
+    "displayName": "The Watcher",
+    "description": "Click [css_useSkill] to activate a bird's-eye view camera",
+    "hooks": [
+      "LoadSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound",
+      "WeaponPickup"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#d1f542",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "distance": 1000
+    }
+  },
+  {
+    "id": "longzeus",
+    "className": "LongZeus",
+    "displayName": "Thor",
+    "description": "Zeus deals damage regardless of distance",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#6effc7",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Uncommon"
+    },
+    "options": {
+      "maxDistance": 4096,
+      "friendlyFire": false
+    }
+  },
+  {
+    "id": "bunnyhop",
+    "className": "BunnyHop",
+    "displayName": "Throg",
+    "description": "You get auto \"BunnyHop\"",
+    "hooks": [
+      "LoadSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#d1430a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "maxSpeed": 500,
+      "jumpVelocity": 300,
+      "jumpBoost": 2
+    }
+  },
+  {
+    "id": "weaponsswap",
+    "className": "WeaponsSwap",
+    "displayName": "Tinkerer",
+    "description": "Click [css_useSkill] to swap weapons with a random enemy",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#c7e03a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 30
+    }
+  },
+  {
+    "id": "jumpingjack",
+    "className": "JumpingJack",
+    "displayName": "Toad",
+    "description": "Jumping restores health",
+    "hooks": [
+      "LoadSkill",
+      "PlayerJump"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#a86eff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "healthToAdd": 3
+    }
+  },
+  {
+    "id": "rubber",
+    "className": "Rubber",
+    "displayName": "Trapster",
+    "description": "Your bullets significantly slow down players",
+    "hooks": [
+      "LoadSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8B4513",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "slownessTime": 2,
+      "slownessModifier": 0.2
+    }
+  },
+  {
+    "id": "soldier",
+    "className": "Soldier",
+    "displayName": "U.S. Agent",
+    "description": "You have a random damage multiplier",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "OnTakeDamage"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#09ba00",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 1.15,
+      "chanceTo": 1.35
+    }
+  },
+  {
+    "id": "glitch",
+    "className": "Glitch",
+    "displayName": "Ultron",
+    "description": "Disables the radar for a chosen enemy",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound",
+      "PlayerDeath",
+      "BotTakeover"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#f542ef",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "noclip",
+    "className": "Noclip",
+    "displayName": "Vision",
+    "description": "Click [css_useSkill] to enable noclip for a short time",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#44ebd4",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 30,
+      "duration": 2,
+      "cooldownWhenStuck": 5
+    }
+  },
+  {
+    "id": "aimlock",
+    "className": "AimLock",
+    "displayName": "War Machine",
+    "description": "Click [css_useSkill] to lock your aim on the nearest enemy",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#fa7b48",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "cooldown": 20,
+      "duration": 0.3
+    }
+  },
+  {
+    "id": "giant",
+    "className": "Giant",
+    "displayName": "Wasp",
+    "description": "Enlarge an enemy of your choice",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "OnTick",
+      "NewRound"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#8ad3ff",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "minScale": 1.1,
+      "maxScale": 1.4
+    }
+  },
+  {
+    "id": "behind",
+    "className": "Behind",
+    "displayName": "Whirlwind",
+    "description": "You have a random chance to turn an enemy 180 degrees when hitting them",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "PlayerHurt"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#00FF00",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "chanceFrom": 0.2,
+      "chanceTo": 0.4
+    }
+  },
+  {
+    "id": "regeneration",
+    "className": "Regeneration",
+    "displayName": "Wolverine",
+    "description": "You restore health every few seconds",
+    "hooks": [
+      "LoadSkill",
+      "OnTick"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff462e",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "healthToAdd": 1,
+      "cooldown": 0.25
+    }
+  },
+  {
+    "id": "cutter",
+    "className": "Cutter",
+    "displayName": "X-23",
+    "description": "Instant kill with a knife",
+    "hooks": [
+      "LoadSkill",
+      "OnTakeDamage"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#88a31a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {}
+  },
+  {
+    "id": "homingnades",
+    "className": "HomingNades",
+    "displayName": "Yondu",
+    "description": "Your grenades (except smokes) are attracted to enemies",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnEntitySpawned",
+      "OnTick",
+      "NewRound",
+      "WeaponEquip",
+      "WeaponPickup",
+      "GrenadeThrown"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#384728",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "strength": 150,
+      "maxVelocity": 2000,
+      "detonationRange": 130,
+      "grenadeLimit": 2
+    }
+  },
+  {
+    "id": "rezombie",
+    "className": "ReZombie",
+    "displayName": "Zombie",
+    "description": "After death, you respawn as a zombie with increased health and no weapons",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "OnTakeDamage",
+      "NewRound",
+      "WeaponEquip",
+      "OnWeaponCanAcquire"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ff5C0A",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Common"
+    },
+    "options": {
+      "zombieHealth": 500,
+      "r": 255,
+      "g": 0,
+      "b": 0,
+      "a": 60
+    }
+  }
+]
