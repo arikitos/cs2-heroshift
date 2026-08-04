@@ -109,13 +109,68 @@ namespace src
         {
             foreach (var skill in Enum.GetValues<Skills>())
                 if (SkillRuntime.GetMetadata(skill).Active)
-                    SkillAction(skill.ToString()!, "LoadSkill");
+                    InvokeLoadSkill(skill);
 
             Debug.WriteToDebug($"HeroShift v{Instance.ModuleVersion} ({SkillData.Skills.Count - 1}/{SkillRuntime.All.Count - 1} Skills) loaded!");
             Debug.WriteToDebug($"GameModes: {(Config.GameModes)Config.LoadedConfig.GameMode}");
             foreach (var skill in SkillData.Skills)
                 Debug.WriteToDebug($"Loaded: {skill.Skill}");
         }
+
+        private void InvokeLifecycle(Skills skill, string hookName, Action<SkillDefinition> invoke)
+        {
+            if (!SkillRegistry.TryGet(SkillRuntime.GetId(skill), out var definition)) return;
+
+            if (!PerfLog.Enabled)
+            {
+                invoke(definition);
+                return;
+            }
+
+            long perfStart = PerfLog.Start();
+            invoke(definition);
+            PerfLog.End($"SkillAction {skill}.{hookName}", perfStart, 2.0);
+        }
+
+        internal void InvokeLoadSkill(Skills skill) =>
+            InvokeLifecycle(skill, nameof(SkillHookSet.LoadSkill), d => d.Hooks.LoadSkill?.Invoke());
+
+        internal void InvokeEnableSkill(Skills skill, CCSPlayerController player)
+        {
+            string skillName = skill.ToString();
+            ActiveSkillsThisRound.TryAdd(skillName, 0);
+            SkillsUsedThisMap.TryAdd(skillName, 0);
+            InvokeLifecycle(skill, nameof(SkillHookSet.EnableSkill), d => d.Hooks.EnableSkill?.Invoke(player));
+        }
+
+        internal void InvokeDisableSkill(Skills skill, CCSPlayerController player)
+        {
+            string skillName = skill.ToString();
+            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skillName) && player.IsValid)
+                SkillUtils.ReleaseCurse(player.Index);
+
+            InvokeLifecycle(skill, nameof(SkillHookSet.DisableSkill), d => d.Hooks.DisableSkill?.Invoke(player));
+        }
+
+        internal void InvokeUseSkill(Skills skill, CCSPlayerController player) =>
+            InvokeLifecycle(skill, nameof(SkillHookSet.UseSkill), d => d.Hooks.UseSkill?.Invoke(player));
+
+        internal bool InvokeTypeSkill(Skills skill, CCSPlayerController player, string[] arguments)
+        {
+            string skillName = skill.ToString();
+            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skillName) &&
+                !TryClaimCurseTarget([player, arguments]))
+                return false;
+
+            InvokeLifecycle(skill, nameof(SkillHookSet.TypeSkill), d => d.Hooks.TypeSkill?.Invoke(player, arguments));
+            return true;
+        }
+
+        internal void InvokeNewRoundSkill(Skills skill) =>
+            InvokeLifecycle(skill, nameof(SkillHookSet.NewRound), d => d.Hooks.NewRound?.Invoke());
+
+        internal void InvokeRoundEndSkill(Skills skill) =>
+            InvokeLifecycle(skill, nameof(SkillHookSet.RoundEnd), d => d.Hooks.RoundEnd?.Invoke());
 
         private static bool TryClaimCurseTarget(object[]? param)
         {

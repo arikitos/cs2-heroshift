@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Move skill load/enable/disable/use/type/reset/round-end lifecycle into explicit typed coordinator methods that preserve PerfLog, active/map history and curse ownership side effects; migrate RoundEvents and remove the generic event string fan-out helpers.
+
 - Route the sorted per-frame skill loop through a non-swallowing typed tick invocation while preserving freeze-time filtering, AreaReaper/ChillOut ordering and one-log-per-skill-per-round failure suppression.
 
 - Route the ordered damage pre/post pipeline through typed dispatcher calls while preserving deferred revive-skill ordering and per-skill debug damage snapshots.

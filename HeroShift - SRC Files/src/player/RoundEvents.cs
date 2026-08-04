@@ -209,7 +209,7 @@ namespace src.player
                         SkillsUsedThisMap.TryAdd(playerInfo.SpecialSkill.ToString(), 0);
                     }
 
-                    Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [player]);
+                    Instance.InvokeDisableSkill(playerInfo.Skill, player);
 
                     playerInfo.Skill = noneSkill.Skill;
                     playerInfo.SpecialSkill = noneSkill.Skill;
@@ -224,7 +224,8 @@ namespace src.player
                 // nobody drew now would otherwise never clear state left over from an earlier round.
                 // Skills that never ran cannot hold state, so they stay out of the sweep.
                 foreach (var skillName in SkillsUsedThisMap.Keys)
-                    Instance.SkillAction(skillName, "NewRound");
+                    if (Enum.TryParse<Skills>(skillName, ignoreCase: true, out var skill))
+                        Instance.InvokeNewRoundSkill(skill);
                 ActiveSkillsThisRound.Clear();
                 tickFailuresLogged.Clear();
             }
@@ -248,7 +249,7 @@ namespace src.player
                 EntityManager.SuppressKills = true;
                 EntityManager.DestroyAllTracked();
                 foreach (var skill in SkillData.Skills)
-                    Instance.SkillAction(skill.Skill.ToString(), "NewRound");
+                    Instance.InvokeNewRoundSkill(skill.Skill);
                 EntityManager.SuppressKills = false;
 
                 ActiveSkillsThisRound.Clear();
@@ -277,7 +278,7 @@ namespace src.player
         private static HookResult RoundEnd(EventRoundEnd @event, GameEventInfo info)
         {
             Illiterate.Disable();
-            DispatchToActiveSkills("RoundEnd");
+            Instance.SkillDispatcher.DispatchRoundEnd(GetActiveSkillIds());
 
             lock (setLock)
             {
@@ -633,7 +634,7 @@ namespace src.player
                         player.PrintToChat($"{SkillData.Skills.Count - debugSkills.Count}/{SkillData.Skills.Count}");
                     }
 
-                    Instance?.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+                    Instance?.InvokeDisableSkill(skillPlayer.Skill, player);
                     skillPlayer.Skill = randomSkill.Skill;
                     skillPlayer.SpecialSkill = Skills.None;
 
@@ -673,13 +674,13 @@ namespace src.player
                                 // hero running that the player no longer has.
                                 if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
                                 Debug.WriteToDebug("Enabling skill after freeze time: " + randomSkill.Skill);
-                                Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
+                                Instance?.InvokeEnableSkill(randomSkill.Skill, playerTarget);
                             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                         else
                         {
                             if (PlayerManager.GetPlayerByIndex(playerTarget!.Index)?.Skill != randomSkill.Skill) return;
                             Debug.WriteToDebug("Enabling skill: " + randomSkill.Skill);
-                            Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [playerTarget]);
+                            Instance?.InvokeEnableSkill(randomSkill.Skill, playerTarget);
                         }
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
@@ -812,7 +813,7 @@ namespace src.player
                     }
                 }
 
-                Instance?.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+                Instance?.InvokeDisableSkill(skillPlayer.Skill, player);
                 skillPlayer.Skill = randomSkill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
 
@@ -829,10 +830,10 @@ namespace src.player
                         Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                         {
                             if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
-                            Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                            Instance?.InvokeEnableSkill(randomSkill.Skill, player);
                         }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                     else
-                        Instance?.SkillAction(randomSkill.Skill.ToString(), "EnableSkill", [player]);
+                        Instance?.InvokeEnableSkill(randomSkill.Skill, player);
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
                 Debug.WriteToDebug($"Player {skillPlayer.PlayerName} has got the skill \"{player.GetSkillName(randomSkill.Skill)}\".");

@@ -37,7 +37,7 @@ namespace src.player
      *   hero does not declare the hook, nothing happens - that is normal.
      *
      * FAN-OUT FLOW (the pattern almost every handler follows)
-     *   game event -> lock (setLock) -> DispatchToActiveSkills("HookName", args)
+     *   game event -> lock (setLock) -> typed SkillDispatcher hook
      *     -> for every distinct Skill currently held by a non-drawing player
      *        -> InvokeSkill -> SkillAction(...) -> <Skill>.HookName(args)
      *   The dispatch is per DISTINCT SKILL, not per player: a hero hook is called
@@ -188,20 +188,6 @@ namespace src.player
         // Skills whose OnTick already threw this round; used to log once, not 64x/sec.
         private static readonly HashSet<Skills> tickFailuresLogged = [];
 
-        // Single entry point for the reflection call, so every hero hook failure is
-        // caught and logged instead of unwinding the engine callback.
-        private static void InvokeSkill(Skills skill, string methodName, object[] args)
-        {
-            try
-            {
-                Instance.SkillAction(skill.ToString(), methodName, args);
-            }
-            catch (Exception ex)
-            {
-                Server.PrintToConsole($"[HeroShift] {skill}.{methodName} failed: {ex.InnerException?.Message ?? ex.Message}");
-            }
-        }
-
         // Builds the distinct active typed IDs in player-list order. This is the
         // typed equivalent of the legacy DispatchToActiveSkills `seen` loop and
         // deliberately skips players whose draw animation has not resolved yet.
@@ -219,19 +205,6 @@ namespace src.player
             }
 
             return ids;
-        }
-
-        // Core fan-out: calls methodName once per DISTINCT hero currently in play.
-        // `seen` collapses duplicates (ten players on one hero = one call), and
-        // IsDrawing players are skipped because their hero is not decided yet.
-        private static void DispatchToActiveSkills(string methodName, params object[] args)
-        {
-            var seen = new HashSet<Skills>();
-            foreach (var p in Instance.SkillPlayer)
-            {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
-                InvokeSkill(p.Skill, methodName, args);
-            }
         }
 
         // Same fan-out as DispatchToActiveSkills, but ordered: normal heroes first,
