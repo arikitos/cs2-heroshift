@@ -315,7 +315,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerMakeSound", um);
+                Instance.SkillDispatcher.DispatchPlayerMakeSound(GetActiveSkillIds(), um);
                 return HookResult.Continue;
             }
         }
@@ -373,7 +373,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("WeaponFire", @event);
+                Instance.SkillDispatcher.DispatchWeaponFire(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -382,7 +382,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("WeaponEquip", @event);
+                Instance.SkillDispatcher.DispatchWeaponEquip(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -391,7 +391,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("WeaponPickup", @event);
+                Instance.SkillDispatcher.DispatchWeaponPickup(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -400,7 +400,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("WeaponReload", @event);
+                Instance.SkillDispatcher.DispatchWeaponReload(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -409,7 +409,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("GrenadeThrown", @event);
+                Instance.SkillDispatcher.DispatchGrenadeThrown(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -435,18 +435,17 @@ namespace src.player
                     var victimInfo = PlayerManager.GetPlayerByIndex(victim.Index);
                     if (victimInfo == null || victimInfo.IsDrawing) return HookResult.Continue;
 
-                    bool suppressed = AskSkillSuppressesHit(victimInfo.Skill, @event);
-
-                    if (!suppressed)
+                    SkillId? attackerSkillId = null;
+                    var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+                    if (attacker != null && attacker.IsValid && attacker.Index != victim.Index)
                     {
-                        var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
-                        if (attacker != null && attacker.IsValid && attacker.Index != victim.Index)
-                        {
-                            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
-                            if (attackerInfo != null && !attackerInfo.IsDrawing && attackerInfo.Skill != victimInfo.Skill)
-                                suppressed = AskSkillSuppressesHit(attackerInfo.Skill, @event);
-                        }
+                        var attackerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
+                        if (attackerInfo != null && !attackerInfo.IsDrawing)
+                            attackerSkillId = SkillRuntime.GetId(attackerInfo.Skill);
                     }
+
+                    bool suppressed = Instance.SkillDispatcher.DispatchPlayerHurtPre(
+                        SkillRuntime.GetId(victimInfo.Skill), attackerSkillId, @event);
 
                     if (!suppressed) return HookResult.Continue;
 
@@ -475,19 +474,11 @@ namespace src.player
             }
         }
 
-        // Calls <Skill>.PlayerHurtPre(event) and treats a boxed true return as
-        // "suppress this hit". A hero that does not declare the hook returns null.
-        private static bool AskSkillSuppressesHit(Skills skill, EventPlayerHurt @event)
-        {
-            if (skill == Skills.None) return false;
-            return (bool?)Instance.SkillAction(skill.ToString(), "PlayerHurtPre", [@event]) == true;
-        }
-
         private static HookResult PlayerHurt(EventPlayerHurt @event, GameEventInfo info)
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerHurt", @event);
+                Instance.SkillDispatcher.DispatchPlayerHurt(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -496,7 +487,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerJump", @event);
+                Instance.SkillDispatcher.DispatchPlayerJump(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -508,7 +499,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("BotTakeover", @event);
+                Instance.SkillDispatcher.DispatchBotTakeover(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -517,7 +508,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerBlind", @event);
+                Instance.SkillDispatcher.DispatchPlayerBlind(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -674,11 +665,13 @@ namespace src.player
                 var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (skillPlayer == null) return HookResult.Continue;
 
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+                Instance.SkillDispatcher.InvokeDisableSkill(SkillRuntime.GetId(skillPlayer.Skill), player);
 
                 uint leavingIndex = player.Index;
-                foreach (var skill in SkillData.Skills)
-                    Instance.SkillAction(skill.Skill.ToString(), "PlayerDisconnect", [leavingIndex]);
+                var registeredSkillIds = SkillData.Skills
+                    .Select(skill => SkillRuntime.GetId(skill.Skill))
+                    .ToArray();
+                Instance.SkillDispatcher.DispatchPlayerDisconnect(registeredSkillIds, leavingIndex);
 
                 SkillUtils.ClearCursesFor(leavingIndex);
 
@@ -799,14 +792,14 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerDeath", @event);
+                Instance.SkillDispatcher.DispatchPlayerDeath(GetActiveSkillIds(), @event);
 
                 var victim = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (victim == null) return HookResult.Continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return HookResult.Continue;
-                Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [victim]);
+                Instance.SkillDispatcher.InvokeDisableSkill(SkillRuntime.GetId(playerInfo.Skill), victim);
 
                 var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
                 if (attacker == null || victim == attacker) return HookResult.Continue;
@@ -897,7 +890,7 @@ namespace src.player
                 }
 
                 Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill} by PlayerButtons: {pressed}");
-                Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);
+                Instance.SkillDispatcher.InvokeUseSkill(SkillRuntime.GetId(playerInfo.Skill), player);
             }
         }
 
@@ -905,7 +898,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("BulletImpact", @event);
+                Instance.SkillDispatcher.DispatchBulletImpact(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }

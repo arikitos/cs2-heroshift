@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Route player, weapon, grenade, hurt-suppression, death, disconnect and skill-use callbacks through typed dispatcher methods while retaining the specialized tick and damage-order paths for separate migration.
+
 - Route entity, objective, grenade, trigger, weapon-acquisition and transmit callbacks through the typed dispatcher while preserving active-skill ordering and Fortnite wall damage handling.
 
 - Replace assembly scanning and `MethodInfo.Invoke` in the compatibility skill dispatcher with explicit typed delegates resolved from `SkillRegistry`.
