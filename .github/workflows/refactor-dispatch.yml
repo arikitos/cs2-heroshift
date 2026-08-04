@@ -35,19 +35,40 @@ jobs:
       - name: Validate round lifecycle
         shell: bash
         run: |
+          set -euo pipefail
           hero='HeroShift - SRC Files/src/HeroShift.cs'
           rounds='HeroShift - SRC Files/src/player/RoundEvents.cs'
           player='HeroShift - SRC Files/src/player/PlayerEvents.cs'
-          grep -Fq 'internal void InvokeEnableSkill(Skills skill, CCSPlayerController player)' "$hero"
-          grep -Fq 'internal void InvokeDisableSkill(Skills skill, CCSPlayerController player)' "$hero"
-          grep -Fq 'internal bool InvokeTypeSkill(Skills skill, CCSPlayerController player, string[] arguments)' "$hero"
-          grep -Fq 'ActiveSkillsThisRound.TryAdd(skillName, 0)' "$hero"
-          grep -Fq 'SkillUtils.ReleaseCurse(player.Index)' "$hero"
-          grep -Fq 'Instance.InvokeNewRoundSkill(skill)' "$rounds"
-          grep -Fq 'Instance.SkillDispatcher.DispatchRoundEnd(GetActiveSkillIds())' "$rounds"
-          if grep -Fq 'SkillAction(' "$rounds"; then exit 1; fi
-          if grep -Fq 'DispatchToActiveSkills(' "$player"; then exit 1; fi
-          if grep -Fq 'private static object? InvokeSkill' "$player"; then exit 1; fi
+
+          require_text() {
+            local file="$1"
+            local text="$2"
+            if ! grep -Fq -- "$text" "$file"; then
+              echo "::error file=$file::Missing required lifecycle text: $text"
+              exit 1
+            fi
+          }
+
+          forbid_text() {
+            local file="$1"
+            local text="$2"
+            if grep -Fq -- "$text" "$file"; then
+              grep -Fn -- "$text" "$file" || true
+              echo "::error file=$file::Legacy lifecycle text remains: $text"
+              exit 1
+            fi
+          }
+
+          require_text "$hero" 'internal void InvokeEnableSkill(Skills skill, CCSPlayerController player)'
+          require_text "$hero" 'internal void InvokeDisableSkill(Skills skill, CCSPlayerController player)'
+          require_text "$hero" 'internal bool InvokeTypeSkill(Skills skill, CCSPlayerController player, string[] arguments)'
+          require_text "$hero" 'ActiveSkillsThisRound.TryAdd(skillName, 0)'
+          require_text "$hero" 'SkillUtils.ReleaseCurse(player.Index)'
+          require_text "$rounds" 'Instance.InvokeNewRoundSkill(skill)'
+          require_text "$rounds" 'Instance.SkillDispatcher.DispatchRoundEnd(GetActiveSkillIds())'
+          forbid_text "$rounds" 'SkillAction('
+          forbid_text "$player" 'DispatchToActiveSkills('
+          forbid_text "$player" 'private static object? InvokeSkill'
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
