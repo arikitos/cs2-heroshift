@@ -8,6 +8,14 @@ namespace HeroShift.Tests;
 
 public class BaselineEquivalenceTests
 {
+    private static readonly HashSet<string> DisconnectCleanupSkills =
+    [
+        "BunnyHop", "Darkness", "Deaf", "ExpensiveAmmo", "Giant", "Glitch",
+        "Jammer", "Jester", "JumpBan", "JumpCurse", "Magnifier", "Nightmare",
+        "Phoenix", "Poison", "PrimaryBan", "Spectator", "ThrowingKnife",
+        "Tripwire", "Wallhack",
+    ];
+
     [Fact]
     public void BuiltInCatalog_MatchesCompleteLegacyBaseline()
     {
@@ -25,7 +33,10 @@ public class BaselineEquivalenceTests
 
             AssertMetadata((JObject)baselineSkill["metadata"]!, definition.Metadata, name);
             AssertOptions((JObject)baselineSkill["options"]!, definition.DefaultOptionsBoxed, name);
-            AssertHooks(baselineSkill["hooks"]!.Values<string>().ToHashSet(StringComparer.Ordinal), definition.Hooks, name);
+            AssertHooks(
+                baselineSkill["hooks"]!.Values<string>().Where(hook => hook != null).Select(hook => hook!),
+                definition.Hooks,
+                name);
         }
     }
 
@@ -84,15 +95,18 @@ public class BaselineEquivalenceTests
         }
     }
 
-    private static void AssertHooks(HashSet<string> expected, SkillHookSet actual, string skill)
+    private static void AssertHooks(IEnumerable<string> expectedHooks, SkillHookSet actual, string skill)
     {
+        var expected = expectedHooks.ToHashSet(StringComparer.Ordinal);
         var registered = actual.GetType().GetProperties()
             .Where(property => property.GetValue(actual) != null)
             .Select(property => property.Name)
             .ToHashSet(StringComparer.Ordinal);
 
+        bool hasDisconnectCleanup = registered.Remove(nameof(SkillHookSet.PlayerDisconnect));
+        Assert.Equal(DisconnectCleanupSkills.Contains(skill), hasDisconnectCleanup);
         Assert.True(expected.SetEquals(registered),
-            $"{skill} hook mismatch. Expected {string.Join(",", expected.Order())}. Actual {string.Join(",", registered.Order())}");
+            $"{skill} baseline hook mismatch. Expected {string.Join(",", expected.Order())}. Actual {string.Join(",", registered.Order())}");
     }
 
     private static void AssertLiteral(string expectedLiteral, object? actual, string skill, string field)

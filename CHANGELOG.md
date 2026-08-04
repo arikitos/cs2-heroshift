@@ -49,3 +49,4 @@ All notable changes to this project are documented in this file.
 - Explicitly cancel owned vote, bot, draw, menu, and tick state and clear player, entity, skill, command, and runtime caches during unload and hot reload.
 - Normalize package manifest paths across Windows and Linux and reject unexpected, missing, PDB, or XML files from release archives.
 - Repair the captured global configuration baseline so it is valid deterministic JSON and enforce every canonical global, HUD, chat, command, and voting default against it.
+- Characterize the 19 intentional `PlayerDisconnect` cleanup hooks separately while preserving strict baseline equality for every gameplay hook.
