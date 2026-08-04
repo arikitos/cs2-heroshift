@@ -1,4 +1,4 @@
-name: Refactor Round Lifecycle
+name: Refactor Legacy Scan
 
 on:
   pull_request:
@@ -6,16 +6,15 @@ on:
     types: [edited]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  round-lifecycle:
+  legacy-scan:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.head.ref == 'refactor' &&
       github.event.pull_request.user.login == 'arikitos' &&
-      contains(github.event.pull_request.body || '', '<!-- dispatch:round-lifecycle -->')
+      contains(github.event.pull_request.body || '', '<!-- dispatch:legacy-scan -->')
     runs-on: ubuntu-latest
 
     steps:
@@ -25,85 +24,28 @@ jobs:
           ref: refactor
           fetch-depth: 0
 
-      - name: Migrate round lifecycle to typed coordinator
+      - name: List remaining legacy dispatch and configuration references
         shell: bash
         run: |
-          python3 tools/refactor-dispatch/apply_round_lifecycle.py
-          rm tools/refactor-dispatch/apply_round_lifecycle.py
-          sed -i 's/DispatchToActiveSkills("HookName", args)/typed SkillDispatcher hook/' 'HeroShift - SRC Files/src/player/PlayerEvents.cs'
-          git diff --check
+          source_root='HeroShift - SRC Files/src'
 
-      - name: Validate round lifecycle
-        shell: bash
-        run: |
-          set -euo pipefail
-          hero='HeroShift - SRC Files/src/HeroShift.cs'
-          rounds='HeroShift - SRC Files/src/player/RoundEvents.cs'
-          player='HeroShift - SRC Files/src/player/PlayerEvents.cs'
+          echo '::group::SkillAction references'
+          grep -RIn --include='*.cs' 'SkillAction(' "$source_root" || true
+          echo '::endgroup::'
 
-          require_text() {
-            local file="$1"
-            local text="$2"
-            if ! grep -Fq -- "$text" "$file"; then
-              echo "::error file=$file::Missing required lifecycle text: $text"
-              exit 1
-            fi
-          }
+          echo '::group::String hook-name references'
+          grep -RIn --include='*.cs' -E '"(LoadSkill|EnableSkill|DisableSkill|UseSkill|TypeSkill|NewRound|RoundEnd)"' "$source_root" || true
+          echo '::endgroup::'
 
-          forbid_text() {
-            local file="$1"
-            local text="$2"
-            if grep -Fq -- "$text" "$file"; then
-              grep -Fn -- "$text" "$file" || true
-              echo "::error file=$file::Legacy lifecycle text remains: $text"
-              exit 1
-            fi
-          }
+          echo '::group::SkillsInfo runtime references'
+          grep -RIn --include='*.cs' 'SkillsInfo' "$source_root" || true
+          echo '::endgroup::'
 
-          require_text "$hero" 'internal void InvokeEnableSkill(Skills skill, CCSPlayerController player)'
-          require_text "$hero" 'internal void InvokeDisableSkill(Skills skill, CCSPlayerController player)'
-          require_text "$hero" 'internal bool InvokeTypeSkill(Skills skill, CCSPlayerController player, string[] arguments)'
-          require_text "$hero" 'ActiveSkillsThisRound.TryAdd(skillName, 0)'
-          require_text "$hero" 'SkillUtils.ReleaseCurse(player.Index)'
-          require_text "$rounds" 'Instance.InvokeNewRoundSkill(skill)'
-          require_text "$rounds" 'Instance.SkillDispatcher.DispatchRoundEnd(GetActiveSkillIds())'
-          forbid_text "$rounds" 'SkillAction('
-          forbid_text "$player" 'DispatchToActiveSkills('
-          forbid_text "$player" 'private static object? InvokeSkill'
+          echo '::group::Nested SkillConfig declarations'
+          grep -RIn --include='*.cs' 'class SkillConfig' "$source_root" || true
+          echo '::endgroup::'
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Restore
-        run: dotnet restore "HeroShift - SRC Files/HeroShift.sln"
-
-      - name: Test
-        run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
-
-      - name: Build
-        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
-
-      - name: Commit round lifecycle
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'refactor: move round lifecycle to typed coordinator'
-          git push origin HEAD:refactor
-
-      - name: Clear round lifecycle request
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const body = context.payload.pull_request.body || '';
-            const cleaned = body.replace('<!-- dispatch:round-lifecycle -->', '<!-- dispatch:round-lifecycle-complete -->');
-            await github.rest.pulls.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              body: cleaned,
-            });
+          echo '::group::Legacy JSON references'
+          grep -RIn -E 'config\.json|skillsInfo\.json|languages/en\.json|src/lang/en\.json' . \
+            --exclude-dir=.git --exclude='*.patch' --exclude='*.b64' || true
+          echo '::endgroup::'
