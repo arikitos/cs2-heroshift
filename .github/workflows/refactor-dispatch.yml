@@ -1,4 +1,4 @@
-name: Refactor Damage Routing
+name: Refactor Tick Routing
 
 on:
   pull_request:
@@ -10,12 +10,12 @@ permissions:
   pull-requests: write
 
 jobs:
-  damage-routing:
+  tick-routing:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.head.ref == 'refactor' &&
       github.event.pull_request.user.login == 'arikitos' &&
-      contains(github.event.pull_request.body || '', '<!-- dispatch:damage-routing -->')
+      contains(github.event.pull_request.body || '', '<!-- dispatch:tick-routing -->')
     runs-on: ubuntu-latest
 
     steps:
@@ -25,21 +25,26 @@ jobs:
           ref: refactor
           fetch-depth: 0
 
-      - name: Route damage pipeline through typed dispatcher
+      - name: Route tick loop through typed dispatcher
         shell: bash
         run: |
-          python3 tools/refactor-dispatch/apply_damage_routing.py
-          rm tools/refactor-dispatch/apply_damage_routing.py
+          python3 tools/refactor-dispatch/apply_tick_routing.py
+          rm tools/refactor-dispatch/apply_tick_routing.py
           git diff --check
 
-      - name: Validate damage routing
+      - name: Validate tick routing
         shell: bash
         run: |
-          file='HeroShift - SRC Files/src/player/PlayerEvents.cs'
-          grep -Fq 'DispatchOnTakeDamage([SkillRuntime.GetId(skill)], h, post)' "$file"
-          grep -Fq 'lateDamageSkills' "$file"
-          grep -Fq '[DMG]' "$file"
-          if grep -Fq 'post ? "OnTakeDamagePost" : "OnTakeDamage"' "$file"; then exit 1; fi
+          dispatcher='HeroShift - SRC Files/src/Skills/SkillDispatcher.cs'
+          player='HeroShift - SRC Files/src/player/PlayerEvents.cs'
+          tests='HeroShift - SRC Files/tests/HeroShift.Tests/SkillDispatcherTests.cs'
+          grep -Fq 'public void InvokeTickUnchecked(SkillId skillId)' "$dispatcher"
+          grep -Fq 'InvokeTickUnchecked(SkillRuntime.GetId(skill))' "$player"
+          grep -Fq 'tickFailuresLogged.Add(skill)' "$player"
+          grep -Fq '_activeSkillsList.Sort(_tickOrderCmp)' "$player"
+          grep -Fq '_freezeDisabledSkills.Contains(skill)' "$player"
+          grep -Fq 'InvokeTickUnchecked_PropagatesHookFailureToCaller' "$tests"
+          if grep -Fq '_skillNames' "$player"; then exit 1; fi
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -55,22 +60,22 @@ jobs:
       - name: Build
         run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
 
-      - name: Commit damage routing
+      - name: Commit tick routing
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'refactor: route damage hooks through typed dispatcher'
+          git commit -m 'refactor: route tick hooks through typed dispatcher'
           git push origin HEAD:refactor
 
-      - name: Clear damage routing request
+      - name: Clear tick routing request
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const body = context.payload.pull_request.body || '';
-            const cleaned = body.replace('<!-- dispatch:damage-routing -->', '<!-- dispatch:damage-routing-complete -->');
+            const cleaned = body.replace('<!-- dispatch:tick-routing -->', '<!-- dispatch:tick-routing-complete -->');
             await github.rest.pulls.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
