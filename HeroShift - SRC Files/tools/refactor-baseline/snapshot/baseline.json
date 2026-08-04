@@ -846,6 +846,7 @@
       "name": "Dwarf",
       "hooks": [
         "LoadSkill",
+        "EnableSkill",
         "DisableSkill",
         "NewRound"
       ],

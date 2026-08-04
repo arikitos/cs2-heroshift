@@ -78,7 +78,9 @@ foreach (var file in skillFiles)
         continue;
     }
 
-    var hooks = hookNames.Where(h => Regex.IsMatch(stripped, $@"public\s+static\s+(void|bool)\s+{h}\s*\(")).ToList();
+    var hooks = hookNames.Where(h => Regex.IsMatch(
+        stripped,
+        $@"public\s+static\s+(?:unsafe\s+)?(void|bool)\s+{h}\s*\(")).ToList();
 
     var (baseDefaults, specificDefaults, ctorWarnings) = ExtractSkillConfig(stripped, name, baseParamNames);
     warnings.AddRange(ctorWarnings);

@@ -51,3 +51,4 @@ All notable changes to this project are documented in this file.
 - Repair the captured global configuration baseline so it is valid deterministic JSON and enforce every canonical global, HUD, chat, command, and voting default against it.
 - Characterize the 19 intentional `PlayerDisconnect` cleanup hooks separately while preserving strict baseline equality for every gameplay hook.
 - Run the full refactor validation workflow for direct updates to both `main` and `development`.
+- Capture `unsafe` legacy hook methods correctly and restore Dwarf's original `EnableSkill` hook to the equivalence baseline.
