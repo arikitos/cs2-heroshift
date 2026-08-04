@@ -49,6 +49,24 @@ public sealed class SkillDispatcher(SkillRegistry registry, Action<string>? onHo
         }
     }
 
+    // ---- Single-skill lifecycle hooks. These are intentionally separate from
+    // fan-out because the caller owns assignment bookkeeping and player state. ----
+
+    public void InvokeLoadSkill(SkillId skillId) =>
+        Invoke(skillId, nameof(SkillHookSet.LoadSkill), d => d.Hooks.LoadSkill?.Invoke());
+
+    public void InvokeEnableSkill(SkillId skillId, CCSPlayerController player) =>
+        Invoke(skillId, nameof(SkillHookSet.EnableSkill), d => d.Hooks.EnableSkill?.Invoke(player));
+
+    public void InvokeDisableSkill(SkillId skillId, CCSPlayerController player) =>
+        Invoke(skillId, nameof(SkillHookSet.DisableSkill), d => d.Hooks.DisableSkill?.Invoke(player));
+
+    public void InvokeUseSkill(SkillId skillId, CCSPlayerController player) =>
+        Invoke(skillId, nameof(SkillHookSet.UseSkill), d => d.Hooks.UseSkill?.Invoke(player));
+
+    public void InvokeTypeSkill(SkillId skillId, CCSPlayerController player, string[] arguments) =>
+        Invoke(skillId, nameof(SkillHookSet.TypeSkill), d => d.Hooks.TypeSkill?.Invoke(player, arguments));
+
     // ---- Simple fan-out hooks: every distinct active skill, independently, in
     // the order given by the caller (already deduplicated upstream, matching
     // legacy DispatchToActiveSkills' `seen` HashSet<Skills> collapsing). ----
@@ -101,6 +119,18 @@ public sealed class SkillDispatcher(SkillRegistry registry, Action<string>? onHo
             Invoke(id, nameof(SkillHookSet.BotTakeover), d => d.Hooks.BotTakeover?.Invoke(@event));
     }
 
+    public void DispatchSwitchTeam(IReadOnlyList<SkillId> activeSkillIds, EventSwitchTeam @event, GameEventInfo info)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.SwitchTeam), d => d.Hooks.SwitchTeam?.Invoke(@event, info));
+    }
+
+    public void DispatchPlayerDisconnect(IReadOnlyList<SkillId> skillIds, uint playerIndex)
+    {
+        foreach (var id in skillIds)
+            Invoke(id, nameof(SkillHookSet.PlayerDisconnect), d => d.Hooks.PlayerDisconnect?.Invoke(playerIndex));
+    }
+
     public void DispatchWeaponFire(IReadOnlyList<SkillId> activeSkillIds, EventWeaponFire @event)
     {
         foreach (var id in activeSkillIds)
@@ -147,6 +177,72 @@ public sealed class SkillDispatcher(SkillRegistry registry, Action<string>? onHo
     {
         foreach (var id in activeSkillIds)
             Invoke(id, nameof(SkillHookSet.CheckTransmit), d => d.Hooks.CheckTransmit?.Invoke(infoList));
+    }
+
+    public void DispatchOnEntitySpawned(IReadOnlyList<SkillId> activeSkillIds, CEntityInstance entity)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.OnEntitySpawned), d => d.Hooks.OnEntitySpawned?.Invoke(entity));
+    }
+
+    public void DispatchBombBeginplant(IReadOnlyList<SkillId> activeSkillIds, EventBombBeginplant @event)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.BombBeginplant), d => d.Hooks.BombBeginplant?.Invoke(@event));
+    }
+
+    public void DispatchBombAbortplant(IReadOnlyList<SkillId> activeSkillIds, EventBombAbortplant @event)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.BombAbortplant), d => d.Hooks.BombAbortplant?.Invoke(@event));
+    }
+
+    public void DispatchBombPlanted(IReadOnlyList<SkillId> activeSkillIds, EventBombPlanted @event)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.BombPlanted), d => d.Hooks.BombPlanted?.Invoke(@event));
+    }
+
+    public void DispatchBombBegindefuse(IReadOnlyList<SkillId> activeSkillIds, EventBombBegindefuse @event)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.BombBegindefuse), d => d.Hooks.BombBegindefuse?.Invoke(@event));
+    }
+
+    public void DispatchDecoyStarted(IReadOnlyList<SkillId> activeSkillIds, EventDecoyStarted @event)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.DecoyStarted), d => d.Hooks.DecoyStarted?.Invoke(@event));
+    }
+
+    public void DispatchDecoyDetonate(IReadOnlyList<SkillId> activeSkillIds, EventDecoyDetonate @event)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.DecoyDetonate), d => d.Hooks.DecoyDetonate?.Invoke(@event));
+    }
+
+    public void DispatchSmokegrenadeDetonate(IReadOnlyList<SkillId> activeSkillIds, EventSmokegrenadeDetonate @event)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.SmokegrenadeDetonate), d => d.Hooks.SmokegrenadeDetonate?.Invoke(@event));
+    }
+
+    public void DispatchSmokegrenadeExpired(IReadOnlyList<SkillId> activeSkillIds, EventSmokegrenadeExpired @event)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.SmokegrenadeExpired), d => d.Hooks.SmokegrenadeExpired?.Invoke(@event));
+    }
+
+    public void DispatchOnTriggerEnter(IReadOnlyList<SkillId> activeSkillIds, CBaseTrigger trigger, CBaseEntity entity)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.OnTriggerEnter), d => d.Hooks.OnTriggerEnter?.Invoke(trigger, entity));
+    }
+
+    public void DispatchOnTriggerExit(IReadOnlyList<SkillId> activeSkillIds, CBaseTrigger trigger, CBaseEntity entity)
+    {
+        foreach (var id in activeSkillIds)
+            Invoke(id, nameof(SkillHookSet.OnTriggerExit), d => d.Hooks.OnTriggerExit?.Invoke(trigger, entity));
     }
 
     // ---- OnTakeDamage / OnTakeDamagePost: same fan-out, but LateDamageSkillIds

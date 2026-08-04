@@ -23,6 +23,68 @@ public class SkillDispatcherTests
         DefaultOptions = NoSkillOptions.Instance,
     };
 
+    // ---- Single-skill lifecycle and state cleanup -----------------------
+
+    [Fact]
+    public void InvokeLifecycle_CallsOnlyRequestedSkillInOrder()
+    {
+        var registry = new SkillRegistry();
+        var calls = new List<string>();
+        registry.Register(MakeDefinition(BuiltInSkillIds.Dash, new SkillHookSet
+        {
+            LoadSkill = () => calls.Add("load"),
+            EnableSkill = _ => calls.Add("enable"),
+            UseSkill = _ => calls.Add("use"),
+            TypeSkill = (_, args) => calls.Add($"type:{args[0]}"),
+            DisableSkill = _ => calls.Add("disable"),
+        }));
+
+        var dispatcher = new SkillDispatcher(registry);
+        dispatcher.InvokeLoadSkill(BuiltInSkillIds.Dash);
+        dispatcher.InvokeEnableSkill(BuiltInSkillIds.Dash, null!);
+        dispatcher.InvokeUseSkill(BuiltInSkillIds.Dash, null!);
+        dispatcher.InvokeTypeSkill(BuiltInSkillIds.Dash, null!, ["target"]);
+        dispatcher.InvokeDisableSkill(BuiltInSkillIds.Dash, null!);
+
+        Assert.Equal(["load", "enable", "use", "type:target", "disable"], calls);
+    }
+
+    [Fact]
+    public void DispatchPlayerDisconnect_NotifiesEveryProvidedSkillInOrder()
+    {
+        var registry = new SkillRegistry();
+        var calls = new List<string>();
+        registry.Register(MakeDefinition(BuiltInSkillIds.Dash, new SkillHookSet { PlayerDisconnect = index => calls.Add($"dash:{index}") }));
+        registry.Register(MakeDefinition(BuiltInSkillIds.KillerFlash, new SkillHookSet { PlayerDisconnect = index => calls.Add($"killerflash:{index}") }));
+
+        var dispatcher = new SkillDispatcher(registry);
+        dispatcher.DispatchPlayerDisconnect([BuiltInSkillIds.Dash, BuiltInSkillIds.KillerFlash], 17);
+
+        Assert.Equal(["dash:17", "killerflash:17"], calls);
+    }
+
+    [Fact]
+    public void DispatchWorldHooks_RoutesTypedArguments()
+    {
+        var registry = new SkillRegistry();
+        var calls = new List<string>();
+        registry.Register(MakeDefinition(BuiltInSkillIds.Dash, new SkillHookSet
+        {
+            OnEntitySpawned = _ => calls.Add("entity"),
+            BombPlanted = _ => calls.Add("bomb"),
+            SmokegrenadeExpired = _ => calls.Add("smoke"),
+            OnTriggerEnter = (_, _) => calls.Add("trigger"),
+        }));
+
+        var dispatcher = new SkillDispatcher(registry);
+        dispatcher.DispatchOnEntitySpawned([BuiltInSkillIds.Dash], null!);
+        dispatcher.DispatchBombPlanted([BuiltInSkillIds.Dash], null!);
+        dispatcher.DispatchSmokegrenadeExpired([BuiltInSkillIds.Dash], null!);
+        dispatcher.DispatchOnTriggerEnter([BuiltInSkillIds.Dash], null!, null!);
+
+        Assert.Equal(["entity", "bomb", "smoke", "trigger"], calls);
+    }
+
     // ---- OnTick / generic fan-out: every distinct active skill runs, independently ----
 
     [Fact]

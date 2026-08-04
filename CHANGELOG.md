@@ -43,6 +43,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Add typed dispatcher APIs for skill lifecycle, disconnect, entity, team, bomb, decoy, smoke and trigger hooks before migrating live event call sites.
 - Staged an owner-gated typed-dispatch bridge that must pass invariants, tests, and Release build before replacing reflection-based skill invocation.
 - Staged the reviewed compressed runtime-configuration patch for the owner-gated cutover workflow; payload files are removed automatically by the validated cutover commit.
 - Added an owner-gated cutover workflow that applies the reviewed runtime-configuration patch, validates it on Linux, and commits only after tests and Release build succeed.
