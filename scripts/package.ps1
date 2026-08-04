@@ -80,7 +80,7 @@ $manifest = [ordered]@{
 $manifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $manifestPath -Encoding utf8NoBOM
 
 $actualFiles = Get-ChildItem -LiteralPath $stageRoot -File -Recurse | ForEach-Object {
-    [System.IO.Path]::GetRelativePath($stageRoot, $_.FullName).Replace('\', '/')
+    [System.IO.Path]::GetRelativePath($stageRoot, $_.FullName).Replace([System.IO.Path]::DirectorySeparatorChar, '/')
 } | Sort-Object
 $expectedFiles = @($requiredSources.Keys) + 'package-manifest.json' | Sort-Object
 if (Compare-Object -ReferenceObject $expectedFiles -DifferenceObject $actualFiles) {
