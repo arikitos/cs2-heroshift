@@ -35,6 +35,8 @@ jobs:
           printf '%s  %s\n' 'aa5f3659f8269d55fb70a5e02a2e5df52723a0bb9d6903f3fc2d8fd925884340' "$payload" | sha256sum --check --status
           base64 --decode "$payload" | gzip --decompress > /tmp/config-cleanup.patch
           git apply --index /tmp/config-cleanup.patch
+          sed -i 's/new CommandDefinition(name, description, handler)/new CounterStrikeSharp.API.Core.Commands.CommandDefinition(name, description, handler)/' 'HeroShift - SRC Files/src/HeroShift.cs'
+          git add 'HeroShift - SRC Files/src/HeroShift.cs'
           python3 - <<'PYCHANGELOG'
           from pathlib import Path
           path = Path('CHANGELOG.md')
