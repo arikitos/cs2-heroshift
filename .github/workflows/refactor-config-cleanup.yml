@@ -65,7 +65,7 @@ jobs:
           grep -Fq 'config.Commands.SetSkillCommand.Aliases' "$command"
           grep -Fq 'config.Voting.StartGameCommand.Permission' "$command"
 
-          if grep -RIn --include='*.cs' -E '\bConfig\.(LoadedConfig|GameModes|SettingsModel|LoadConfig|Initialize)|public static class Config' "$source_root"; then
+          if grep -RIn --include='*.cs' -E '\bConfig\.(LoadedConfig|GameModes|SettingsModel|LoadConfig|Initialize)|public static class Config([[:space:]]|$)' "$source_root"; then
             echo '::error::Legacy global Config facade reference remains'
             exit 1
           fi
