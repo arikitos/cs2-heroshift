@@ -1,4 +1,4 @@
-name: Refactor Dispatcher API
+name: Refactor Entity Routing
 
 on:
   pull_request:
@@ -9,17 +9,13 @@ permissions:
   contents: write
   pull-requests: write
 
-concurrency:
-  group: refactor-dispatcher-api
-  cancel-in-progress: false
-
 jobs:
-  dispatcher-api:
+  entity-routing:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.head.ref == 'refactor' &&
       github.event.pull_request.user.login == 'arikitos' &&
-      contains(github.event.pull_request.body || '', '<!-- dispatch:api -->')
+      contains(github.event.pull_request.body || '', '<!-- dispatch:entity-routing -->')
     runs-on: ubuntu-latest
 
     steps:
@@ -29,43 +25,32 @@ jobs:
           ref: refactor
           fetch-depth: 0
 
-      - name: Add complete typed dispatcher API
+      - name: Apply entity routing patch
         shell: bash
         run: |
-          base64 --decode tools/refactor-dispatch/dispatcher-api.patch.gz.b64 \
-            | gzip --decompress > dispatcher-api.patch
-          git apply --check dispatcher-api.patch
-          git apply dispatcher-api.patch
-          rm dispatcher-api.patch
-          rm tools/refactor-dispatch/dispatcher-api.patch.gz.b64
-
+          base64 --decode tools/refactor-dispatch/entity-routing.patch.gz.b64 | gzip --decompress > entity-routing.patch
+          git apply --check entity-routing.patch
+          git apply entity-routing.patch
+          rm entity-routing.patch tools/refactor-dispatch/entity-routing.patch.gz.b64
           python3 - <<'PY'
           from pathlib import Path
           path = Path('CHANGELOG.md')
           text = path.read_text(encoding='utf-8')
-          entry = '- Add typed dispatcher APIs for skill lifecycle, disconnect, entity, team, bomb, decoy, smoke and trigger hooks before migrating live event call sites.'
+          entry = '- Route entity, objective, grenade, trigger, weapon-acquisition and transmit callbacks through the typed dispatcher while preserving active-skill ordering and Fortnite wall damage handling.'
           if entry not in text:
-              text = text.replace('### Added\n\n', f'### Added\n\n{entry}\n', 1)
+              text = text.replace('### Changed\n\n', f'### Changed\n\n{entry}\n\n', 1)
           path.write_text(text, encoding='utf-8')
           PY
-
           git diff --check
 
-      - name: Validate dispatcher API
+      - name: Validate entity routing
         shell: bash
         run: |
-          set -euo pipefail
-          file='HeroShift - SRC Files/src/Skills/SkillDispatcher.cs'
-          grep -Fq 'public void InvokeLoadSkill' "$file"
-          grep -Fq 'public void InvokeEnableSkill' "$file"
-          grep -Fq 'public void DispatchPlayerDisconnect' "$file"
-          grep -Fq 'public void DispatchOnEntitySpawned' "$file"
-          grep -Fq 'public void DispatchBombPlanted' "$file"
-          grep -Fq 'public void DispatchSmokegrenadeExpired' "$file"
-          grep -Fq 'public void DispatchOnTriggerEnter' "$file"
-          tests='HeroShift - SRC Files/tests/HeroShift.Tests/SkillDispatcherTests.cs'
-          grep -Fq 'InvokeLifecycle_CallsOnlyRequestedSkillInOrder' "$tests"
-          grep -Fq 'DispatchWorldHooks_RoutesTypedArguments' "$tests"
+          grep -Fq 'private static IReadOnlyList<SkillId> GetActiveSkillIds()' 'HeroShift - SRC Files/src/player/PlayerEvents.cs'
+          grep -Fq 'DispatchOnWeaponCanAcquire(' 'HeroShift - SRC Files/src/player/EntityEvents.cs'
+          grep -Fq 'DispatchOnEntitySpawned(' 'HeroShift - SRC Files/src/player/EntityEvents.cs'
+          grep -Fq 'DispatchCheckTransmit(' 'HeroShift - SRC Files/src/player/EntityEvents.cs'
+          grep -Fq 'BuiltInSkillIds.Fortnite' 'HeroShift - SRC Files/src/player/EntityEvents.cs'
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -81,22 +66,22 @@ jobs:
       - name: Build
         run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
 
-      - name: Commit dispatcher API
+      - name: Commit entity routing
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'refactor: complete typed dispatcher api'
+          git commit -m 'refactor: route entity events through typed dispatcher'
           git push origin HEAD:refactor
 
-      - name: Clear dispatcher API request
+      - name: Clear entity routing request
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const body = context.payload.pull_request.body || '';
-            const cleaned = body.replace('<!-- dispatch:api -->', '<!-- dispatch:api-complete -->');
+            const cleaned = body.replace('<!-- dispatch:entity-routing -->', '<!-- dispatch:entity-routing-complete -->');
             await github.rest.pulls.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
