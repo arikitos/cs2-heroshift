@@ -30,6 +30,7 @@ jobs:
         run: |
           python3 tools/refactor-dispatch/apply_round_lifecycle.py
           rm tools/refactor-dispatch/apply_round_lifecycle.py
+          sed -i 's/DispatchToActiveSkills("HookName", args)/typed SkillDispatcher hook/' 'HeroShift - SRC Files/src/player/PlayerEvents.cs'
           git diff --check
 
       - name: Validate round lifecycle
