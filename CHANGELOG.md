@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Replace assembly scanning and `MethodInfo.Invoke` in the compatibility skill dispatcher with explicit typed delegates resolved from `SkillRegistry`.
+
 - Cut runtime configuration over to atomic `heroshift.json` snapshots with canonical typed global defaults, per-skill metadata/options binding, explicit legacy-ID mapping, and embedded-English localization fallback.
 
 - Completed canonical typed definitions, metadata, explicit hook registrations, and typed option records for all 142 built-in skills; live runtime cutover remains a separate checkpoint.
