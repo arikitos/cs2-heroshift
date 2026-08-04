@@ -1,6 +1,7 @@
 name: Refactor Validation
 
 on:
+  workflow_dispatch:
   push:
     branches: [refactor]
   pull_request:
@@ -9,28 +10,19 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: refactor-validation-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Restore
-        run: dotnet restore "HeroShift - SRC Files/HeroShift.sln"
-
-      - name: Test
-        run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
-
-      - name: Build
-        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
 
       - name: Archive refactor source and history
         shell: bash
@@ -48,3 +40,17 @@ jobs:
             refactor.bundle
             refactor-tree-sha.txt
           if-no-files-found: error
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore "HeroShift - SRC Files/HeroShift.sln"
+
+      - name: Test
+        run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Build
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
