@@ -10,6 +10,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.Configuration;
 namespace src.command
 {
     /*
@@ -147,7 +149,7 @@ namespace src.command
 
             // Per-hero tunable from configs/skillsInfo.json: heroes flagged
             // "disableOnFreezeTime" simply cannot be triggered during freeze time.
-            if (SkillsInfo.GetValue<bool>(playerInfo.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+            if (SkillRuntime.GetMetadata(playerInfo.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                 return;
 
             string[] commands = _.ArgString.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries);
@@ -699,14 +701,22 @@ namespace src.command
 
             lock (setLock)
             {
-                Config.LoadConfig();
-                SkillsInfo.LoadSkillsInfo();
+                try
+                {
+                    Config.LoadConfig();
+                }
+                catch (ConfigurationValidationException ex)
+                {
+                    foreach (var error in ex.Errors)
+                        Server.PrintToConsole($"[HeroShift] {error}");
+                    return;
+                }
                 Localization.Load();
                 Load();
 
                 SkillData.Skills.Clear();
-                foreach (var skill in Enum.GetValues(typeof(Skills)))
-                    if (SkillsInfo.GetValue<bool>(skill, "active"))
+                foreach (var skill in Enum.GetValues<Skills>())
+                    if (SkillRuntime.GetMetadata(skill).Active)
                         Instance.SkillAction(skill.ToString()!, "LoadSkill");
 
                 // Both are lazy caches derived from the list just rebuilt: the
@@ -722,9 +732,9 @@ namespace src.command
 
                 foreach (var target in Instance.SkillPlayer)
                 {
-                    if (SkillsInfo.GetValue<bool>(target.Skill, "active") == false)
+                    if (SkillRuntime.GetMetadata(target.Skill).Active == false)
                         target.Skill = Event.noneSkill.Skill;
-                    if (SkillsInfo.GetValue<bool>(target.SpecialSkill, "active") == false)
+                    if (SkillRuntime.GetMetadata(target.SpecialSkill).Active == false)
                         target.SpecialSkill = Event.noneSkill.Skill;
                 }
             }

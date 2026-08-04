@@ -46,7 +46,7 @@ namespace src.player.skills
         private static AstronautOptions Options => SkillConfigurationResolver.Get<AstronautOptions>(BuiltInSkillIds.Astronaut);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void EnableSkill(CCSPlayerController player)

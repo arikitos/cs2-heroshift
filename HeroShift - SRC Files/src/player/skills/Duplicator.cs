@@ -5,6 +5,7 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
 namespace src.player.skills
 {
     /*
@@ -37,7 +38,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void NewRound()
@@ -184,7 +185,7 @@ namespace src.player.skills
                 playerInfo.SpecialSkill = skillName;
                 SkillUtils.CloseMenu(player);
 
-                if (SkillsInfo.GetValue<bool>(enemySkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                if (SkillRuntime.GetMetadata(enemySkill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
                     {
                         var player = Utilities.GetPlayerFromIndex((int)playerIndex);

@@ -42,7 +42,7 @@ namespace src.player.skills
         private static DraculaOptions Options => SkillConfigurationResolver.Get<DraculaOptions>(BuiltInSkillIds.Dracula);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)

@@ -62,7 +62,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -212,7 +212,7 @@ namespace src.player.skills
                 ActiveTimers.TryAdd(replicaIndex, moveTimer);
             }, TimerFlags.STOP_ON_MAPCHANGE);
 
-            float duration = SkillsInfo.GetValue<float>(skillName, ducking ? "durationCrouch" : "durationRun");
+            float duration = ducking ? Options.DurationCrouch : Options.DurationRun;
             Instance.AddTimer(duration, () =>
             {
                 if (replica != null && replica.IsValid)

@@ -45,7 +45,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void OnTick()
@@ -67,8 +67,6 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerPawn == null || playerInfo == null) return;
 
-            var skillConfig = SkillsInfo.LoadedConfig.FirstOrDefault(s => s.Name == skillName.ToString());
-            if (skillConfig == null) return;
 
             float extraJumps = (float)Instance.Random.Next(Options.ExtraJumpsMin, Options.ExtraJumpsMax + 1);
             playerInfo.SkillChance = extraJumps;

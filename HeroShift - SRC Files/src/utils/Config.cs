@@ -1,331 +1,223 @@
-﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using src.Configuration;
+using src.Configuration.Models;
+using src.SkillsCore;
 using static src.HeroShift;
 
-namespace src.utils
+namespace src.utils;
+
+/*
+ * Compatibility facade for call sites that still use Config.LoadedConfig.
+ * Runtime data comes exclusively from the immutable typed heroshift.json
+ * snapshot; this type contains no defaults and performs no legacy file I/O.
+ */
+public static class Config
 {
-    /*
-     * Config - the global plugin settings, stored in configs/config.json.
-     *
-     * This is the server-wide behaviour of the plugin (game mode, HUD, chat,
-     * command names, voting). Per-hero balance values are NOT here - those live
-     * in configs/skillsInfo.json, see utils/SkillsInfo.cs.
-     *
-     * The file is created with defaults on first load. Read values anywhere with
-     * Config.LoadedConfig.<Property>. Missing keys fall back to the defaults set
-     * in the SettingsModel constructor below.
-     */
-    public static class Config
+    private static SettingsModel _loadedConfig = new(new HeroShiftConfiguration());
+
+    public static SettingsModel LoadedConfig => Volatile.Read(ref _loadedConfig);
+
+    public static SettingsModel Initialize(SkillRegistry registry)
     {
-        private static readonly string configsFolder = Path.Combine(Instance.ModuleDirectory, "configs");
-        private static readonly string configPath = Path.Combine(configsFolder, "config.json");
-        private static readonly object fileLock = new();
+        string path = Path.Combine(Instance.ModuleDirectory, "configs", "heroshift.json");
+        var snapshot = ConfigurationStore.Initialize(path, registry, Instance.Logger);
+        var adapted = new SettingsModel(snapshot.Configuration);
+        Volatile.Write(ref _loadedConfig, adapted);
+        return adapted;
+    }
 
-        private static SettingsModel config = LoadConfig();
-        public static SettingsModel LoadedConfig => config;
+    public static SettingsModel LoadConfig()
+    {
+        var snapshot = ConfigurationStore.Reload();
+        var adapted = new SettingsModel(snapshot.Configuration);
+        Volatile.Write(ref _loadedConfig, adapted);
+        return adapted;
+    }
 
-        public static SettingsModel LoadConfig()
+    public sealed class SettingsModel
+    {
+        public SettingsModel() : this(new HeroShiftConfiguration()) { }
+        public SettingsModel(HeroShiftConfiguration config)
         {
-            lock (fileLock)
-            {
-                var newConfig = new SettingsModel();
-
-                if (!File.Exists(configPath))
-                {
-                    Instance.Logger.LogInformation("Config file does not exist. Create a new config file...");
-                    SaveConfig(newConfig);
-                    return config = newConfig;
-                }
-
-                try
-                {
-                    string json;
-                    using (var fs = new FileStream(configPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    using (var sr = new StreamReader(fs))
-                        json = sr.ReadToEnd();
-                    newConfig = JsonConvert.DeserializeObject<SettingsModel>(json) ?? new SettingsModel();
-                }
-                catch
-                {
-                    Instance.Logger.LogError("Error when loading the config file.");
-                }
-
-                if (newConfig.DisplayAlwaysDescription)
-                    newConfig.SkillDescriptionDuration = 9999;
-                return config = newConfig;
-            }
+            ConfigName = "heroshift.json";
+            GameMode = (int)config.General.GameMode;
+            YourSkillChatInfo = config.General.YourSkillChatInfo;
+            KillerSkillChatInfo = config.General.KillerSkillChatInfo;
+            TeamMateSkillChatInfo = config.General.TeamMateSkillChatInfo;
+            SummaryAfterTheRound = config.General.SummaryAfterTheRound;
+            EnableBotSkills = config.General.EnableBotSkills;
+            EnableBotKickDebug = config.General.EnableBotKickDebug;
+            EnableFullForceUpdate = config.General.EnableFullForceUpdate;
+            DebugMode = config.General.DebugMode;
+            PerfMode = config.General.PerfMode;
+            AlternativeSkillButton = config.General.AlternativeSkillButton;
+            SkillTimeBeforeStart = config.General.SkillTimeBeforeStart;
+            SkillHudDuration = config.General.SkillHudDuration;
+            SkillDescriptionDuration = config.General.SkillDescriptionDuration;
+            DisplayAlwaysDescription = config.General.DisplayAlwaysDescription;
+            DisableSpectateHUD = config.General.DisableSpectateHUD;
+            HideHudForOtherPlugins = config.General.HideHudForOtherPlugins;
+            EnableFlashingHtmlHudFix = config.General.EnableFlashingHtmlHudFix;
+            TraceRayBeam = config.General.TraceRayBeam;
+            DisableHUDOnDeathPermission = config.General.DisableHUDOnDeathPermission;
+            DisableSkillsOnRoundEnd = config.General.DisableSkillsOnRoundEnd;
+            CurseSkillPerPlayer = config.General.CurseSkillPerPlayer;
+            HtmlHudCustomisation = new HtmlHudCustomisation(config.Hud);
+            ChatMessage = new ChatMessage(config.Chat);
+            NormalCommands = new NormalCommands(config.Commands);
+            VotingCommands = new VotingCommands(config.Voting);
         }
 
-        public static void SaveConfig(SettingsModel config)
+        public string ConfigName { get; }
+        public int GameMode { get; }
+        public bool YourSkillChatInfo { get; }
+        public bool KillerSkillChatInfo { get; }
+        public bool TeamMateSkillChatInfo { get; }
+        public bool SummaryAfterTheRound { get; }
+        public bool EnableBotSkills { get; }
+        public bool EnableBotKickDebug { get; }
+        public bool EnableFullForceUpdate { get; }
+        public bool DebugMode { get; }
+        public bool PerfMode { get; }
+        public string? AlternativeSkillButton { get; }
+        public float SkillTimeBeforeStart { get; }
+        public float SkillHudDuration { get; }
+        public float SkillDescriptionDuration { get; }
+        public bool DisplayAlwaysDescription { get; }
+        public bool DisableSpectateHUD { get; }
+        public bool HideHudForOtherPlugins { get; }
+        public bool EnableFlashingHtmlHudFix { get; }
+        public bool TraceRayBeam { get; }
+        public string DisableHUDOnDeathPermission { get; }
+        public bool DisableSkillsOnRoundEnd { get; }
+        public int? CurseSkillPerPlayer { get; }
+        public HtmlHudCustomisation HtmlHudCustomisation { get; }
+        public ChatMessage ChatMessage { get; }
+        public NormalCommands NormalCommands { get; }
+        public VotingCommands VotingCommands { get; }
+    }
+
+    public sealed class ChatMessage(ChatOptions options)
+    {
+        public float MaxWidth { get; } = options.MaxWidth;
+        public char LineSymbol { get; } = options.LineSymbol;
+        public string LineColor { get; } = options.LineColor;
+        public bool LineShow { get; } = options.LineShow;
+        public string InfoPlayerNameColor { get; } = options.InfoPlayerNameColor;
+        public string InfoSkillColor { get; } = options.InfoSkillColor;
+        public bool InfoMessageShow { get; } = options.InfoMessageShow;
+        public string TagFormat { get; } = options.TagFormat;
+    }
+
+    public sealed class HtmlHudCustomisation(HudOptions options)
+    {
+        public string HeaderLineColor { get; } = options.HeaderLineColor;
+        public string HeaderLineSize { get; } = options.HeaderLineSize;
+        public string SkillLineSize { get; } = options.SkillLineSize;
+        public string InfoLineColor { get; } = options.InfoLineColor;
+        public string InfoLineSize { get; } = options.InfoLineSize;
+        public string SkillDescriptionLineColor { get; } = options.SkillDescriptionLineColor;
+        public string SkillDescriptionLineSize { get; } = options.SkillDescriptionLineSize;
+        public string WSADMenuSelectInfoLineColor { get; } = options.WsadMenuSelectInfoLineColor;
+        public string WSADMenuSelectInfoLineSize { get; } = options.WsadMenuSelectInfoLineSize;
+        public string WSADMenuItemLineColor { get; } = options.WsadMenuItemLineColor;
+        public string WSADMenuItemHoverLineColor { get; } = options.WsadMenuItemHoverLineColor;
+        public string WSADMenuItemLineSize { get; } = options.WsadMenuItemLineSize;
+        public string WSADMenuControllsLineSize { get; } = options.WsadMenuControllsLineSize;
+        public string WSADMenuControllsLineColor1 { get; } = options.WsadMenuControllsLineColor1;
+        public string WSADMenuControllsLineColor2 { get; } = options.WsadMenuControllsLineColor2;
+        public string WSADMenuControllsLineColor3 { get; } = options.WsadMenuControllsLineColor3;
+    }
+
+    public class NormalCommand(CommandDefinition definition)
+    {
+        public string Alias { get; } = string.Join(", ", definition.Aliases);
+        public string Permissions { get; } = definition.Permission;
+    }
+
+    public sealed class NormalCommands
+    {
+        public NormalCommands(CommandOptions options)
         {
-            lock (fileLock)
-            {
-                try
-                {
-                    Directory.CreateDirectory(configsFolder);
-                    string json = JsonConvert.SerializeObject(config, Formatting.Indented);
-
-                    string tempPath = $"{configPath}.temp";
-                    File.WriteAllText(tempPath, json);
-
-                    File.Copy(tempPath, configPath, overwrite: true);
-                    File.Delete(tempPath);
-                }
-                catch
-                {
-                    Instance.Logger.LogError("Error when saving the config file.");
-                }
-            }
+            SetSkillCommand = new(options.SetSkillCommand);
+            SkillsListCommand = new(options.SkillsListCommand);
+            UseSkillCommand = new(options.UseSkillCommand);
+            HealCommand = new(options.HealCommand);
+            HealthCommand = new(options.HealthCommand);
+            PlantedBomb = new(options.PlantedBomb);
+            BotPlace = new(options.BotPlace);
+            ConsoleCommand = new(options.ConsoleCommand);
+            HudCommand = new(options.HudCommand);
+            SetStaticSkillCommand = new(options.SetStaticSkillCommand);
+            ReloadCommand = new(options.ReloadCommand);
+            NextCommand = new(options.NextCommand);
+            CheckEntityCommand = new(options.CheckEntityCommand);
         }
+        public NormalCommand SetSkillCommand { get; }
+        public NormalCommand SkillsListCommand { get; }
+        public NormalCommand UseSkillCommand { get; }
+        public NormalCommand HealCommand { get; }
+        public NormalCommand HealthCommand { get; }
+        public NormalCommand PlantedBomb { get; }
+        public NormalCommand BotPlace { get; }
+        public NormalCommand ConsoleCommand { get; }
+        public NormalCommand HudCommand { get; }
+        public NormalCommand SetStaticSkillCommand { get; }
+        public NormalCommand ReloadCommand { get; }
+        public NormalCommand NextCommand { get; }
+        public NormalCommand CheckEntityCommand { get; }
+    }
 
-        public class SettingsModel
+    public class VotingCommand(VotingCommandDefinition definition) : NormalCommand(
+        new CommandDefinition { Aliases = definition.Aliases, Permission = definition.Permission })
+    {
+        public bool EnableVoting { get; } = definition.EnableVoting;
+        public float TimeToVote { get; } = definition.TimeToVote;
+        public float PercentagesToSuccess { get; } = definition.PercentagesToSuccess;
+        public float TimeToNextVoting { get; } = definition.TimeToNextVoting;
+        public float TimeToNextSameVoting { get; } = definition.TimeToNextSameVoting;
+        public int MinimumPlayersToStartVoting { get; } = definition.MinimumPlayersToStartVoting;
+    }
+
+    public sealed class StartGameCommand(StartGameCommandDefinition definition)
+    {
+        public bool EnableVoting { get; } = definition.EnableVoting;
+        public string Alias { get; } = string.Join(", ", definition.Aliases);
+        public string Permissions { get; } = definition.Permission;
+        public string StartParams { get; } = definition.StartParams;
+        public string SVStartParams { get; } = definition.SvStartParams;
+        public float TimeToVote { get; } = definition.TimeToVote;
+        public float PercentagesToSuccess { get; } = definition.PercentagesToSuccess;
+        public float TimeToNextVoting { get; } = definition.TimeToNextVoting;
+        public float TimeToNextSameVoting { get; } = definition.TimeToNextSameVoting;
+        public int MinimumPlayersToStartVoting { get; } = definition.MinimumPlayersToStartVoting;
+    }
+
+    public sealed class VotingCommands
+    {
+        public VotingCommands(VotingOptions options)
         {
-            // Label only - shown in console as the active preset name.
-            public string ConfigName { get; set; }
-
-            // How skills are handed out each round. See the GameModes enum below.
-            public int GameMode { get; set; }
-
-            // Which chat announcements are printed.
-            public bool YourSkillChatInfo { get; set; }      // your own hero
-            public bool KillerSkillChatInfo { get; set; }    // the hero that killed you
-            public bool TeamMateSkillChatInfo { get; set; }  // your teammates' heroes
-            public bool SummaryAfterTheRound { get; set; }   // recap at round end
-
-            // Bots take part in the skill draw like real players.
-            public bool EnableBotSkills { get; set; }
-            public bool EnableBotKickDebug { get; set; }
-            public bool EnableFullForceUpdate { get; set; }
-
-            // DebugMode writes the debug log; PerfMode logs slow hooks (PerfLog).
-            public bool DebugMode { get; set; }
-            public bool PerfMode { get; set; }
-
-            // Extra key that triggers UseSkill in addition to the default one
-            // (a console button name, e.g. "e"). null = only the default.
-            public string? AlternativeSkillButton { get; set; }
-
-            // Seconds after round start before skills become usable.
-            public float SkillTimeBeforeStart { get; set; }
-
-            // HUD lifetimes in seconds. -1 = show for the whole round.
-            public float SkillHudDuration { get; set; }
-            public float SkillDescriptionDuration { get; set; }
-            // When true, SkillDescriptionDuration is forced to 9999 on load.
-            public bool DisplayAlwaysDescription { get; set; }
-
-            public bool DisableSpectateHUD { get; set; }
-            public bool HideHudForOtherPlugins { get; set; }
-            // Workaround for the HTML HUD flickering when other plugins draw too.
-            public bool EnableFlashingHtmlHudFix { get; set; }
-            // Draw a visible beam along ray traces (debugging aid).
-            public bool TraceRayBeam { get; set; }
-
-            public string DisableHUDOnDeathPermission { get; set; }
-            // Strip everyone's skill the moment the round ends.
-            public bool DisableSkillsOnRoundEnd { get; set; }
-            // Cap on how many curse-type skills may target one player
-            // (null = no limit). Enforced by SkillUtils.TryClaimCurse.
-            public int? CurseSkillPerPlayer { get; set; }
-            public HtmlHudCustomisation HtmlHudCustomisation { get; set; }
-            public ChatMessage ChatMessage { get; set; }
-            public NormalCommands NormalCommands { get; set; }
-            public VotingCommands VotingCommands { get; set; }
-
-            public SettingsModel()
-            {
-                ConfigName = "Default";
-                GameMode = (int)GameModes.NoRepeat;
-                YourSkillChatInfo = true;
-                KillerSkillChatInfo = true;
-                TeamMateSkillChatInfo = true;
-                SummaryAfterTheRound = true;
-                EnableBotSkills = true;
-                EnableBotKickDebug = false;
-                EnableFullForceUpdate = false;
-                DebugMode = false;
-                PerfMode = false;
-                AlternativeSkillButton = null;
-                SkillTimeBeforeStart = 7;
-                SkillHudDuration = -1;
-                SkillDescriptionDuration = 7;
-                DisplayAlwaysDescription = false;
-                EnableFlashingHtmlHudFix = false;
-                TraceRayBeam = false;
-                DisableSpectateHUD = false;
-                HideHudForOtherPlugins = true;
-                DisableHUDOnDeathPermission = "@HeroShift/death";
-                DisableSkillsOnRoundEnd = false;
-                CurseSkillPerPlayer = null;
-
-                HtmlHudCustomisation = new HtmlHudCustomisation
-                {
-                    HeaderLineColor = "#FFFFFF",
-                    HeaderLineSize = "",
-                    SkillLineSize = "l",
-                    InfoLineColor = "#FFFFFF",
-                    InfoLineSize = "sm",
-                    SkillDescriptionLineColor = "#999999",
-                    SkillDescriptionLineSize = "sm",
-                    WSADMenuSelectInfoLineColor = "#999999",
-                    WSADMenuSelectInfoLineSize = "sm",
-                    WSADMenuItemLineColor = "white",
-                    WSADMenuItemHoverLineColor = "orange",
-                    WSADMenuItemLineSize = "sm",
-                    WSADMenuControllsLineSize = "sm",
-                    WSADMenuControllsLineColor1 = "cyan",
-                    WSADMenuControllsLineColor2 = "white",
-                    WSADMenuControllsLineColor3 = "green",
-                };
-
-                ChatMessage = new ChatMessage
-                {
-                    MaxWidth = 1280,
-                    LineSymbol = '―',
-                    LineColor = "\x04",
-                    LineShow = true,
-                    InfoPlayerNameColor = "\x02",
-                    InfoSkillColor = "\x06",
-                    InfoMessageShow = true,
-                    TagFormat = "\x02◢◆◤ {TAG} ◥◆◣",
-                };
-
-                NormalCommands = new NormalCommands
-                {
-                    SetSkillCommand = new NormalCommand("setskill, set_skill", "@HeroShift/admin"),
-                    SkillsListCommand = new NormalCommand("skills", "@HeroShift/admin"),
-                    UseSkillCommand = new NormalCommand("t, useSkill", "@HeroShift/admin"),
-                    HealCommand = new NormalCommand("heal", "@HeroShift/admin"),
-                    HealthCommand = new NormalCommand("sethealth, set_health, health", "@HeroShift/admin"),
-                    PlantedBomb = new NormalCommand("plantedbomb, planted_bomb, bomb", "@HeroShift/admin"),
-                    BotPlace = new NormalCommand("botplace, bot_place", "@HeroShift/admin"),
-                    ConsoleCommand = new NormalCommand("console, sv", "@HeroShift/owner"),
-                    HudCommand = new NormalCommand("hud, hood", ""),
-                    SetStaticSkillCommand = new NormalCommand("setstaticskill, set_static_skill", "@HeroShift/admin"),
-                    ReloadCommand = new NormalCommand("reload, refresh", "@HeroShift/admin"),
-                    NextCommand = new NormalCommand("next_skill", "@HeroShift/admin"),
-                    CheckEntityCommand = new NormalCommand("ent, entity, checkentity, check_entity, checkent, check_ent", "@HeroShift/owner"),
-                };
-
-                VotingCommands = new VotingCommands
-                {
-                    StartGameCommand = new StartGameCommand(true, "start, go", "@HeroShift/admin", "mp_freezetime 15; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 0", "mp_freezetime 0; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 1", 15, 60, 15, 500, 2),
-                    ChangeMapCommand = new VotingCommand(true, "map, changemap", "@HeroShift/admin", 25, 90, 15, 500, 2),
-                    SwapCommand = new VotingCommand(true, "swap", "@HeroShift/admin", 15, 90, 15, 20, 2),
-                    ShuffleCommand = new VotingCommand(true, "shuffle", "@HeroShift/admin", 15, 90, 15, 20, 2),
-                    PauseCommand = new VotingCommand(true, "pause, unpause", "@HeroShift/admin", 15, 60, 15, 2, 2),
-                    SetScoreCommand = new VotingCommand(true, "setscore", "@HeroShift/owner", 15, 90, 15, 90, 2),
-                };
-            }
+            StartGameCommand = new(options.StartGameCommand);
+            ChangeMapCommand = new(options.ChangeMapCommand);
+            SwapCommand = new(options.SwapCommand);
+            ShuffleCommand = new(options.ShuffleCommand);
+            PauseCommand = new(options.PauseCommand);
+            SetScoreCommand = new(options.SetScoreCommand);
         }
+        public StartGameCommand StartGameCommand { get; }
+        public VotingCommand ChangeMapCommand { get; }
+        public VotingCommand SwapCommand { get; }
+        public VotingCommand ShuffleCommand { get; }
+        public VotingCommand PauseCommand { get; }
+        public VotingCommand SetScoreCommand { get; }
+    }
 
-        public class ChatMessage
-        {
-            public required float MaxWidth { get; set; }
-            public required char LineSymbol { get; set; }
-            public required string LineColor { get; set; }
-            public required bool LineShow { get; set; }
-            public required string InfoPlayerNameColor { get; set; }
-            public required string InfoSkillColor { get; set; }
-            public required bool InfoMessageShow { get; set; }
-            public required string TagFormat { get; set; }
-        }
-
-        public class HtmlHudCustomisation
-        {
-            public required string HeaderLineColor { get; set; }
-            public required string HeaderLineSize { get; set; }
-            public required string SkillLineSize { get; set; }
-            public required string InfoLineColor { get; set; }
-            public required string InfoLineSize { get; set; }
-            public required string SkillDescriptionLineColor { get; set; }
-            public required string SkillDescriptionLineSize { get; set; }
-            public required string WSADMenuSelectInfoLineColor { get; set; }
-            public required string WSADMenuSelectInfoLineSize { get; set; }
-            public required string WSADMenuItemLineColor { get; set; }
-            public required string WSADMenuItemHoverLineColor { get; set; }
-            public required string WSADMenuItemLineSize { get; set; }
-            public required string WSADMenuControllsLineSize { get; set; }
-            public required string WSADMenuControllsLineColor1 { get; set; }
-            public required string WSADMenuControllsLineColor2 { get; set; }
-            public required string WSADMenuControllsLineColor3 { get; set; }
-        }
-
-        public class NormalCommand(string alias, string permissions)
-        {
-            public string Alias { get; set; } = alias;
-            public string Permissions { get; set; } = permissions;
-        }
-
-        public class NormalCommands
-        {
-            public required NormalCommand SetSkillCommand { get; set; }
-            public required NormalCommand SkillsListCommand { get; set; }
-            public required NormalCommand UseSkillCommand { get; set; }
-            public required NormalCommand HealCommand { get; set; }
-            public required NormalCommand HealthCommand { get; set; }
-            public required NormalCommand PlantedBomb { get; set; }
-            public required NormalCommand BotPlace { get; set; }
-            public required NormalCommand ConsoleCommand { get; set; }
-            public required NormalCommand HudCommand { get; set; }
-            public required NormalCommand SetStaticSkillCommand { get; set; }
-            public required NormalCommand ReloadCommand { get; set; }
-            public required NormalCommand NextCommand { get; set; }
-            public required NormalCommand CheckEntityCommand { get; set; }
-        }
-
-        public class VotingCommand(bool enableVoting, string alias, string permissions, float timeToVote, float percentagesToSuccess, float timeToNextVoting, float timeToNextSameVoting, int minimumPlayersToStartVoting) : NormalCommand(alias, permissions)
-        {
-            public bool EnableVoting { get; set; } = enableVoting;
-            public float TimeToVote { get; set; } = timeToVote;
-            public float PercentagesToSuccess { get; set; } = percentagesToSuccess;
-            public float TimeToNextVoting { get; set; } = timeToNextVoting;
-            public float TimeToNextSameVoting { get; set; } = timeToNextSameVoting;
-            public int MinimumPlayersToStartVoting { get; set; } = minimumPlayersToStartVoting;
-        }
-
-        public class StartGameCommand(bool enableVoting, string alias, string permissions, string startParams, string svStartParams, float timeToVote, float percentagesToSuccess, float timeToNextVoting, float timeToNextSameVoting, int minimumPlayersToStartVoting)
-        {
-            public bool EnableVoting { get; set; } = enableVoting;
-            public string Alias { get; set; } = alias;
-            public string Permissions { get; set; } = permissions;
-            public string StartParams { get; set; } = startParams;
-            public string SVStartParams { get; set; } = svStartParams;
-            public float TimeToVote { get; set; } = timeToVote;
-            public float PercentagesToSuccess { get; set; } = percentagesToSuccess;
-            public float TimeToNextVoting { get; set; } = timeToNextVoting;
-            public float TimeToNextSameVoting { get; set; } = timeToNextSameVoting;
-            public int MinimumPlayersToStartVoting { get; set; } = minimumPlayersToStartVoting;
-        }
-
-        public class VotingCommands
-        {
-            public required StartGameCommand StartGameCommand { get; set; }
-            public required VotingCommand ChangeMapCommand { get; set; }
-            public required VotingCommand SwapCommand { get; set; }
-            public required VotingCommand ShuffleCommand { get; set; }
-            public required VotingCommand PauseCommand { get; set; }
-            public required VotingCommand SetScoreCommand { get; set; }
-        }
-
-        /*
-         * How the per-round skill draw works. Set via GameMode above.
-         *   Normal      - everyone gets an independent random skill
-         *   TeamSkills  - one skill per team; the whole team shares it
-         *   SameSkills  - one skill for the entire server that round
-         *   NoRepeat    - random, but avoids skills already used this map
-         *                 (tracked in HeroShift.SkillsUsedThisMap) - the default
-         *   FullRandom  - random with no history or restrictions
-         *   Debug       - for testing; see src/player/Debug.cs
-         */
-        public enum GameModes
-        {
-            Normal = 0,
-            TeamSkills = 1,
-            SameSkills = 2,
-            NoRepeat = 3,
-            FullRandom = 4,
-            Debug = 5
-        }
+    public enum GameModes
+    {
+        Normal = 0,
+        TeamSkills = 1,
+        SameSkills = 2,
+        NoRepeat = 3,
+        FullRandom = 4,
+        Debug = 5,
     }
 }

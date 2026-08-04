@@ -43,7 +43,7 @@ namespace src.player.skills
         private static LastGaspOptions Options => SkillConfigurationResolver.Get<LastGaspOptions>(BuiltInSkillIds.LastGasp);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerDeath(EventPlayerDeath @event)

@@ -41,7 +41,7 @@ namespace src.player.skills
         private static RobinHoodOptions Options => SkillConfigurationResolver.Get<RobinHoodOptions>(BuiltInSkillIds.RobinHood);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)

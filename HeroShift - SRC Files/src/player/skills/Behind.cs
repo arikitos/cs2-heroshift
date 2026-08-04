@@ -44,7 +44,7 @@ namespace src.player.skills
         private static BehindOptions Options => SkillConfigurationResolver.Get<BehindOptions>(BuiltInSkillIds.Behind);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)

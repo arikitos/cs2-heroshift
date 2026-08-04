@@ -6,6 +6,7 @@ using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
 
+using src.SkillsCore;
 namespace src.player.skills
 {
     /*
@@ -41,7 +42,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void CheckTransmit([CastFrom(typeof(nint))] CCheckTransmitInfoList infoList)

@@ -9,6 +9,7 @@ using System.Numerics;
 using TraceOptions = RayTraceAPI.TraceOptions;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
 namespace src.utils
 {
     /*
@@ -179,7 +180,7 @@ namespace src.utils
 
             // Range comes from the acting hero's own "maxDistance" key in
             // skillsInfo.json; 0/absent falls back to 4096 units.
-            float maxDistance = SkillsInfo.GetValue<float>(playerInfo.Skill, "maxDistance");
+            float maxDistance = SkillRuntime.GetMaxDistance(playerInfo.Skill);
             if (maxDistance == 0) maxDistance = 4096f;
 
             // AbsOrigin sits at the pawn's feet, so ViewOffset.Z must be added to get the

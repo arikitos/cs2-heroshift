@@ -15,6 +15,7 @@ using static CounterStrikeSharp.API.Core.Listeners;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
 namespace src.player
 {
     /*
@@ -69,7 +70,7 @@ namespace src.player
         private static Timer? setSkillTimer = null;
         private static DateTime freezeTimeEnd = DateTime.MinValue;
         private static bool isTransmitRegistered = false;
-        public static readonly jSkill_SkillInfo noneSkill = new(Skills.None, SkillsInfo.GetValue<string>(Skills.None, "color"), false);
+        public static readonly jSkill_SkillInfo noneSkill = new(Skills.None, SkillRuntime.GetMetadata(Skills.None).Color, false);
 
         // Per-team / global picks used by the TeamSkills, SameSkills and Debug game
         // modes (see RoundEvents.cs). Debug mode walks debugSkills one hero at a time.
@@ -522,7 +523,7 @@ namespace src.player
         {
             var set = new HashSet<Skills>();
             foreach (var s in SkillData.Skills)
-                if (SkillsInfo.GetValue<bool>(s.Skill, "disableOnFreezeTime"))
+                if (SkillRuntime.GetMetadata(s.Skill).DisableOnFreezeTime)
                     set.Add(s.Skill);
             return set;
         }
@@ -840,7 +841,7 @@ namespace src.player
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return;
 
-                if (SkillsInfo.GetValue<bool>(playerInfo.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                if (SkillRuntime.GetMetadata(playerInfo.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                     return;
 
                 // Special case for the +use key, which the game itself needs. If the

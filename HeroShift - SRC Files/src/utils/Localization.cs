@@ -1,11 +1,11 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using src.player;
 using src.player.skills;
 
+using src.LocalizationCore;
 namespace src.utils
 {
     /*
@@ -56,7 +56,7 @@ namespace src.utils
     public static class Localization
     {
         private static readonly string languagesFolderPath = Path.Combine(HeroShift.Instance.ModuleDirectory, "languages");
-        private static readonly ConcurrentDictionary<string, string> _translations = [];
+        private static LocalizationService? _service;
 
         private static readonly Dictionary<Skills, string> skillKeys = BuildSkillKeys("");
         private static readonly Dictionary<Skills, string> skillDescKeys = BuildSkillKeys("_desc");
@@ -89,39 +89,15 @@ namespace src.utils
         // !reload, which is what makes edited strings take effect without a restart.
         public static void Load()
         {
-            _translations.Clear();
             _skillNameCache.Clear();
             _skillDescCache.Clear();
-            LoadLanguage();
-        }
 
-        // Reads languages/en.json and applies the load-time text substitutions.
-        // A missing or unparseable file is not fatal: _translations stays empty and every
-        // lookup then returns its own key, so the plugin still runs with raw key names.
-        private static void LoadLanguage()
-        {
-            string langPath = Path.Combine(languagesFolderPath, "en.json");
-            if (!File.Exists(langPath))
-                return;
-
-            var jsonText = File.ReadAllText(langPath);
-            var translations = JsonConvert.DeserializeObject<ConcurrentDictionary<string, string>>(jsonText);
-            if (translations == null)
-                return;
-
-            string redColor = ChatColors.Red.ToString();
-            string? altButton = Config.LoadedConfig.AlternativeSkillButton;
-            foreach (var tkey in translations.Keys)
-            {
-                // Chat colours are control characters that cannot be typed into JSON, so the
-                // literal token "CHATCOLORS.RED" is swapped for the real character here.
-                var val = translations[tkey].Replace("CHATCOLORS.RED", redColor);
-                // When an alternative bind is configured, help text mentioning the skill
-                // command advertises both forms.
-                if (!string.IsNullOrEmpty(altButton))
-                    val = val.Replace("css_useSkill", $"css_useSkill/{altButton}");
-                _translations[tkey] = val;
-            }
+            // External English is optional and acts only as an override. The
+            // complete built-in English catalog is embedded in HeroShift.dll.
+            string externalEnglish = Path.Combine(languagesFolderPath, "en.json");
+            _service = new LocalizationService(
+                File.Exists(externalEnglish) ? externalEnglish : null,
+                Config.LoadedConfig.AlternativeSkillButton);
         }
 
         // A hero's display name. Pass chance to include its rolled percentage in the name.
@@ -254,24 +230,8 @@ namespace src.utils
         // intended fallback and is why a typo shows up as visible raw text.
         public static string GetTranslation(string key, CCSPlayerController? player = null, params object[] args)
         {
-            if (_translations.TryGetValue(key, out var translation))
-            {
-                // Sentinel, not a real argument: the caller passes the literal string
-                // "welcome" (see the welcome_message lookup in PlayerEvents) to get the text
-                // back UNFORMATTED. That text contains its own {PLAYER} placeholder, which
-                // the caller substitutes itself and which string.Format would throw on.
-                if (args.Length != 0 && args[0].ToString() == "welcome")
-                    return translation;
-
-                string output = args.Length == 0 ? translation : string.Format(translation, args);
-
-                // Applied last, so the scramble covers the fully formatted text.
-                if (Illiterate.CheckIlliterateSkill(player))
-                    return Illiterate.GetRandomText(output)!;
-                return output;
-            }
-
-            return key;
+            _service ??= new LocalizationService(null, Config.LoadedConfig.AlternativeSkillButton);
+            return _service.GetTranslation(key, player, args);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace src.player.skills
         private static DwarfOptions Options => SkillConfigurationResolver.Get<DwarfOptions>(BuiltInSkillIds.Dwarf);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void NewRound()

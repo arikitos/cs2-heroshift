@@ -44,7 +44,7 @@ namespace src.player.skills
         private static TeleporterOptions Options => SkillConfigurationResolver.Get<TeleporterOptions>(BuiltInSkillIds.Teleporter);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void EnableSkill(CCSPlayerController player)

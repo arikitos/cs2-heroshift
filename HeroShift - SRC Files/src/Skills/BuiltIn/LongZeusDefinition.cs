@@ -3,7 +3,7 @@ using src.SkillsCore.Abstractions;
 
 namespace src.SkillsCore.BuiltIn;
 
-public sealed record LongZeusOptions : ISkillOptions
+public sealed record LongZeusOptions : IMaxDistanceOptions
 {
     public float MaxDistance { get; init; } = 4096f;
     public bool FriendlyFire { get; init; } = false;

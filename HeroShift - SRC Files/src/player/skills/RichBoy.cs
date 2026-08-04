@@ -44,7 +44,7 @@ namespace src.player.skills
         private static RichBoyOptions Options => SkillConfigurationResolver.Get<RichBoyOptions>(BuiltInSkillIds.RichBoy);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         private static int GetMaxMoney() => ConVar.Find("mp_maxmoney")?.GetPrimitiveValue<int>() ?? 16000;

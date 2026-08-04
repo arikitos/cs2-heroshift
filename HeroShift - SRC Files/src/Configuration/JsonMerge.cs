@@ -54,6 +54,35 @@ public static class JsonMerge
         return mergedJson.ToObject<TDefault>(CamelCaseSerializer) ?? defaults;
     }
 
+    public static object MergeOnto(JObject? overrideSection, object defaults, Type modelType)
+    {
+        ArgumentNullException.ThrowIfNull(defaults);
+        ArgumentNullException.ThrowIfNull(modelType);
+        if (overrideSection == null) return defaults;
+
+        var mergedJson = JObject.FromObject(defaults, CamelCaseSerializer);
+        mergedJson.Merge(overrideSection, new JsonMergeSettings
+        {
+            MergeArrayHandling = MergeArrayHandling.Replace,
+            MergeNullValueHandling = MergeNullValueHandling.Merge,
+        });
+
+        return mergedJson.ToObject(modelType, CamelCaseSerializer) ?? defaults;
+    }
+
+    public static IEnumerable<string> FindUnknownProperties(JObject? section, Type modelType)
+    {
+        if (section == null) yield break;
+
+        var known = modelType.GetProperties()
+            .Select(property => property.Name)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var property in section.Properties())
+            if (!known.Contains(property.Name))
+                yield return property.Name;
+    }
+
     // Returns every property name present in `section` that has no matching
     // property (case-insensitive) in TModel - used to report unknown fields
     // instead of silently ignoring an operator's typo.

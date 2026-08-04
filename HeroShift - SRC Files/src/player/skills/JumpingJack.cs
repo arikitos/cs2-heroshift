@@ -38,7 +38,7 @@ namespace src.player.skills
         private static JumpingJackOptions Options => SkillConfigurationResolver.Get<JumpingJackOptions>(BuiltInSkillIds.JumpingJack);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerJump(EventPlayerJump @event)

@@ -12,6 +12,7 @@ using System.Text.Json;
 using WASDSharedAPI;
 using static CounterStrikeSharp.API.Core.Listeners;
 
+using src.SkillsCore;
 namespace src
 {
     /*
@@ -61,8 +62,7 @@ namespace src
         {
             Instance = this;
 
-            Config.LoadConfig();
-            SkillsInfo.LoadSkillsInfo();
+            Config.Initialize(BuiltInSkillCatalog.BuildRegistry());
             Localization.Load();
             Debug.Load();
             PlayerOnTick.Load();
@@ -106,11 +106,11 @@ namespace src
 
         internal void LoadAllSkills()
         {
-            foreach (var skill in Enum.GetValues(typeof(Skills)))
-                if (SkillsInfo.GetValue<bool>(skill, "active"))
+            foreach (var skill in Enum.GetValues<Skills>())
+                if (SkillRuntime.GetMetadata(skill).Active)
                     SkillAction(skill.ToString()!, "LoadSkill");
 
-            Debug.WriteToDebug($"HeroShift v{Instance.ModuleVersion} ({SkillData.Skills.Count - 1}/{SkillsInfo.LoadedConfig.Count - 1} Skills) loaded!");
+            Debug.WriteToDebug($"HeroShift v{Instance.ModuleVersion} ({SkillData.Skills.Count - 1}/{SkillRuntime.All.Count - 1} Skills) loaded!");
             Debug.WriteToDebug($"GameModes: {(Config.GameModes)Config.LoadedConfig.GameMode}");
             foreach (var skill in SkillData.Skills)
                 Debug.WriteToDebug($"Loaded: {skill.Skill}");
@@ -228,8 +228,6 @@ namespace src
         private static async void PrintInfoToConsole()
         {
             string? versionFromGithub = await GetLatestVersion();
-            var diffrentConfig = JsonSerializer.Serialize(Config.LoadedConfig) != JsonSerializer.Serialize(new Config.SettingsModel());
-            var diffrentSkillsInfo = JsonSerializer.Serialize(SkillsInfo.LoadedConfig) != JsonSerializer.Serialize(new SkillsInfo.SkillsInfoModel());
 
             // Top border
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Magenta;
@@ -260,7 +258,7 @@ namespace src
             }
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
-            Console.WriteLine($" ({SkillData.Skills.Count - 1}/{SkillsInfo.LoadedConfig.Count - 1} Skills) loaded!");
+            Console.WriteLine($" ({SkillData.Skills.Count - 1}/{SkillRuntime.All.Count - 1} Skills) loaded!");
 
             if (versionFromGithub != null && versionFromGithub != Instance.ModuleVersion)
             {
@@ -271,16 +269,10 @@ namespace src
                 Console.WriteLine($"#########################################################");
             }
 
-            // Config preset
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
-            Console.Write("\nConfig preset: ");
-            Console.ForegroundColor = Config.LoadedConfig.ConfigName == "Default" && diffrentConfig ? (ConsoleColor)CS2ConsoleColors.Yellow : (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.Write($"{(Config.LoadedConfig.ConfigName == "Default" && diffrentConfig ? "(CUSTOM)" : Config.LoadedConfig.ConfigName)}");
-
-            Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
-            Console.Write("\nSkillsInfo preset: ");
-            Console.ForegroundColor = SkillsInfo.LoadedConfig.Name == "Default" && diffrentSkillsInfo ? (ConsoleColor)CS2ConsoleColors.Yellow : (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.WriteLine($"{(SkillsInfo.LoadedConfig.Name == "Default" && diffrentSkillsInfo ? "(CUSTOM)" : SkillsInfo.LoadedConfig.Name)}");
+            Console.Write("\nConfiguration: ");
+            Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
+            Console.WriteLine(Config.LoadedConfig.ConfigName);
 
             // Main config info
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;

@@ -5,6 +5,7 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
 namespace src.player.skills
 {
     /*
@@ -37,7 +38,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void OnTick()
@@ -210,7 +211,7 @@ namespace src.player.skills
 
                 playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("thief_player_info", e.PlayerName));
 
-                if (SkillsInfo.GetValue<bool>(enemySkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                if (SkillRuntime.GetMetadata(enemySkill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                 {
                     float delay = Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0);
                     Instance?.AddTimer(delay, () =>

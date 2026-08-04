@@ -20,7 +20,7 @@ namespace src.player.skills
         private static RegenerationOptions Options => SkillConfigurationResolver.Get<RegenerationOptions>(BuiltInSkillIds.Regeneration);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void OnTick()

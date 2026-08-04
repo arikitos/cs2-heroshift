@@ -44,7 +44,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
 
             try { defaultAutoKick = ConVar.Find("mp_autokick")?.GetPrimitiveValue<bool>() ?? true; }
             catch { defaultAutoKick = true; }

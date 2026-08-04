@@ -68,7 +68,7 @@ public static class ConfigurationLoader
         var configuration = new HeroShiftConfiguration
         {
             SchemaVersion = dto.SchemaVersion ?? 1,
-            General = MergeSection<GeneralOptions>(dto.General, "general", errors),
+            General = NormalizeGeneral(MergeSection<GeneralOptions>(dto.General, "general", errors)),
             Hud = MergeSection<HudOptions>(dto.Hud, "hud", errors),
             Chat = MergeSection<ChatOptions>(dto.Chat, "chat", errors),
             Commands = MergeSection<CommandOptions>(dto.Commands, "commands", errors),
@@ -81,6 +81,11 @@ public static class ConfigurationLoader
 
         return CreateValidated(configuration, knownSkillIds);
     }
+
+    private static GeneralOptions NormalizeGeneral(GeneralOptions general) =>
+        general.DisplayAlwaysDescription
+            ? general with { SkillDescriptionDuration = 9999f }
+            : general;
 
     private static T MergeSection<T>(JObject? section, string sectionName, List<string> errors) where T : class, new()
     {
@@ -116,6 +121,9 @@ public static class ConfigurationLoader
                 errors.Add($"skills.{property.Name}: expected an object");
                 continue;
             }
+
+            foreach (var unknown in JsonMerge.FindUnknownProperties<SkillOverride>(overrideObject))
+                errors.Add($"skills.{property.Name}.{unknown}: unknown field");
 
             try
             {

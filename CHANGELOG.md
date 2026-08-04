@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Cut runtime configuration over to atomic `heroshift.json` snapshots with canonical typed global defaults, per-skill metadata/options binding, explicit legacy-ID mapping, and embedded-English localization fallback.
+
 - Completed canonical typed definitions, metadata, explicit hook registrations, and typed option records for all 142 built-in skills; live runtime cutover remains a separate checkpoint.
 
 - Migrated the remaining complex / target-selection skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.
@@ -19,6 +21,10 @@ All notable changes to this project are documented in this file.
 - Migrated the tick and movement skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.
 
 - Migrated the passive skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.
+
+### Removed
+
+- Stop reading `config.json` and `skillsInfo.json` at runtime; the files remain only until the dedicated legacy-cleanup checkpoint removes obsolete artifacts and nested compatibility models.
 
 ### Fixed
 

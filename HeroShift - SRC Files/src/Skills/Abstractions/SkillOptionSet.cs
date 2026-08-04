@@ -11,6 +11,11 @@ public interface ISkillOptions
 {
 }
 
+public interface IMaxDistanceOptions : ISkillOptions
+{
+    float MaxDistance { get; }
+}
+
 public sealed record NoSkillOptions : ISkillOptions
 {
     public static readonly NoSkillOptions Instance = new();

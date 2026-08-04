@@ -3,7 +3,7 @@ using src.SkillsCore.Abstractions;
 
 namespace src.SkillsCore.BuiltIn;
 
-public sealed record LongKnifeOptions : ISkillOptions
+public sealed record LongKnifeOptions : IMaxDistanceOptions
 {
     public float MaxDistance { get; init; } = 4096f;
     public bool FriendlyFire { get; init; } = true;

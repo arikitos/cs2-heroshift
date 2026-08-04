@@ -6,6 +6,7 @@ using src.utils;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.HeroShift;
 
+using src.SkillsCore;
 namespace src.player
 {
     /*
@@ -254,7 +255,7 @@ namespace src.player
                         : null;
 
                     string primaryName = player.GetSkillName(observedSkill.Skill, observedSkill.SkillChance);
-                    string primaryColor = observedSkillInfo?.Color ?? SkillsInfo.GetValue<string>(Skills.None, "color");
+                    string primaryColor = observedSkillInfo?.Color ?? SkillRuntime.GetMetadata(Skills.None).Color;
                     // The HUD is real HTML, so a nickname containing < or & must be encoded
                     // or it would break the markup. Names are also truncated so a long one
                     // cannot push the hero name out of the box.

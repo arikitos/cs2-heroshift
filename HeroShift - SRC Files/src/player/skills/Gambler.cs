@@ -41,7 +41,7 @@ namespace src.player.skills
         private static GamblerOptions Options => SkillConfigurationResolver.Get<GamblerOptions>(BuiltInSkillIds.Gambler);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -87,7 +87,7 @@ namespace src.player.skills
                     playerInfo.SpecialSkill = skillName;
                 playerInfo.SkillUsed = true;
 
-                if (SkillsInfo.GetValue<bool>(skill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                if (SkillRuntime.GetMetadata(skill.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
                     {
                         var player = Utilities.GetPlayerFromIndex((int)playerIndex);

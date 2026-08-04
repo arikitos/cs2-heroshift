@@ -47,7 +47,7 @@ namespace src.player.skills
         private static ArmoredOptions Options => SkillConfigurationResolver.Get<ArmoredOptions>(BuiltInSkillIds.Armored);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void EnableSkill(CCSPlayerController player)

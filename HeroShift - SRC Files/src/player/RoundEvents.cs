@@ -16,6 +16,7 @@ using static CounterStrikeSharp.API.Core.Listeners;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
 namespace src.player
 {
     /*
@@ -356,7 +357,7 @@ namespace src.player
             foreach (var s in SkillData.Skills)
             {
                 if (s == null || s.Skill == Skills.None) continue;
-                string perm = SkillsInfo.GetValue<string>(s.Skill, "requiredPermission");
+                string perm = SkillRuntime.GetMetadata(s.Skill).RequiredPermission;
                 if (!string.IsNullOrEmpty(perm)) perms[s.Skill] = perm;
             }
 
@@ -499,7 +500,7 @@ namespace src.player
         public static void UpdateSkillHudExpired(jSkill_PlayerInfo skillPlayer, Skills skill)
         {
             float globalHudExpired = Config.LoadedConfig.SkillHudDuration;
-            float? skillHudExpired = SkillsInfo.GetValue<float?>(skill, "hudDuration");
+            float? skillHudExpired = SkillRuntime.GetMetadata(skill).HudDuration;
 
             skillPlayer.SkillHudExpired =
                 !skillHudExpired.HasValue ?
@@ -508,7 +509,7 @@ namespace src.player
                 : DateTime.Now.AddSeconds(skillHudExpired.Value);
 
             float globalDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration;
-            float? skillDescriptionHudExpired = SkillsInfo.GetValue<float?>(skill, "descriptionHudDuration");
+            float? skillDescriptionHudExpired = SkillRuntime.GetMetadata(skill).DescriptionHudDuration;
 
             skillPlayer.SkillDescriptionHudExpired =
                 !skillDescriptionHudExpired.HasValue ?
@@ -661,7 +662,7 @@ namespace src.player
                         // A hero flagged disableOnFreezeTime must not activate while players
                         // are still frozen, so its EnableSkill waits out the remaining
                         // freeze time instead of firing now.
-                        if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                        if (SkillRuntime.GetMetadata(randomSkill.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                             Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                             {
                                 var playerTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
@@ -765,7 +766,7 @@ namespace src.player
                         List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
                         skillList.RemoveAll(s => s?.Skill == Skills.None);
                         if (!player.IsBot)
-                            skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")) && !AdminManager.PlayerHasPermissions(player, SkillsInfo.GetValue<string>(s.Skill, "requiredPermission")));
+                            skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillRuntime.GetMetadata(s.Skill).RequiredPermission) && !AdminManager.PlayerHasPermissions(player, SkillRuntime.GetMetadata(s.Skill).RequiredPermission));
 
                         if (gameMode != Config.GameModes.FullRandom)
                             skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
@@ -824,7 +825,7 @@ namespace src.player
 
                 Instance?.AddTimer(.2f, () =>
                 {
-                    if (SkillsInfo.GetValue<bool>(randomSkill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                    if (SkillRuntime.GetMetadata(randomSkill.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                         Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
                         {
                             if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
