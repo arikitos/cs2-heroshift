@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class JumpCurse : ISkill
     {
-        private const Skills skillName = Skills.JumpCurse;
+        private static readonly SkillId skillName = BuiltInSkillIds.JumpCurse;
         private static JumpCurseOptions Options => SkillConfigurationResolver.Get<JumpCurseOptions>(BuiltInSkillIds.JumpCurse);
         private static readonly ConcurrentDictionary<uint, byte> cursedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];

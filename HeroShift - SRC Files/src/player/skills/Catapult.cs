@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class Catapult : ISkill
     {
-        private const Skills skillName = Skills.Catapult;
+        private static readonly SkillId skillName = BuiltInSkillIds.Catapult;
 
         private static CatapultOptions Options => SkillConfigurationResolver.Get<CatapultOptions>(BuiltInSkillIds.Catapult);
         public static void LoadSkill()

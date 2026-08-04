@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class Dwarf : ISkill
     {
-        private const Skills skillName = Skills.Dwarf;
+        private static readonly SkillId skillName = BuiltInSkillIds.Dwarf;
 
         private static DwarfOptions Options => SkillConfigurationResolver.Get<DwarfOptions>(BuiltInSkillIds.Dwarf);
         public static void LoadSkill()

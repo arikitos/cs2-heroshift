@@ -46,7 +46,7 @@ namespace src.player.skills
      */
     public class Noclip : ISkill
     {
-        private const Skills skillName = Skills.Noclip;
+        private static readonly SkillId skillName = BuiltInSkillIds.Noclip;
         private static NoclipOptions Options => SkillConfigurationResolver.Get<NoclipOptions>(BuiltInSkillIds.Noclip);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class FragileBomb : ISkill
     {
-        private const Skills skillName = Skills.FragileBomb;
+        private static readonly SkillId skillName = BuiltInSkillIds.FragileBomb;
         private static FragileBombOptions Options => SkillConfigurationResolver.Get<FragileBombOptions>(BuiltInSkillIds.FragileBomb);
         private static int bombHealth = 1000;
         private static int maxBombHealth = 1000;

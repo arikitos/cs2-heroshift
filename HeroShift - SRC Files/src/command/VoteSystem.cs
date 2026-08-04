@@ -2,6 +2,8 @@
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
+using src.Configuration;
+using src.Configuration.Models;
 using System.Collections.Concurrent;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
@@ -20,16 +22,9 @@ namespace src.command
      * A vote is identified by (Type, Args), so "!map de_dust2" and "!map de_nuke"
      * are separate votes, while two players typing the same thing join one vote.
      *
-     * Thresholds and timings are hardcoded in CreateVote():
-     *   TimeToVote                 10s  - how long the vote stays open
-     *   PercentagesToSuccess       60   - percent of humans needed to pass
-     *   TimeToNextVoting            2s  - cooldown before any new vote
-     *   TimeToNextSameVoting        5s  - cooldown before the same vote type again
-     *   MinimumPlayersToStartVoting  2  - humans required for a vote to exist at all
-     * Note that The typed voting command entries define their own
-     * TimeToVote / PercentagesToSuccess / TimeToNextVoting / TimeToNextSameVoting /
-     * MinimumPlayersToStartVoting values, but CreateVote() does not read them - only
-     * EnableVoting, aliases and permission from config actually affect voting today.
+     * Thresholds, timings, aliases and permissions come from the same validated
+     * immutable voting configuration snapshot. Each vote captures those settings
+     * when it is created, so a reload cannot mutate an in-flight vote.
      * Bots never count: every headcount uses Count(p => !p.IsBot).
      *
      * When the threshold is reached the vote's SuccessAction runs, which simply
@@ -57,7 +52,7 @@ namespace src.command
 
                 vote.SetActive(false);
                 // On timeout the same-type cooldown is overwritten with the general
-                // cooldown value (5s -> 2s with the current constants). Since
+                // cooldown value. Since
                 // NextSameVoting() is computed from this field, a timed-out vote's
                 // same-type cooldown effectively shortens.
                 vote.TimeToNextSameVoting = vote.TimeToNextVoting;
@@ -69,15 +64,17 @@ namespace src.command
         // Returns null (and registers nothing) when there are too few humans on the
         // server, which the caller reports as "not enough players".
         //
-        // Constructor arguments in order: timeToVote 10s, the success action,
-        // percentagesToSuccess 60, timeToNextVoting 2s, timeToNextSameVoting 5s,
-        // minimumPlayersToStartVoting 2, then the vote type and its argument string.
+        // Constructor arguments preserve the configured timing, threshold and
+        // minimum-player values captured at vote creation.
         private static VoteData? CreateVote(VoteType voteType, string? args = null)
         {
-            var vote = new VoteData(10,
+            var settings = VotePolicy.GetSettings(voteType, ConfigurationStore.Settings.Voting);
+            var vote = new VoteData(settings.TimeToVote,
                 () => {
                     Server.ExecuteCommand($"{VoteTypeCommands.GetCommand(voteType)}{(!string.IsNullOrEmpty(args) ? $" {args}" : "")}");
-                }, 60, 2, 5, 2, voteType, args);
+                }, settings.PercentagesToSuccess, settings.TimeToNextVoting,
+                settings.TimeToNextSameVoting, settings.MinimumPlayersToStartVoting,
+                voteType, args);
 
             if (vote.MinimumPlayersToStartVoting > Utilities.GetPlayers().Count(p => !p.IsBot))
                 return null;
@@ -157,7 +154,7 @@ namespace src.command
             // only needs the humans present to agree.
             int playerCount = Utilities.GetPlayers().Count(p => !p.IsBot);
             // Rounded up: with 60% and 3 humans, 2 votes are required.
-            int playersNeeded = (int)Math.Ceiling(playerCount * (vote.PercentagesToSuccess / 100f));
+            int playersNeeded = VotePolicy.CalculatePlayersNeeded(playerCount, vote.PercentagesToSuccess);
             string commandName = $"!{VoteTypeCommands.GetCommand(vote.Type)?.Replace("css_", "")}{(!string.IsNullOrEmpty(vote?.Args) ? $" {vote?.Args}" : "")}";
 
             if (voted >= playersNeeded)
@@ -175,6 +172,14 @@ namespace src.command
                 StartVoteTimer(vote!, commandName);
                 Localization.PrintTranslationToChatAll($" {ChatColors.Yellow}{{0}} '': {ChatColors.Green}{voted}/{playersNeeded}", ["vote_vote"]);
             }
+        }
+
+        public static void Unload()
+        {
+            foreach (var vote in votes.Keys)
+                vote.ActiveTimer?.Kill();
+
+            votes.Clear();
         }
     }
 
@@ -236,6 +241,44 @@ namespace src.command
         SetScore,
     }
 
+    public readonly record struct VoteSettings(
+        float TimeToVote,
+        float PercentagesToSuccess,
+        float TimeToNextVoting,
+        float TimeToNextSameVoting,
+        int MinimumPlayersToStartVoting);
+
+    public static class VotePolicy
+    {
+        public static int CalculatePlayersNeeded(int humanPlayers, float percentage) =>
+            (int)Math.Ceiling(humanPlayers * (percentage / 100f));
+
+        public static VoteSettings GetSettings(VoteType type, VotingOptions voting) => type switch
+        {
+            VoteType.StartGame => From(voting.StartGameCommand),
+            VoteType.ChangeMap => From(voting.ChangeMapCommand),
+            VoteType.SwapTeam => From(voting.SwapCommand),
+            VoteType.ShuffleTeam => From(voting.ShuffleCommand),
+            VoteType.PauseGame => From(voting.PauseCommand),
+            VoteType.SetScore => From(voting.SetScoreCommand),
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
+        };
+
+        private static VoteSettings From(StartGameCommandDefinition command) => new(
+            command.TimeToVote,
+            command.PercentagesToSuccess,
+            command.TimeToNextVoting,
+            command.TimeToNextSameVoting,
+            command.MinimumPlayersToStartVoting);
+
+        private static VoteSettings From(VotingCommandDefinition command) => new(
+            command.TimeToVote,
+            command.PercentagesToSuccess,
+            command.TimeToNextVoting,
+            command.TimeToNextSameVoting,
+            command.MinimumPlayersToStartVoting);
+    }
+
     /*
      * VoteTypeCommands - maps each VoteType to the console command a successful
      * vote executes.
@@ -249,16 +292,21 @@ namespace src.command
      */
     public static class VoteTypeCommands
     {
-        private static readonly ConcurrentDictionary<VoteType, string> names = new(
-        [
-            new KeyValuePair<VoteType, string>(VoteType.StartGame, "css_start"),
-            new KeyValuePair<VoteType, string>(VoteType.PauseGame, "css_pause"),
-            new KeyValuePair<VoteType, string>(VoteType.ShuffleTeam, "css_shuffle"),
-            new KeyValuePair<VoteType, string>(VoteType.SwapTeam, "css_swap"),
-            new KeyValuePair<VoteType, string>(VoteType.ChangeMap, "css_map"),
-            new KeyValuePair<VoteType, string>(VoteType.SetScore, "css_setscore"),
-        ]);
+        public static string GetCommand(VoteType type)
+        {
+            var voting = ConfigurationStore.Settings.Voting;
+            string alias = type switch
+            {
+                VoteType.StartGame => voting.StartGameCommand.Aliases[0],
+                VoteType.PauseGame => voting.PauseCommand.Aliases[0],
+                VoteType.ShuffleTeam => voting.ShuffleCommand.Aliases[0],
+                VoteType.SwapTeam => voting.SwapCommand.Aliases[0],
+                VoteType.ChangeMap => voting.ChangeMapCommand.Aliases[0],
+                VoteType.SetScore => voting.SetScoreCommand.Aliases[0],
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
+            };
 
-        public static string GetCommand(VoteType type) => names[type];
+            return $"css_{alias}";
+        }
     }
 }

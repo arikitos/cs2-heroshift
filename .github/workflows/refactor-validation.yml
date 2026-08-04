@@ -3,7 +3,7 @@ name: Refactor Validation
 on:
   workflow_dispatch:
   push:
-    branches: [refactor]
+    branches: [development]
   pull_request:
     branches: [main]
 
@@ -40,7 +40,10 @@ jobs:
       - name: Test
         run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
 
-      - name: Build
+      - name: Build Debug
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Debug --no-restore
+
+      - name: Build Release
         run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
 
       - name: Package twice
@@ -56,15 +59,24 @@ jobs:
           }
 
           $manifest = Get-Content -Raw -LiteralPath 'artifacts/first/stage/HeroShift-ci/package-manifest.json' | ConvertFrom-Json
-          $expected = @(
-            'gamedata/HeroShift.gamedata.json',
-            'plugins/HeroShift/HeroShift.dll',
-            'plugins/HeroShift/Newtonsoft.Json.dll',
-            'plugins/HeroShift/WASDMenuAPI.dll',
-            'plugins/HeroShift/configs/heroshift.json'
-          ) | Sort-Object
-          $actual = @($manifest.files.path) | Sort-Object
-          if (Compare-Object $expected $actual) { throw 'Package manifest inventory is invalid.' }
+          $required = @(
+            'addons/counterstrikesharp/gamedata/HeroShift.gamedata.json',
+            'addons/counterstrikesharp/plugins/HeroShift/HeroShift.dll',
+            'addons/counterstrikesharp/plugins/HeroShift/Newtonsoft.Json.dll',
+            'addons/counterstrikesharp/plugins/HeroShift/WASDMenuAPI.dll',
+            'addons/counterstrikesharp/plugins/HeroShift/configs/heroshift.json',
+            'addons/counterstrikesharp/plugins/RayTraceImpl/RayTraceImpl.dll',
+            'addons/counterstrikesharp/shared/RayTraceApi/RayTraceApi.dll',
+            'addons/metamod/RayTrace.vdf',
+            'addons/RayTrace/gamedata.json',
+            'addons/RayTrace/bin/linuxsteamrt64/RayTrace.so'
+          )
+          $actual = @($manifest.files.path)
+          foreach ($path in $required) {
+            if ($path -notin $actual) { throw "Required package file is missing: $path" }
+          }
+          if (@($manifest.bundledDependencies).Count -ne 1) { throw 'Bundled dependency metadata is invalid.' }
+          if ($actual | Where-Object { $_ -match '\.(pdb|xml)$' }) { throw 'Unexpected debug file in package.' }
 
       - name: Validate architecture and legacy removal
         if: runner.os == 'Linux'
@@ -73,7 +85,7 @@ jobs:
           set -euo pipefail
           source_root='HeroShift - SRC Files/src'
           test "$(grep -c 'registry.Register(' "$source_root/Skills/BuiltInSkillCatalog.cs")" -eq 142
-          ! grep -RIn --include='*.cs' -E '\bSkillsInfo\b|\bSkillAction\b|MethodInfo\.Invoke|public class SkillConfig\b|public static class Config([[:space:]]|$)' "$source_root"
+          ! grep -RIn --include='*.cs' -E '\bSkillsInfo\b|\bSkillAction\b|MethodInfo\.Invoke|public class SkillConfig\b|public static class Config([[:space:]]|$)|public enum Skills\b|\bjSkill_(PlayerInfo|SkillInfo)\b|\bLegacySkill\b' "$source_root"
           test ! -e 'HeroShift - Server Files'
           test -f 'packaging/HeroShift/configs/heroshift.json'
           test -f "$source_root/Localization/Resources/en.json"

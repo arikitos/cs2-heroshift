@@ -26,6 +26,7 @@ public static class PawelJumperDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new PawelJumperOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.ExtraJumpsMin, options.ExtraJumpsMax, "extraJumpsMin", "extraJumpsMax"),
         Hooks = new SkillHookSet
         {
             LoadSkill = PawelJumper.LoadSkill,

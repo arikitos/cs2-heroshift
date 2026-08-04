@@ -43,7 +43,7 @@ namespace src.player.skills
      */
     public class Dash : ISkill
     {
-        private const Skills skillName = Skills.Dash;
+        private static readonly SkillId skillName = BuiltInSkillIds.Dash;
         private static DashOptions Options => SkillConfigurationResolver.Get<DashOptions>(BuiltInSkillIds.Dash);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

@@ -9,6 +9,7 @@ using src.Infrastructure.Tracing;
 using src.player;
 using src.utils;
 using System.Collections.Concurrent;
+using System.Reflection;
 using System.Text.Json;
 using static CounterStrikeSharp.API.Core.Listeners;
 
@@ -39,22 +40,25 @@ namespace src
 #pragma warning disable CS8618
         public static HeroShift Instance { get; private set; }
 #pragma warning restore CS8618
-        public IEnumerable<jSkill_PlayerInfo> SkillPlayer => PlayerManager.GetAllPlayers();
+        public IEnumerable<PlayerRuntimeState> SkillPlayer => PlayerManager.GetAllPlayers();
         public Random Random { get; } = new Random();
         public CCSGameRules? GameRules { get; set; }
         private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
+        private readonly CancellationTokenSource startupDiagnostics = new();
         internal IGameMenuService MenuService { get; private set; } = null!;
         internal ITraceService TraceService { get; private set; } = null!;
         internal SkillRegistry SkillRegistry { get; private set; } = null!;
         internal SkillDispatcher SkillDispatcher { get; private set; } = null!;
         // Skills enabled at least once this round; used to reset only those on round change, not all 142 definitions.
-        public static readonly ConcurrentDictionary<string, byte> ActiveSkillsThisRound = new();
-        public static readonly ConcurrentDictionary<string, byte> SkillsUsedThisMap = new();
+        public static readonly ConcurrentDictionary<SkillId, byte> ActiveSkillsThisRound = new();
+        public static readonly ConcurrentDictionary<SkillId, byte> SkillsUsedThisMap = new();
 
         public override string ModuleName => "[CS2] [ HeroShift ]";
         public override string ModuleAuthor => "D3X (Original), Juzlus (Modifier), ByDexterTR (Contributor)";
         public override string ModuleDescription => "Plugin adds random skills every round for CS2 by D3X. Modified by Juzlus.";
-        public override string ModuleVersion => "1.0.0";
+        public override string ModuleVersion =>
+            typeof(HeroShift).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+                .InformationalVersion.Split('+')[0] ?? "1.0.0";
 
         public override void Load(bool hotReload)
         {
@@ -64,8 +68,13 @@ namespace src
             MenuService = new WasdGameMenuService();
             TraceService = new RayTraceService();
             SkillDispatcher = new SkillDispatcher(SkillRegistry, Server.PrintToConsole);
-            ConfigurationStore.Initialize(Path.Combine(ModuleDirectory, "configs", "heroshift.json"), SkillRegistry, Logger);
-            Localization.Load();
+            src.LocalizationCore.LocalizationService? localization = null;
+            ConfigurationStore.Initialize(
+                Path.Combine(ModuleDirectory, "configs", "heroshift.json"),
+                SkillRegistry,
+                Logger,
+                snapshot => localization = Localization.CreateService(snapshot.Configuration));
+            Localization.UseService(localization!);
             Debug.Load();
             PlayerOnTick.Load();
             Event.Load();
@@ -76,10 +85,23 @@ namespace src
 
             Instance.RegisterListener<OnServerPrecacheResources>(LoadManifest);
 
-            Task.Run(async () =>
+            _ = Task.Run(async () =>
             {
-                await Task.Delay(3500);
-                PrintInfoToConsole();
+                try
+                {
+                    await Task.Delay(3500, startupDiagnostics.Token);
+                    await PrintInfoToConsoleAsync(startupDiagnostics.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                }
+                catch (Exception) when (startupDiagnostics.IsCancellationRequested)
+                {
+                }
+                catch (Exception ex) when (!startupDiagnostics.IsCancellationRequested)
+                {
+                    Server.PrintToConsole($"[HeroShift] startup diagnostics failed: {ex.Message}");
+                }
             });
         }
 
@@ -87,11 +109,67 @@ namespace src
         {
             src.player.PerfLog.Info("===== PLUGIN UNLOAD (clean shutdown/reload) =====");
             Debug.WriteToDebug("===== PLUGIN UNLOAD (clean shutdown/reload) =====");
+            startupDiagnostics.Cancel();
 
-            Event.Unload();
-            Debug.Unload();
+            try { BotManager.Stop(); }
+            catch (Exception ex) { Server.PrintToConsole($"[HeroShift] bot timer cleanup failed: {ex.Message}"); }
+            try { Command.Unload(); }
+            catch (Exception ex) { Server.PrintToConsole($"[HeroShift] command cleanup failed: {ex.Message}"); }
+            try { MenuService?.Unload(); }
+            catch (Exception ex) { Server.PrintToConsole($"[HeroShift] menu cleanup failed: {ex.Message}"); }
+            try { PlayerOnTick.Unload(); }
+            catch (Exception ex) { Server.PrintToConsole($"[HeroShift] tick cleanup failed: {ex.Message}"); }
+            try { Event.Shutdown(); }
+            catch (Exception ex) { Server.PrintToConsole($"[HeroShift] runtime cleanup failed: {ex.Message}"); }
+            try { Event.Unload(); }
+            catch (Exception ex) { Server.PrintToConsole($"[HeroShift] event cleanup failed: {ex.Message}"); }
+            try { Debug.Unload(); }
+            catch (Exception ex) { Server.PrintToConsole($"[HeroShift] debug cleanup failed: {ex.Message}"); }
+            DisposeManagedRegistrations();
+
+            SkillData.Skills.Clear();
+            SkillData.Invalidate();
+            ActiveSkillsThisRound.Clear();
+            SkillsUsedThisMap.Clear();
+            PlayerManager.Clear();
+            Localization.Unload();
+            ConfigurationStore.Reset();
+            GameRules = null;
 
             base.Unload(hotReload);
+        }
+
+        private void DisposeManagedRegistrations()
+        {
+            static void TryCleanup(Action cleanup, string kind)
+            {
+                try { cleanup(); }
+                catch (Exception ex) { Server.PrintToConsole($"[HeroShift] {kind} cleanup failed: {ex.Message}"); }
+            }
+
+            foreach (var subscriber in Handlers.Values.ToArray())
+                TryCleanup(subscriber.Dispose, "event handler");
+            Handlers.Clear();
+
+            foreach (var subscriber in Listeners.Values.ToArray())
+                TryCleanup(subscriber.Dispose, "listener");
+            Listeners.Clear();
+
+            foreach (var subscriber in CommandListeners.Values.ToArray())
+                TryCleanup(subscriber.Dispose, "command listener");
+            CommandListeners.Clear();
+
+            foreach (var subscriber in EntityOutputHooks.Values.ToArray())
+                TryCleanup(subscriber.Dispose, "entity output");
+            EntityOutputHooks.Clear();
+
+            foreach (var command in CommandDefinitions.ToArray())
+                TryCleanup(() => CommandManager.RemoveCommand(command), "command");
+            CommandDefinitions.Clear();
+
+            foreach (var timer in Timers.ToArray())
+                TryCleanup(timer.Kill, "timer");
+            Timers.Clear();
         }
 
         internal void AddToManifest(string prop)
@@ -108,9 +186,9 @@ namespace src
 
         internal void LoadAllSkills()
         {
-            foreach (var skill in Enum.GetValues<Skills>())
-                if (SkillRuntime.GetMetadata(skill).Active)
-                    InvokeLoadSkill(skill);
+            foreach (var definition in SkillRegistry.All)
+                if (SkillRuntime.GetMetadata(definition.Id).Active)
+                    InvokeLoadSkill(definition.Id);
 
             Debug.WriteToDebug($"HeroShift v{Instance.ModuleVersion} ({SkillData.Skills.Count - 1}/{SkillRuntime.All.Count - 1} Skills) loaded!");
             Debug.WriteToDebug($"GameModes: {ConfigurationStore.Settings.General.GameMode}");
@@ -118,9 +196,9 @@ namespace src
                 Debug.WriteToDebug($"Loaded: {skill.Skill}");
         }
 
-        private void InvokeLifecycle(Skills skill, string hookName, Action<SkillDefinition> invoke)
+        private void InvokeLifecycle(SkillId skill, string hookName, Action<SkillDefinition> invoke)
         {
-            if (!SkillRegistry.TryGet(SkillRuntime.GetId(skill), out var definition)) return;
+            if (!SkillRegistry.TryGet(skill, out var definition)) return;
 
             if (!PerfLog.Enabled)
             {
@@ -130,36 +208,33 @@ namespace src
 
             long perfStart = PerfLog.Start();
             invoke(definition);
-            PerfLog.End($"SkillAction {skill}.{hookName}", perfStart, 2.0);
+            PerfLog.End($"SkillHook {skill}.{hookName}", perfStart, 2.0);
         }
 
-        internal void InvokeLoadSkill(Skills skill) =>
+        internal void InvokeLoadSkill(SkillId skill) =>
             InvokeLifecycle(skill, nameof(SkillHookSet.LoadSkill), d => d.Hooks.LoadSkill?.Invoke());
 
-        internal void InvokeEnableSkill(Skills skill, CCSPlayerController player)
+        internal void InvokeEnableSkill(SkillId skill, CCSPlayerController player)
         {
-            string skillName = skill.ToString();
-            ActiveSkillsThisRound.TryAdd(skillName, 0);
-            SkillsUsedThisMap.TryAdd(skillName, 0);
+            ActiveSkillsThisRound.TryAdd(skill, 0);
+            SkillsUsedThisMap.TryAdd(skill, 0);
             InvokeLifecycle(skill, nameof(SkillHookSet.EnableSkill), d => d.Hooks.EnableSkill?.Invoke(player));
         }
 
-        internal void InvokeDisableSkill(Skills skill, CCSPlayerController player)
+        internal void InvokeDisableSkill(SkillId skill, CCSPlayerController player)
         {
-            string skillName = skill.ToString();
-            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skillName) && player.IsValid)
+            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skill) && player.IsValid)
                 SkillUtils.ReleaseCurse(player.Index);
 
             InvokeLifecycle(skill, nameof(SkillHookSet.DisableSkill), d => d.Hooks.DisableSkill?.Invoke(player));
         }
 
-        internal void InvokeUseSkill(Skills skill, CCSPlayerController player) =>
+        internal void InvokeUseSkill(SkillId skill, CCSPlayerController player) =>
             InvokeLifecycle(skill, nameof(SkillHookSet.UseSkill), d => d.Hooks.UseSkill?.Invoke(player));
 
-        internal bool InvokeTypeSkill(Skills skill, CCSPlayerController player, string[] arguments)
+        internal bool InvokeTypeSkill(SkillId skill, CCSPlayerController player, string[] arguments)
         {
-            string skillName = skill.ToString();
-            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skillName) &&
+            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skill) &&
                 !TryClaimCurseTarget([player, arguments]))
                 return false;
 
@@ -167,10 +242,10 @@ namespace src
             return true;
         }
 
-        internal void InvokeNewRoundSkill(Skills skill) =>
+        internal void InvokeNewRoundSkill(SkillId skill) =>
             InvokeLifecycle(skill, nameof(SkillHookSet.NewRound), d => d.Hooks.NewRound?.Invoke());
 
-        internal void InvokeRoundEndSkill(Skills skill) =>
+        internal void InvokeRoundEndSkill(SkillId skill) =>
             InvokeLifecycle(skill, nameof(SkillHookSet.RoundEnd), d => d.Hooks.RoundEnd?.Invoke());
 
         private static bool TryClaimCurseTarget(object[]? param)
@@ -213,9 +288,10 @@ namespace src
         public uint[] footstepSoundEvents = [3109879199, 70939233, 1342713723, 2722081556, 1909915699, 3193435079, 2300993891, 3847761506, 4084367249, 1342713723, 3847761506, 2026488395, 2745524735, 2684452812, 2265091453, 1269567645, 520432428, 3266483468, 1346129716, 2061955732, 2240518199, 2829617974, 1194677450, 1803111098, 3749333696, 29217150, 1692050905, 2207486967, 2633527058, 3342414459, 988265811, 540697918, 1763490157, 3755338324, 3161194970, 3753692454, 3166948458, 3997353267, 3161194970, 3753692454, 3166948458, 3997353267, 809738584, 3368720745, 3295206520, 3184465677, 123085364, 3123711576, 737696412, 1403457606, 1770765328, 892882552, 3023174225, 4163677892, 3952104171, 4082928848, 1019414932, 1485322532, 1161855519, 1557420499, 1163426340, 809738584, 3368720745, 2708661994, 2479376962, 3295206520, 1404198078, 1194093029, 1253503839, 2189706910, 1218015996, 96240187, 1116700262, 84876002, 1598540856, 2231399653];
         public uint[] silentSoundEvents = [2551626319, 765706800, 765706800, 2860219006, 2162652424, 2551626319, 2162652424, 117596568, 117596568, 740474905, 1661204257, 3009312615, 1506215040, 115843229, 3299941720, 1016523349, 2684452812, 2067683805, 2067683805, 1016523349, 4160462271, 1543118744, 585390608, 3802757032, 2302139631, 2546391140, 144629619, 4152012084, 4113422219, 1627020521, 2899365092, 819435812, 3218103073, 961838155, 1535891875, 1826799645, 3460445620, 1818046345, 3666896632, 3099536373, 1440734007, 1409986305, 1939055066, 782454593, 4074593561, 1540837791, 3257325156];
 
-        private static async void PrintInfoToConsole()
+        private static async Task PrintInfoToConsoleAsync(CancellationToken cancellationToken)
         {
-            string? versionFromGithub = await GetLatestVersion();
+            string? versionFromGithub = await GetLatestVersion(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
 
             // Top border
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Magenta;
@@ -260,7 +336,25 @@ namespace src
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write("\nConfiguration: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.WriteLine("heroshift.json");
+            Console.WriteLine($"schema {ConfigurationStore.Settings.SchemaVersion}, {ConfigurationStore.EffectivePath}");
+
+            Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
+            Console.Write("Translations: ");
+            Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
+            Console.WriteLine(Localization.SourceDescription);
+
+            Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
+            Console.Write("WASDMenu: ");
+            Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
+            Console.WriteLine(Instance.MenuService.Status);
+
+            Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
+            Console.Write("RayTrace capability: ");
+            bool rayTraceAvailable = Instance.TraceService.IsAvailable;
+            Console.ForegroundColor = rayTraceAvailable
+                ? (ConsoleColor)CS2ConsoleColors.Green3
+                : (ConsoleColor)CS2ConsoleColors.LightRed;
+            Console.WriteLine(rayTraceAvailable ? "available" : "unavailable");
 
             // Main config info
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
@@ -316,11 +410,11 @@ namespace src
             }
 
             // Skills info
-            List<Skills> enabled = [];
-            List<Skills> disabled = [];
+            List<SkillId> enabled = [];
+            List<SkillId> disabled = [];
 
-            foreach (Skills skill in Enum.GetValues(typeof(Skills)))
-                if (skill.ToString() == "None")
+            foreach (SkillId skill in BuiltInSkillIds.All)
+                if (skill == BuiltInSkillIds.None)
                     continue;
                 else if (SkillData.Skills.Any(s => s.Skill == skill))
                     enabled.Add(skill);
@@ -343,7 +437,7 @@ namespace src
             Console.ResetColor();
         }
 
-        private static async Task<string?> GetLatestVersion()
+        private static async Task<string?> GetLatestVersion(CancellationToken cancellationToken)
         {
             using HttpClient client = new();
             client.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("HeroShift", "1.0"));
@@ -351,85 +445,36 @@ namespace src
 
             try
             {
-                string response = await client.GetStringAsync(URL);
+                string response = await client.GetStringAsync(URL, cancellationToken);
                 using JsonDocument doc = JsonDocument.Parse(response);
                 if (doc.RootElement.TryGetProperty("tag_name", out JsonElement value))
                     return value.GetString()?.Replace("v", "");
                 return null;
             }
-            catch (Exception)
+            catch (Exception) when (!cancellationToken.IsCancellationRequested)
             {
                 return null;
             }
         }
 
-        internal jSkill_PlayerInfo? GetPlayerInfoByIndex(uint playerIndex)
+        internal PlayerRuntimeState? GetPlayerInfoByIndex(uint playerIndex)
         {
             return PlayerManager.GetPlayerByIndex(playerIndex);
         }
     }
 
-    /*
-     * Per-player plugin state. One instance per connected player, kept in
-     * PlayerManager and looked up with PlayerManager.GetPlayerByIndex(index).
-     * This is the object a skill reads/writes to remember anything about its
-     * holder for the round.
-     */
-    public class jSkill_PlayerInfo
-    {
-        public required bool IsBot { get; set; }
-        public required string PlayerName { get; set; }
-        public required uint PlayerIndex { get; set; }
-
-        // The hero this player currently has. Skills compare against this to
-        // decide "is this event mine?" - see any skill's `playerInfo?.Skill != skillName`.
-        public Skills Skill { get; set; }
-        public Skills SpecialSkill { get; set; }
-
-        // The value rolled for this round by skills that randomise their
-        // strength (speed multiplier, gravity, damage reduction, chance...).
-        // Set in EnableSkill, read back in OnTick / damage hooks.
-        public float? SkillChance { get; set; }
-
-        public bool IsDrawing { get; set; }
-
-        // HUD timing: when the hero name / description should stop being drawn,
-        // and a window during which the HUD is suppressed entirely.
-        public DateTime SkillHudExpired { get; set; }
-        public DateTime SkillDescriptionHudExpired { get; set; }
-        public DateTime HudSuppressedUntil { get; set; }
-
-        // Free-form HTML a skill wants shown in the centre HUD this tick
-        // (e.g. Distancer writes the nearest-enemy distance here).
-        public string? PrintHTML { get; set; }
-        public int HideHUD { get; set; }
-
-        // Set true by one-shot-per-round skills so they cannot be used twice.
-        public bool SkillUsed = false;
-        public bool? HudOnDeathBlocked { get; set; }
-    }
-
-    public class jSkill_SkillInfo(Skills skill, string color, bool display)
-    {
-        public Skills Skill { get; } = skill;
-        public string Color { get; set; } = color;
-        public bool Display { get; } = display;
-
-        public static implicit operator Skills(jSkill_SkillInfo v) => v?.Skill ?? Skills.None;
-    }
-
     public static class SkillData
     {
-        public static ConcurrentBag<jSkill_SkillInfo> Skills { get; } = [];
+        public static ConcurrentBag<SkillRuntimeInfo> Skills { get; } = [];
 
-        private static Dictionary<Skills, jSkill_SkillInfo>? _bySkill;
+        private static Dictionary<SkillId, SkillRuntimeInfo>? _bySkill;
 
-        public static jSkill_SkillInfo? GetInfo(Skills skill)
+        public static SkillRuntimeInfo? GetInfo(SkillId skill)
         {
             var map = _bySkill;
             if (map == null)
             {
-                map = new Dictionary<Skills, jSkill_SkillInfo>();
+                map = new Dictionary<SkillId, SkillRuntimeInfo>();
                 foreach (var s in Skills)
                     map[s.Skill] = s;
                 _bySkill = map;

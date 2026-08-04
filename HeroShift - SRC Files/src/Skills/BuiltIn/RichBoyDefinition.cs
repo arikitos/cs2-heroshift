@@ -34,6 +34,7 @@ public static class RichBoyDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new RichBoyOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.MinMoney, options.MaxMoney, "minMoney", "maxMoney"),
         Hooks = new SkillHookSet
         {
             LoadSkill = RichBoy.LoadSkill,

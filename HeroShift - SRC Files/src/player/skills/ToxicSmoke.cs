@@ -50,7 +50,7 @@ namespace src.player.skills
      */
     public class ToxicSmoke : ISkill
     {
-        private const Skills skillName = Skills.ToxicSmoke;
+        private static readonly SkillId skillName = BuiltInSkillIds.ToxicSmoke;
         private static ToxicSmokeOptions Options => SkillConfigurationResolver.Get<ToxicSmokeOptions>(BuiltInSkillIds.ToxicSmoke);
         private static readonly ConcurrentDictionary<Vector, uint> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

@@ -46,7 +46,7 @@ namespace src.player.skills
      */
     public class Jester : ISkill
     {
-        private const Skills skillName = Skills.Jester;
+        private static readonly SkillId skillName = BuiltInSkillIds.Jester;
         private static JesterOptions Options => SkillConfigurationResolver.Get<JesterOptions>(BuiltInSkillIds.Jester);
         private static readonly ConcurrentDictionary<uint, JesterInfo> jesters = [];
 

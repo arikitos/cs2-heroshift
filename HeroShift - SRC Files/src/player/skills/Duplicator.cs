@@ -34,7 +34,7 @@ namespace src.player.skills
      */
     public class Duplicator : ISkill
     {
-        private const Skills skillName = Skills.Duplicator;
+        private static readonly SkillId skillName = BuiltInSkillIds.Duplicator;
 
         public static void LoadSkill()
         {
@@ -143,7 +143,7 @@ namespace src.player.skills
         {
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
-            playerInfo.SpecialSkill = Skills.None;
+            playerInfo.SpecialSkill = BuiltInSkillIds.None;
             SkillUtils.CloseMenu(player);
         }
 
@@ -157,8 +157,8 @@ namespace src.player.skills
             if (playerEvent == null || !playerEvent.IsValid) return;
 
             var enemySkill = enemyInfo.Skill;
-            bool ctSkill = Event.counterterroristSkills.Any(s => s.Name == enemySkill.ToString());
-            bool ttSkill = Event.terroristSkills.Any(s => s.Name == enemySkill.ToString());
+            bool ctSkill = Event.counterterroristSkills.Any(s => s.Id == enemySkill);
+            bool ttSkill = Event.terroristSkills.Any(s => s.Id == enemySkill);
 
             uint playerIndex = player.Index;
             string enemyName = enemy.PlayerName;

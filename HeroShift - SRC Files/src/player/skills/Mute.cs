@@ -7,7 +7,7 @@ namespace src.player.skills
 {
     public class Mute : ISkill
     {
-        private const Skills skillName = Skills.Mute;
+        private static readonly SkillId skillName = BuiltInSkillIds.Mute;
 
         public static void LoadSkill()
         {

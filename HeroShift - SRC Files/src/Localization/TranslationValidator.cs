@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace src.LocalizationCore;
 
 /*
@@ -18,7 +16,6 @@ namespace src.LocalizationCore;
  */
 public static class TranslationValidator
 {
-    private static readonly Regex PlaceholderPattern = new(@"\{(\d+)\}", RegexOptions.Compiled);
 
     public static IReadOnlyList<string> FindUnknownExternalKeys(TranslationCatalog baseline, TranslationCatalog external)
     {
@@ -35,8 +32,9 @@ public static class TranslationValidator
             if (!baseline.TryGet(key, out var baseValue)) continue;
             external.TryGet(key, out var externalValue);
 
-            var baselinePlaceholders = ExtractPlaceholders(baseValue);
-            var externalPlaceholders = ExtractPlaceholders(externalValue);
+            if (!TryExtractPlaceholders(baseValue, out var baselinePlaceholders, out _) ||
+                !TryExtractPlaceholders(externalValue, out var externalPlaceholders, out _))
+                continue;
 
             if (!baselinePlaceholders.SetEquals(externalPlaceholders))
                 mismatches.Add(key);
@@ -45,6 +43,68 @@ public static class TranslationValidator
         return mismatches.OrderBy(k => k, StringComparer.Ordinal).ToList();
     }
 
-    private static HashSet<int> ExtractPlaceholders(string value) =>
-        PlaceholderPattern.Matches(value).Select(m => int.Parse(m.Groups[1].Value)).ToHashSet();
+    public static IReadOnlyList<string> FindMalformedFormatStrings(TranslationCatalog catalog)
+    {
+        var malformed = new List<string>();
+        foreach (var key in catalog.Keys)
+        {
+            catalog.TryGet(key, out var value);
+            if (!TryExtractPlaceholders(value, out _, out var error))
+                malformed.Add($"{key}: {error}");
+        }
+
+        return malformed.OrderBy(value => value, StringComparer.Ordinal).ToList();
+    }
+
+    private static bool TryExtractPlaceholders(string value, out HashSet<string> placeholders, out string? error)
+    {
+        placeholders = new HashSet<string>(StringComparer.Ordinal);
+        error = null;
+
+        for (int index = 0; index < value.Length; index++)
+        {
+            if (value[index] == '{')
+            {
+                if (index + 1 < value.Length && value[index + 1] == '{')
+                {
+                    index++;
+                    continue;
+                }
+
+                int close = value.IndexOf('}', index + 1);
+                if (close < 0)
+                {
+                    error = "unclosed opening brace";
+                    return false;
+                }
+
+                string token = value[(index + 1)..close];
+                int separator = token.IndexOfAny([',', ':']);
+                string name = (separator < 0 ? token : token[..separator]).Trim();
+                bool numbered = name.Length > 0 && name.All(char.IsAsciiDigit);
+                bool named = name.Length > 0 && name.All(character => char.IsAsciiLetter(character) || character == '_');
+                if (!numbered && !named)
+                {
+                    error = $"invalid placeholder '{{{token}}}'";
+                    return false;
+                }
+
+                placeholders.Add(name);
+                index = close;
+            }
+            else if (value[index] == '}')
+            {
+                if (index + 1 < value.Length && value[index + 1] == '}')
+                {
+                    index++;
+                    continue;
+                }
+
+                error = "unmatched closing brace";
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

@@ -51,7 +51,7 @@ namespace src.player.skills
      */
     public class Tripwire : ISkill
     {
-        private const Skills skillName = Skills.Tripwire;
+        private static readonly SkillId skillName = BuiltInSkillIds.Tripwire;
 
         private static TripwireOptions Options => SkillConfigurationResolver.Get<TripwireOptions>(BuiltInSkillIds.Tripwire);
         private static readonly ConcurrentDictionary<uint, WireInfo> wires = [];

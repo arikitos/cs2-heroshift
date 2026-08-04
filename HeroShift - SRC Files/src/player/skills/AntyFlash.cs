@@ -43,7 +43,7 @@ namespace src.player.skills
      */
     public class AntyFlash : ISkill
     {
-        private const Skills skillName = Skills.AntyFlash;
+        private static readonly SkillId skillName = BuiltInSkillIds.AntyFlash;
         private static AntyFlashOptions Options => SkillConfigurationResolver.Get<AntyFlashOptions>(BuiltInSkillIds.AntyFlash);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 

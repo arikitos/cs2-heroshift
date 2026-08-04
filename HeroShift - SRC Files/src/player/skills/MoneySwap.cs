@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class MoneySwap : ISkill
     {
-        private const Skills skillName = Skills.MoneySwap;
+        private static readonly SkillId skillName = BuiltInSkillIds.MoneySwap;
 
         public static void LoadSkill()
         {

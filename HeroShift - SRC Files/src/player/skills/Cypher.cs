@@ -44,7 +44,7 @@ namespace src.player.skills
      */
     public class Cypher : ISkill
     {
-        private const Skills skillName = Skills.Cypher;
+        private static readonly SkillId skillName = BuiltInSkillIds.Cypher;
         private static CypherOptions Options => SkillConfigurationResolver.Get<CypherOptions>(BuiltInSkillIds.Cypher);
         private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = new();
         private static readonly object setLock = new();

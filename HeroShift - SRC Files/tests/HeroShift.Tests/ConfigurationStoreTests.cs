@@ -99,4 +99,73 @@ public class ConfigurationStoreTests
             File.Delete(path);
         }
     }
+
+    [Fact]
+    public void Initialize_RejectsInvalidMergedSkillOptionRange()
+    {
+        string path = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(path, """
+            {
+              "skills": {
+                "giant": { "options": { "minScale": 2 } }
+              }
+            }
+            """);
+
+            var ex = Assert.Throws<ConfigurationValidationException>(() =>
+                ConfigurationStore.Initialize(path, BuiltInSkillCatalog.BuildRegistry()));
+            Assert.Contains(ex.Errors, error => error.Contains("minScale") && error.Contains("maxScale"));
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void Reload_PrePublishValidationFailure_RetainsPreviousSnapshot()
+    {
+        string path = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(path, """{ "general": { "gameMode": "NoRepeat" } }""");
+            var original = ConfigurationStore.Initialize(path, BuiltInSkillCatalog.BuildRegistry());
+
+            File.WriteAllText(path, """{ "general": { "gameMode": "Normal" } }""");
+            Assert.Throws<InvalidDataException>(() =>
+                ConfigurationStore.Reload(_ => throw new InvalidDataException("translation validation failed")));
+
+            Assert.Same(original, ConfigurationStore.Current);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void Initialize_PrePublishValidationFailure_DoesNotPublishSnapshot()
+    {
+        string path = Path.GetTempFileName();
+        try
+        {
+            ConfigurationStore.Reset();
+            File.WriteAllText(path, "{}");
+
+            Assert.Throws<InvalidDataException>(() =>
+                ConfigurationStore.Initialize(
+                    path,
+                    BuiltInSkillCatalog.BuildRegistry(),
+                    validateBeforePublish: _ => throw new InvalidDataException("translation validation failed")));
+
+            Assert.Throws<InvalidOperationException>(() => _ = ConfigurationStore.Current);
+        }
+        finally
+        {
+            ConfigurationStore.Reset();
+            File.Delete(path);
+        }
+    }
 }

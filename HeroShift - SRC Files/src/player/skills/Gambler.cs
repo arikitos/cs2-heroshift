@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class Gambler : ISkill
     {
-        private const Skills skillName = Skills.Gambler;
+        private static readonly SkillId skillName = BuiltInSkillIds.Gambler;
 
         private static GamblerOptions Options => SkillConfigurationResolver.Get<GamblerOptions>(BuiltInSkillIds.Gambler);
         public static void LoadSkill()
@@ -142,24 +142,24 @@ namespace src.player.skills
             SkillUtils.CloseMenu(player);
         }
 
-        private static List<jSkill_SkillInfo> GetSkills(CCSPlayerController player)
+        private static List<SkillRuntimeInfo> GetSkills(CCSPlayerController player)
         {
             var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
             if (skillPlayer == null) return [Event.noneSkill];
 
-            List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
-            skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill || s?.Skill == Skills.None);
+            List<SkillRuntimeInfo> skillList = [.. SkillData.Skills];
+            skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill || s?.Skill == BuiltInSkillIds.None);
 
             if (PlayerManager.GetTickPlayers().FindAll(p => p.Team == player.Team && p.IsValid && !p.IsHLTV && p.Team != CsTeam.Spectator).Count == 1)
             {
                 EffectiveSkillConfiguration[] skillsNeedsTeammates = SkillRuntime.All.Where(s => s.NeedsTeammates).ToArray();
-                skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));
+                skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Id == s.Skill));
             }
 
             if (player.Team == CsTeam.Terrorist)
-                skillList.RemoveAll(s => Event.counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                skillList.RemoveAll(s => Event.counterterroristSkills.Any(s2 => s2.Id == s.Skill));
             else
-                skillList.RemoveAll(s => Event.terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                skillList.RemoveAll(s => Event.terroristSkills.Any(s2 => s2.Id == s.Skill));
 
             return skillList.Count == 0 ? [Event.noneSkill] : skillList;
         }

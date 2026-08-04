@@ -34,7 +34,7 @@ namespace src.player.skills
      */
     public class JumpBan : ISkill
     {
-        private const Skills skillName = Skills.JumpBan;
+        private static readonly SkillId skillName = BuiltInSkillIds.JumpBan;
         public static readonly ConcurrentDictionary<uint, int> bannedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 

@@ -11,10 +11,8 @@ namespace src.utils
     /*
      * Localization - every user-visible string in the plugin.
      *
-     * Backing file is languages/en.json, a flat key -> string JSON map, loaded into
-     * _translations by Load(). Despite the name there is currently only ONE language:
-     * LoadLanguage() hardcodes "en.json" and there is no per-player language
-     * selection.
+     * Embedded English is always available. An optional flat JSON catalog selected by
+     * general.language overrides individual keys and falls back to embedded English.
      *
      * How a hero uses it:
      *   player.GetTranslation("key", args...)   - a line of text for one player
@@ -23,14 +21,14 @@ namespace src.utils
      *   player.GetSkillDescription(skill)       - the hero's description
      *   Localization.PrintTranslationToChatAll(...) - broadcast to all humans
      *
-     * Adding a new string: put the key in languages/en.json and call
+     * Adding a new string: put the key in Localization/Resources/en.json and call
      * GetTranslation("your_key"). An UNKNOWN KEY IS NOT AN ERROR - GetTranslation
      * returns the key itself, so a missing translation shows up as raw "your_key"
      * text in chat rather than an exception. Arguments are substituted with
      * string.Format, so use {0}, {1} placeholders.
      *
-     * Skill key convention (built once into the lookup maps at startup): the enum
-     * name lower-cased is the name key, plus "_desc" for the description and
+     * Skill key convention (built once into the lookup maps at startup): the stable
+     * ID is the name key, plus "_desc" for the description and
      * "_desc2" for the variant used when a percentage/chance must be shown. So the
      * Aimbot hero reads keys "aimbot", "aimbot_desc" and "aimbot_desc2". A hero that
      * has no _desc2 key falls back to _desc - that is what the desc2 == skillName
@@ -58,28 +56,28 @@ namespace src.utils
         private static readonly string languagesFolderPath = Path.Combine(HeroShift.Instance.ModuleDirectory, "languages");
         private static LocalizationService? _service;
 
-        private static readonly Dictionary<Skills, string> skillKeys = BuildSkillKeys("");
-        private static readonly Dictionary<Skills, string> skillDescKeys = BuildSkillKeys("_desc");
-        private static readonly Dictionary<Skills, string> skillDesc2Keys = BuildSkillKeys("_desc2");
+        private static readonly Dictionary<SkillId, string> skillKeys = BuildSkillKeys("");
+        private static readonly Dictionary<SkillId, string> skillDescKeys = BuildSkillKeys("_desc");
+        private static readonly Dictionary<SkillId, string> skillDesc2Keys = BuildSkillKeys("_desc2");
 
-        // Precomputes "<lowercased enum name><suffix>" for every hero once at startup, so
+        // Precomputes "<stable skill ID><suffix>" for every hero once at startup, so
         // the per-call path never allocates a key string.
-        private static Dictionary<Skills, string> BuildSkillKeys(string suffix)
+        private static Dictionary<SkillId, string> BuildSkillKeys(string suffix)
         {
-            var map = new Dictionary<Skills, string>();
-            foreach (Skills skill in Enum.GetValues<Skills>())
-                map[skill] = skill.ToString().ToLowerInvariant() + suffix;
+            var map = new Dictionary<SkillId, string>();
+            foreach (SkillId skill in BuiltInSkillIds.All)
+                map[skill] = skill.Value + suffix;
             return map;
         }
 
-        private static string SkillKey(Skills skill) => skillKeys.TryGetValue(skill, out var k) ? k : skill.ToString().ToLowerInvariant();
-        private static string SkillDescKey(Skills skill) => skillDescKeys.TryGetValue(skill, out var k) ? k : skill.ToString().ToLowerInvariant() + "_desc";
-        private static string SkillDesc2Key(Skills skill) => skillDesc2Keys.TryGetValue(skill, out var k) ? k : skill.ToString().ToLowerInvariant() + "_desc2";
+        private static string SkillKey(SkillId skill) => skillKeys.TryGetValue(skill, out var k) ? k : skill.ToString().ToLowerInvariant();
+        private static string SkillDescKey(SkillId skill) => skillDescKeys.TryGetValue(skill, out var k) ? k : skill.ToString().ToLowerInvariant() + "_desc";
+        private static string SkillDesc2Key(SkillId skill) => skillDesc2Keys.TryGetValue(skill, out var k) ? k : skill.ToString().ToLowerInvariant() + "_desc2";
 
         // Keyed on (skill, chance) because the same hero renders differently depending on
         // the rolled chance value.
-        private static readonly ConcurrentDictionary<(Skills Skill, double Chance), string> _skillNameCache = [];
-        private static readonly ConcurrentDictionary<(Skills Skill, double Chance), string> _skillDescCache = [];
+        private static readonly ConcurrentDictionary<(SkillId Skill, double Chance), string> _skillNameCache = [];
+        private static readonly ConcurrentDictionary<(SkillId Skill, double Chance), string> _skillDescCache = [];
 
         // Stand-in cache key for "no chance given", since null cannot be a double key and 0
         // is a legitimate chance value.
@@ -89,21 +87,39 @@ namespace src.utils
         // !reload, which is what makes edited strings take effect without a restart.
         public static void Load()
         {
+            UseService(CreateService(ConfigurationStore.Settings));
+        }
+
+        internal static LocalizationService CreateService(HeroShiftConfiguration settings)
+        {
+            string language = settings.General.Language.Trim().ToLowerInvariant();
+            string externalLanguage = Path.Combine(languagesFolderPath, $"{language}.json");
+            return new LocalizationService(
+                File.Exists(externalLanguage) ? externalLanguage : null,
+                settings.General.AlternativeSkillButton);
+        }
+
+        internal static void UseService(LocalizationService service)
+        {
+            ArgumentNullException.ThrowIfNull(service);
             _skillNameCache.Clear();
             _skillDescCache.Clear();
+            _service = service;
+        }
 
-            // External English is optional and acts only as an override. The
-            // complete built-in English catalog is embedded in HeroShift.dll.
-            string externalEnglish = Path.Combine(languagesFolderPath, "en.json");
-            _service = new LocalizationService(
-                File.Exists(externalEnglish) ? externalEnglish : null,
-                ConfigurationStore.Settings.General.AlternativeSkillButton);
+        public static string SourceDescription => _service?.SourceDescription ?? "not loaded";
+
+        public static void Unload()
+        {
+            _skillNameCache.Clear();
+            _skillDescCache.Clear();
+            _service = null;
         }
 
         // A hero's display name. Pass chance to include its rolled percentage in the name.
         // Results are cached unless the viewing player is under the Illiterate effect,
         // which must be re-scrambled on every call.
-        public static string GetSkillName(this CCSPlayerController player, Skills skill, float? chance = null)
+        public static string GetSkillName(this CCSPlayerController player, SkillId skill, float? chance = null)
         {
             bool cacheable = !Illiterate.CheckIlliterateSkill(player);
             var cacheKey = (skill, chance == null ? NoChance : Math.Round((double)chance, 2));
@@ -119,7 +135,7 @@ namespace src.utils
             return result;
         }
 
-        private static string BuildSkillName(CCSPlayerController player, Skills skill, float? chance)
+        private static string BuildSkillName(CCSPlayerController player, SkillId skill, float? chance)
         {
             // No chance supplied, but the string may still contain a {0} placeholder for one.
             // Rather than formatting it with a value, the whole placeholder-bearing WORD is
@@ -149,7 +165,7 @@ namespace src.utils
 
         // A hero's description. Same caching and chance handling as GetSkillName, but reads
         // the "_desc"/"_desc2" keys.
-        public static string GetSkillDescription(this CCSPlayerController player, Skills skill, float? chance = null)
+        public static string GetSkillDescription(this CCSPlayerController player, SkillId skill, float? chance = null)
         {
             bool cacheable = !Illiterate.CheckIlliterateSkill(player);
             var cacheKey = (skill, chance == null ? NoChance : Math.Round((double)chance, 2));
@@ -165,7 +181,7 @@ namespace src.utils
             return result;
         }
 
-        private static string BuildSkillDescription(CCSPlayerController player, Skills skill, float? chance)
+        private static string BuildSkillDescription(CCSPlayerController player, SkillId skill, float? chance)
         {
             if (chance == null)
             {

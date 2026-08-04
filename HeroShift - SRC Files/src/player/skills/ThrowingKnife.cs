@@ -48,7 +48,7 @@ namespace src.player.skills
      */
     public class ThrowingKnife : ISkill
     {
-        private const Skills skillName = Skills.ThrowingKnife;
+        private static readonly SkillId skillName = BuiltInSkillIds.ThrowingKnife;
         private static ThrowingKnifeOptions Options => SkillConfigurationResolver.Get<ThrowingKnifeOptions>(BuiltInSkillIds.ThrowingKnife);
         private readonly static ConcurrentDictionary<uint, KnifeInfo> knivesInfo = [];
 

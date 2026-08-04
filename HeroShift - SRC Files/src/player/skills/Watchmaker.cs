@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class Watchmaker : ISkill
     {
-        private const Skills skillName = Skills.Watchmaker;
+        private static readonly SkillId skillName = BuiltInSkillIds.Watchmaker;
         private static WatchmakerOptions Options => SkillConfigurationResolver.Get<WatchmakerOptions>(BuiltInSkillIds.Watchmaker);
         private static bool bombPlanted = false;
 

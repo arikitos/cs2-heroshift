@@ -33,7 +33,7 @@ namespace src.player.skills
      */
     public class AreaReaper : ISkill
     {
-        private const Skills skillName = Skills.AreaReaper;
+        private static readonly SkillId skillName = BuiltInSkillIds.AreaReaper;
         private static readonly string[] bombsiteA = ["A", "a"];
         private static readonly string[] bombsiteB = ["B", "b"];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];

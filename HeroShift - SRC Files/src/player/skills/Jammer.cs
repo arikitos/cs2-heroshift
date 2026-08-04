@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class Jammer : ISkill
     {
-        private const Skills skillName = Skills.Jammer;
+        private static readonly SkillId skillName = BuiltInSkillIds.Jammer;
         private static readonly ConcurrentDictionary<uint, byte> jammedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> jammerToTarget = [];
         private static readonly object setLock = new();

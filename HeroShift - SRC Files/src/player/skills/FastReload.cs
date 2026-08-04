@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class FastReload : ISkill
     {
-        private const Skills skillName = Skills.FastReload;
+        private static readonly SkillId skillName = BuiltInSkillIds.FastReload;
 
         public static void LoadSkill()
         {

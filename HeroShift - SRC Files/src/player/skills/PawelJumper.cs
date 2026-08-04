@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class PawelJumper : ISkill
     {
-        private const Skills skillName = Skills.PawelJumper;
+        private static readonly SkillId skillName = BuiltInSkillIds.PawelJumper;
         private static PawelJumperOptions Options => SkillConfigurationResolver.Get<PawelJumperOptions>(BuiltInSkillIds.PawelJumper);
         private static readonly int?[] J = new int?[64];
         private static readonly PlayerButtons[] LB = new PlayerButtons[64];

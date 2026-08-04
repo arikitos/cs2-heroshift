@@ -46,7 +46,7 @@ namespace src.player.skills
      */
     public class DeathBomb : ISkill
     {
-        private const Skills skillName = Skills.DeathBomb;
+        private static readonly SkillId skillName = BuiltInSkillIds.DeathBomb;
         private static DeathBombOptions Options => SkillConfigurationResolver.Get<DeathBombOptions>(BuiltInSkillIds.DeathBomb);
         private static readonly QAngle angle = new(10, -5, 9);
         private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];

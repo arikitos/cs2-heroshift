@@ -15,11 +15,10 @@ namespace src.menu
      * middle of the screen), not the WASD menu that individual heroes use for
      * target selection - those go through SkillUtils.CreateMenu instead.
      *
-     * The list is built from SkillData.Skills, i.e. only heroes whose skillsInfo
-     * "active" flag was true at load time. Names and descriptions come from
-     * lang/en.json via player.GetSkillName / player.GetSkillDescription, so a new
-     * hero shows up here automatically once it is active and has its translation
-     * keys - there is nothing to register in this file.
+     * The list is built from SkillData.Skills, so it contains only definitions
+     * whose effective metadata was active at load time. Names and descriptions
+     * come from the selected catalog with embedded English fallback, so a new hero
+     * appears automatically once it is active and has its translation keys.
      */
     public static class Menu
     {

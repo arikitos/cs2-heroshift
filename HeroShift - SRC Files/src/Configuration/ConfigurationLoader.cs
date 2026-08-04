@@ -69,8 +69,8 @@ public static class ConfigurationLoader
             General = NormalizeGeneral(MergeSection<GeneralOptions>(dto.General, "general", errors)),
             Hud = MergeSection<HudOptions>(dto.Hud, "hud", errors),
             Chat = MergeSection<ChatOptions>(dto.Chat, "chat", errors),
-            Commands = MergeSection<CommandOptions>(dto.Commands, "commands", errors),
-            Voting = MergeSection<VotingOptions>(dto.Voting, "voting", errors),
+            Commands = NormalizeCommands(MergeSection<CommandOptions>(dto.Commands, "commands", errors)),
+            Voting = NormalizeVoting(MergeSection<VotingOptions>(dto.Voting, "voting", errors)),
             Skills = MergeSkillOverrides(dto.Skills, errors),
         };
 
@@ -84,6 +84,42 @@ public static class ConfigurationLoader
         general.DisplayAlwaysDescription
             ? general with { SkillDescriptionDuration = 9999f }
             : general;
+
+    private static IReadOnlyList<string> NormalizeAliases(IReadOnlyList<string>? aliases) =>
+        aliases?.Select(alias => alias?.Trim().ToLowerInvariant() ?? string.Empty).ToArray() ?? [];
+
+    private static CommandDefinition NormalizeCommand(CommandDefinition command) =>
+        command with { Aliases = NormalizeAliases(command.Aliases) };
+
+    private static CommandOptions NormalizeCommands(CommandOptions commands) => commands with
+    {
+        SetSkillCommand = NormalizeCommand(commands.SetSkillCommand),
+        SkillsListCommand = NormalizeCommand(commands.SkillsListCommand),
+        UseSkillCommand = NormalizeCommand(commands.UseSkillCommand),
+        HealCommand = NormalizeCommand(commands.HealCommand),
+        HealthCommand = NormalizeCommand(commands.HealthCommand),
+        PlantedBomb = NormalizeCommand(commands.PlantedBomb),
+        BotPlace = NormalizeCommand(commands.BotPlace),
+        ConsoleCommand = NormalizeCommand(commands.ConsoleCommand),
+        HudCommand = NormalizeCommand(commands.HudCommand),
+        SetStaticSkillCommand = NormalizeCommand(commands.SetStaticSkillCommand),
+        ReloadCommand = NormalizeCommand(commands.ReloadCommand),
+        NextCommand = NormalizeCommand(commands.NextCommand),
+        CheckEntityCommand = NormalizeCommand(commands.CheckEntityCommand),
+    };
+
+    private static VotingCommandDefinition NormalizeVotingCommand(VotingCommandDefinition command) =>
+        command with { Aliases = NormalizeAliases(command.Aliases) };
+
+    private static VotingOptions NormalizeVoting(VotingOptions voting) => voting with
+    {
+        StartGameCommand = voting.StartGameCommand with { Aliases = NormalizeAliases(voting.StartGameCommand.Aliases) },
+        ChangeMapCommand = NormalizeVotingCommand(voting.ChangeMapCommand),
+        SwapCommand = NormalizeVotingCommand(voting.SwapCommand),
+        ShuffleCommand = NormalizeVotingCommand(voting.ShuffleCommand),
+        PauseCommand = NormalizeVotingCommand(voting.PauseCommand),
+        SetScoreCommand = NormalizeVotingCommand(voting.SetScoreCommand),
+    };
 
     private static T MergeSection<T>(JObject? section, string sectionName, List<string> errors) where T : class, new()
     {

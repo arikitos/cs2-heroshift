@@ -19,7 +19,7 @@ namespace src.utils
      *    per skill per tick.
      *
      * 2. SKILL STATE LOOKUP. GetPlayerByIndex(index) returns the
-     *    jSkill_PlayerInfo holding that player's current hero and per-round
+     *    PlayerRuntimeState holding that player's current hero and per-round
      *    state. This is the standard first line of nearly every hook:
      *        var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
      *        if (playerInfo?.Skill != skillName) return;
@@ -35,7 +35,7 @@ namespace src.utils
      */
     public static class PlayerManager
     {
-        private static readonly ConcurrentDictionary<uint, jSkill_PlayerInfo> playersByIndex = [];
+        private static readonly PlayerStateStore playerStates = new();
 
         private static int cachedTick = int.MinValue;
         private static List<CCSPlayerController> cachedControllers = [];
@@ -69,23 +69,22 @@ namespace src.utils
             return cachedBomb != null && cachedBomb.IsValid ? cachedBomb : null;
         }
 
-        public static void Register(jSkill_PlayerInfo playerInfo)
+        public static void Register(PlayerRuntimeState playerInfo)
         {
             if (playerInfo == null) return;
-            playersByIndex[playerInfo.PlayerIndex] = playerInfo;
+            playerStates.Register(playerInfo);
         }
 
         public static void UnregisterPlayer(uint playerIndex)
         {
-            playersByIndex.TryRemove(playerIndex, out _);
+            playerStates.Remove(playerIndex);
         }
 
-        public static jSkill_PlayerInfo? GetPlayerByIndex(uint? playerIndex)
+        public static PlayerRuntimeState? GetPlayerByIndex(uint? playerIndex)
         {
             if (playerIndex == null) return null;
 
-            playersByIndex.TryGetValue((uint)playerIndex, out var playerInfo);
-            return playerInfo;
+            return playerStates.Get(playerIndex);
         }
 
         public static CCSPlayerController? GetPlayerEvent(CCSPlayerController? player)
@@ -120,19 +119,19 @@ namespace src.utils
                 ?? player;
         }
 
-        public static IEnumerable<jSkill_PlayerInfo> GetAllPlayers()
+        public static IEnumerable<PlayerRuntimeState> GetAllPlayers()
         {
-            return playersByIndex.Values;
+            return playerStates.All;
         }
 
-        public static int GetPlayerCountBySkill(Skills skills)
+        public static int GetPlayerCountBySkill(SkillId skill)
         {
-            return playersByIndex.Values.Count(p => p.Skill == skills);
+            return playerStates.CountBySkill(skill);
         }
 
         public static void Clear()
         {
-            playersByIndex.Clear();
+            playerStates.Clear();
         }
 
         public static void SyncWithPlugin(HeroShift instance)

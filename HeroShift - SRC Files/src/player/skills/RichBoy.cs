@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class RichBoy : ISkill
     {
-        private const Skills skillName = Skills.RichBoy;
+        private static readonly SkillId skillName = BuiltInSkillIds.RichBoy;
 
         private static RichBoyOptions Options => SkillConfigurationResolver.Get<RichBoyOptions>(BuiltInSkillIds.RichBoy);
         public static void LoadSkill()

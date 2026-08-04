@@ -10,6 +10,7 @@ namespace src.Infrastructure.Menu;
 /// </summary>
 public sealed class WasdGameMenuService : IGameMenuService
 {
+    private bool loaded;
     private readonly Lazy<IWasdMenuManager> manager;
 
     public WasdGameMenuService(Func<IWasdMenuManager>? managerFactory = null)
@@ -19,8 +20,19 @@ public sealed class WasdGameMenuService : IGameMenuService
             LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
-    public void Load(BasePlugin plugin, bool hotReload) =>
+    public string Status => loaded ? "loaded" : "not loaded";
+
+    public void Load(BasePlugin plugin, bool hotReload)
+    {
         WASDMenuAPI.WASDMenuAPI.LoadPlugin(plugin, hotReload);
+        loaded = true;
+    }
+
+    public void Unload()
+    {
+        WASDMenuAPI.WASDMenuAPI.UnloadPlugin();
+        loaded = false;
+    }
 
     public IWasdMenu CreateMenu(string title, string itemText, string itemHoverText, string controlText) =>
         manager.Value.CreateMenu(title, itemText, itemHoverText, controlText);

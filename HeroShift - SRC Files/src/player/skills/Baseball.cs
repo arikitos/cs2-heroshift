@@ -46,7 +46,7 @@ namespace src.player.skills
      */
     public class Baseball : ISkill
     {
-        private const Skills skillName = Skills.Baseball;
+        private static readonly SkillId skillName = BuiltInSkillIds.Baseball;
         private static BaseballOptions Options => SkillConfigurationResolver.Get<BaseballOptions>(BuiltInSkillIds.Baseball);
         private static readonly ConcurrentDictionary<uint, byte> decoys = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

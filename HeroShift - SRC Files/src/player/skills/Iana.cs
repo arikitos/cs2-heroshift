@@ -44,7 +44,7 @@ namespace src.player.skills
      */
     public class Iana : ISkill
     {
-        private const Skills skillName = Skills.Iana;
+        private static readonly SkillId skillName = BuiltInSkillIds.Iana;
         private static IanaOptions Options => SkillConfigurationResolver.Get<IanaOptions>(BuiltInSkillIds.Iana);
         private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = [];
         private static readonly ConcurrentDictionary<uint, byte> consumedClones = [];

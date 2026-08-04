@@ -9,7 +9,9 @@ namespace src.Infrastructure.Menu;
 /// </summary>
 public interface IGameMenuService
 {
+    string Status { get; }
     void Load(BasePlugin plugin, bool hotReload);
+    void Unload();
     IWasdMenu CreateMenu(string title, string itemText, string itemHoverText, string controlText);
     void OpenMainMenu(CCSPlayerController? player, IWasdMenu? menu);
     void CloseMenu(CCSPlayerController? player);

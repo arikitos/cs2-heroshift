@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class Disarmament : ISkill
     {
-        private const Skills skillName = Skills.Disarmament;
+        private static readonly SkillId skillName = BuiltInSkillIds.Disarmament;
 
         private static DisarmamentOptions Options => SkillConfigurationResolver.Get<DisarmamentOptions>(BuiltInSkillIds.Disarmament);
         public static void LoadSkill()

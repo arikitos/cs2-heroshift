@@ -35,7 +35,7 @@ namespace src.player.skills
      */
     public class Magneto : ISkill
     {
-        private const Skills skillName = Skills.Magneto;
+        private static readonly SkillId skillName = BuiltInSkillIds.Magneto;
         private static MagnetoOptions Options => SkillConfigurationResolver.Get<MagnetoOptions>(BuiltInSkillIds.Magneto);
         private readonly static ConcurrentDictionary<uint, byte> nades = [];
         private readonly static ConcurrentDictionary<uint, byte> players = [];

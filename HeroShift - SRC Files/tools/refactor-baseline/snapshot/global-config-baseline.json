@@ -57,12 +57,12 @@
   "chatMessage": {
     "maxWidth": 1280,
     "lineSymbol": "―",
-    "lineColor": "",
+    "lineColor": "\u0004",
     "lineShow": true,
-    "infoPlayerNameColor": "",
-    "infoSkillColor": "",
+    "infoPlayerNameColor": "\u0002",
+    "infoSkillColor": "\u0006",
     "infoMessageShow": true,
-    "tagFormat": "◢◆◤ {TAG} ◥◆◣"
+    "tagFormat": "\u0002◢◆◤ {TAG} ◥◆◣"
   },
   "normalCommands": {
     "setSkillCommand": { "aliases": ["setskill", "set_skill"], "permission": "@HeroShift/admin" },

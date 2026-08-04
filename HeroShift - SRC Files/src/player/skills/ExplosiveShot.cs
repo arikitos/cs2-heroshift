@@ -46,7 +46,7 @@ namespace src.player.skills
      */
     public class ExplosiveShot : ISkill
     {
-        private const Skills skillName = Skills.ExplosiveShot;
+        private static readonly SkillId skillName = BuiltInSkillIds.ExplosiveShot;
 
         private static ExplosiveShotOptions Options => SkillConfigurationResolver.Get<ExplosiveShotOptions>(BuiltInSkillIds.ExplosiveShot);
         private static readonly QAngle angle = new(5, 10, -4);

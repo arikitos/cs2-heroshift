@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class ThirdEye : ISkill
     {
-        private const Skills skillName = Skills.ThirdEye;
+        private static readonly SkillId skillName = BuiltInSkillIds.ThirdEye;
         private static ThirdEyeOptions Options => SkillConfigurationResolver.Get<ThirdEyeOptions>(BuiltInSkillIds.ThirdEye);
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint)> cameras = [];

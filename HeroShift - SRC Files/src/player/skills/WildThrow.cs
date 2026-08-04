@@ -34,7 +34,7 @@ namespace src.player.skills
      */
     public class WildThrow : ISkill
     {
-        private const Skills skillName = Skills.WildThrow;
+        private static readonly SkillId skillName = BuiltInSkillIds.WildThrow;
         private readonly static ConcurrentDictionary<uint, byte> infectedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();

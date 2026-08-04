@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class Rubber : ISkill
     {
-        private const Skills skillName = Skills.Rubber;
+        private static readonly SkillId skillName = BuiltInSkillIds.Rubber;
         private static RubberOptions Options => SkillConfigurationResolver.Get<RubberOptions>(BuiltInSkillIds.Rubber);
         private static readonly ConcurrentDictionary<uint, float> playersToSlow = [];
 

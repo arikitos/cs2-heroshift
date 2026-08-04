@@ -53,7 +53,7 @@ namespace src.player.skills
      */
     public class Illusionist : ISkill
     {
-        private const Skills skillName = Skills.Illusionist;
+        private static readonly SkillId skillName = BuiltInSkillIds.Illusionist;
         private static IllusionistOptions Options => SkillConfigurationResolver.Get<IllusionistOptions>(BuiltInSkillIds.Illusionist);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<int, Timer> ActiveTimers = [];

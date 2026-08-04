@@ -48,7 +48,7 @@ namespace src.player.skills
      */
     public class Flash : ISkill
     {
-        private const Skills skillName = Skills.Flash;
+        private static readonly SkillId skillName = BuiltInSkillIds.Flash;
         private static FlashOptions Options => SkillConfigurationResolver.Get<FlashOptions>(BuiltInSkillIds.Flash);
         public static readonly ConcurrentDictionary<uint, int> jumpedPlayers = [];
 

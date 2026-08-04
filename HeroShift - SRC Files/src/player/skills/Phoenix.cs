@@ -41,7 +41,7 @@ namespace src.player.skills
      */
     public class Phoenix : ISkill
     {
-        private const Skills skillName = Skills.Phoenix;
+        private static readonly SkillId skillName = BuiltInSkillIds.Phoenix;
         private static PhoenixOptions Options => SkillConfigurationResolver.Get<PhoenixOptions>(BuiltInSkillIds.Phoenix);
         private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<uint, int> phoenixTicks = new();

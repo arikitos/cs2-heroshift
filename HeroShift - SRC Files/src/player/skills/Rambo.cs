@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class Rambo : ISkill
     {
-        private const Skills skillName = Skills.Rambo;
+        private static readonly SkillId skillName = BuiltInSkillIds.Rambo;
 
         private static RamboOptions Options => SkillConfigurationResolver.Get<RamboOptions>(BuiltInSkillIds.Rambo);
         public static void LoadSkill()

@@ -35,7 +35,7 @@ namespace src.player.skills
      */
     public class Aimbot : ISkill
     {
-        private const Skills skillName = Skills.Aimbot;
+        private static readonly SkillId skillName = BuiltInSkillIds.Aimbot;
         private static readonly ThreadLocal<Stack<(nint Address, HitGroup_t OldValue)>> _restoreStack = new(() => new Stack<(nint, HitGroup_t)>());
 
         public static void LoadSkill()

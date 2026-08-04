@@ -43,7 +43,7 @@ namespace src.player.skills
      */
     public class HolyHandGrenade : ISkill
     {
-        private const Skills skillName = Skills.HolyHandGrenade;
+        private static readonly SkillId skillName = BuiltInSkillIds.HolyHandGrenade;
         private static HolyHandGrenadeOptions Options => SkillConfigurationResolver.Get<HolyHandGrenadeOptions>(BuiltInSkillIds.HolyHandGrenade);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 

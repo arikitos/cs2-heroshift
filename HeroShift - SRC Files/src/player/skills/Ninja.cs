@@ -45,7 +45,7 @@ namespace src.player.skills
      */
     public class Ninja : ISkill
     {
-        private const Skills skillName = Skills.Ninja;
+        private static readonly SkillId skillName = BuiltInSkillIds.Ninja;
         private static NinjaOptions Options => SkillConfigurationResolver.Get<NinjaOptions>(BuiltInSkillIds.Ninja);
         private static readonly ConcurrentDictionary<nint, float> invisibilityChanged = [];
         private static readonly ConcurrentDictionary<uint, byte> invisiblePlayers = [];

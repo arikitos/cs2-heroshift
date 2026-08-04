@@ -133,7 +133,7 @@ namespace src.player
                 // nobody holds Fortnite its walls would stop absorbing - hence the explicit
                 // call. The Any() guard is what prevents a double invoke while it is held.
                 if (Fortnite.skillInThisRound == true &&
-                    !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.Skill == Skills.Fortnite))
+                    !Instance.SkillPlayer.Any(p => !p.IsDrawing && p.Skill == BuiltInSkillIds.Fortnite))
                     Instance.SkillDispatcher.DispatchOnTakeDamage([BuiltInSkillIds.Fortnite], h, post: false);
 
                 return HookResult.Continue;

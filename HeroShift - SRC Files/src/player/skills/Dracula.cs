@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class Dracula : ISkill
     {
-        private const Skills skillName = Skills.Dracula;
+        private static readonly SkillId skillName = BuiltInSkillIds.Dracula;
 
         private static DraculaOptions Options => SkillConfigurationResolver.Get<DraculaOptions>(BuiltInSkillIds.Dracula);
         public static void LoadSkill()

@@ -50,7 +50,7 @@ namespace src.player.skills
      */
     public class ExplodingBarrel : ISkill
     {
-        private const Skills skillName = Skills.ExplodingBarrel;
+        private static readonly SkillId skillName = BuiltInSkillIds.ExplodingBarrel;
         private static ExplodingBarrelOptions Options => SkillConfigurationResolver.Get<ExplodingBarrelOptions>(BuiltInSkillIds.ExplodingBarrel);
         private static readonly QAngle angle = new(7, -3, 11);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];

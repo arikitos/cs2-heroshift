@@ -34,7 +34,7 @@ namespace src.player.skills
      */
     public class FireRain : ISkill
     {
-        private const Skills skillName = Skills.FireRain;
+        private static readonly SkillId skillName = BuiltInSkillIds.FireRain;
         private static readonly QAngle angle = new(10, -4, 13);
         private static readonly ConcurrentDictionary<uint, byte> decoys = [];
 

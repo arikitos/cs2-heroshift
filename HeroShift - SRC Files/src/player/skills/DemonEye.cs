@@ -40,9 +40,9 @@ namespace src.player.skills
      */
     public class DemonEye : ISkill
     {
-        private const Skills skillName = Skills.DemonEye;
+        private static readonly SkillId skillName = BuiltInSkillIds.DemonEye;
         private static DemonEyeOptions Options => SkillConfigurationResolver.Get<DemonEyeOptions>(BuiltInSkillIds.DemonEye);
-        private static readonly Skills[] hidingSkills = [Skills.Ghost, Skills.Ninja, Skills.C4Camouflage];
+        private static readonly SkillId[] hidingSkills = [BuiltInSkillIds.Ghost, BuiltInSkillIds.Ninja, BuiltInSkillIds.C4Camouflage];
 
         public static void LoadSkill()
         {

@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class GodMode : ISkill
     {
-        private const Skills skillName = Skills.GodMode;
+        private static readonly SkillId skillName = BuiltInSkillIds.GodMode;
         private static GodModeOptions Options => SkillConfigurationResolver.Get<GodModeOptions>(BuiltInSkillIds.GodMode);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

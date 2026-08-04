@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class FalconEye : ISkill
     {
-        private const Skills skillName = Skills.FalconEye;
+        private static readonly SkillId skillName = BuiltInSkillIds.FalconEye;
         private static FalconEyeOptions Options => SkillConfigurationResolver.Get<FalconEyeOptions>(BuiltInSkillIds.FalconEye);
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint)> cameras = [];

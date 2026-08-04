@@ -33,7 +33,7 @@ namespace src.player.skills
      */
     public class ReturnToSender : ISkill
     {
-        private const Skills skillName = Skills.ReturnToSender;
+        private static readonly SkillId skillName = BuiltInSkillIds.ReturnToSender;
         private static readonly ConcurrentDictionary<nint, byte> playersToSender = [];
 
         public static void LoadSkill()

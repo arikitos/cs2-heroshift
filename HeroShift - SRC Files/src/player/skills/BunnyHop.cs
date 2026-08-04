@@ -41,7 +41,7 @@ namespace src.player.skills
      */
     public class BunnyHop : ISkill
     {
-        private const Skills skillName = Skills.BunnyHop;
+        private static readonly SkillId skillName = BuiltInSkillIds.BunnyHop;
         private static BunnyHopOptions Options => SkillConfigurationResolver.Get<BunnyHopOptions>(BuiltInSkillIds.BunnyHop);
         private static readonly ConcurrentDictionary<uint, int> playersLastJump = [];
 

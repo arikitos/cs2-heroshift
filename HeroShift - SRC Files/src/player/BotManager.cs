@@ -32,9 +32,8 @@ namespace src.utils
      *   Initialize() calls Stop() first so a re-init cannot leave an orphan timer
      *   running alongside the new one.
      *
-     * CAVEAT: both Stop() branches return early when their config switch is off, so a
-     * timer created while a switch was enabled is not killed if that switch is turned
-     * off before Stop() runs.
+     * Stop() always kills both owned timers, including after a hot reload turns a
+     * feature off.
      */
     public static class BotManager
     {
@@ -64,13 +63,8 @@ namespace src.utils
         // Kills both timers. Called on map end and at the top of Initialize().
         public static void Stop()
         {
-            if (!ConfigurationStore.Settings.General.EnableBotSkills) return;
-
             _skillTimer?.Kill();
             _skillTimer = null;
-
-            if (!ConfigurationStore.Settings.General.EnableBotKickDebug) return;
-
             _rotationTimer?.Kill();
             _rotationTimer = null;
         }

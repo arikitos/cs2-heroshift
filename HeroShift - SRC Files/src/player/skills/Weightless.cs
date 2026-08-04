@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class Weightless : ISkill
     {
-        private const Skills skillName = Skills.Weightless;
+        private static readonly SkillId skillName = BuiltInSkillIds.Weightless;
         private static WeightlessOptions Options => SkillConfigurationResolver.Get<WeightlessOptions>(BuiltInSkillIds.Weightless);
         private readonly static ConcurrentDictionary<uint, byte> nades = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

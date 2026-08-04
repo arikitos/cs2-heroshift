@@ -3,13 +3,8 @@ namespace src.SkillsCore.Abstractions;
 /*
  * BuiltInSkillIds - the single place every built-in SkillId is declared.
  *
- * One entry per legacy src/player/ISkill.cs Skills enum member (142 heroes +
- * None), generated directly from that enum so casing/spelling matches
- * exactly. Values are the enum member name lowercased with no separators -
- * identical to the legacy localization key convention
- * (skill.ToString().ToLowerInvariant() in src/utils/Localization.cs), so
- * existing translation keys keep working unchanged once localization moves
- * to keying by SkillId.
+ * One stable entry for every built-in definition, including None. Values keep
+ * the established lowercase localization and configuration identifiers.
  *
  * Code must reference these fields (BuiltInSkillIds.Dash, ...) rather than
  * calling SkillId.Create("dash") ad hoc, so a typo is a compile error instead
@@ -160,8 +155,7 @@ public static class BuiltInSkillIds
     public static readonly SkillId WildThrow = SkillId.Create("wildthrow");
     public static readonly SkillId Zeus = SkillId.Create("zeus");
 
-    // All 142 built-in IDs, for validation/iteration (e.g. checking every one
-    // has a translation, or that the legacy Skills enum has no orphaned entry).
+    // All 142 built-in IDs, for validation, registration and translation checks.
     public static IReadOnlyList<SkillId> All { get; } =
     [
         None, Aimbot, AimLock, Anomaly, AntyFlash, AntyHead, AreaReaper, Armored, Assassin, Astronaut,

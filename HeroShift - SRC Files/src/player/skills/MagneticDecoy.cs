@@ -41,7 +41,7 @@ namespace src.player.skills
      */
     public class MagneticDecoy : ISkill
     {
-        private const Skills skillName = Skills.MagneticDecoy;
+        private static readonly SkillId skillName = BuiltInSkillIds.MagneticDecoy;
         private static MagneticDecoyOptions Options => SkillConfigurationResolver.Get<MagneticDecoyOptions>(BuiltInSkillIds.MagneticDecoy);
         private static readonly ConcurrentDictionary<Vector, byte> decoys = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

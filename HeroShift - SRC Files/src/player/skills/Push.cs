@@ -44,7 +44,7 @@ namespace src.player.skills
      */
     public class Push : ISkill
     {
-        private const Skills skillName = Skills.Push;
+        private static readonly SkillId skillName = BuiltInSkillIds.Push;
 
         private static PushOptions Options => SkillConfigurationResolver.Get<PushOptions>(BuiltInSkillIds.Push);
         public static void LoadSkill()

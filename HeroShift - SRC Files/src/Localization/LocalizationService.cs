@@ -3,6 +3,7 @@ using System.Reflection;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.player.skills;
+using src.SkillsCore.Abstractions;
 
 namespace src.LocalizationCore;
 
@@ -19,10 +20,8 @@ namespace src.LocalizationCore;
  * when present, is consulted FIRST for the same key so operators can override
  * or fully replace individual strings without needing a full translation.
  *
- * Still calls into src.player.skills.Illiterate directly (same as the legacy
- * Localization class) rather than introducing a new abstraction ahead of that
- * skill's own migration - it becomes a proper hook-based dependency when
- * Illiterate is migrated in its skill batch.
+ * Illiterate remains a direct gameplay dependency because its text scrambling
+ * is intentionally applied after fallback and formatting.
  */
 public sealed class LocalizationService : ILocalizationService
 {
@@ -31,6 +30,10 @@ public sealed class LocalizationService : ILocalizationService
 
     private TranslationCatalog _external = TranslationCatalog.Empty;
     private TranslationCatalog _embeddedEnglish = TranslationCatalog.Empty;
+
+    public string SourceDescription => _external.Keys.Count > 0
+        ? $"external override '{_externalLanguagePath}' with embedded English fallback"
+        : "embedded English";
 
     // Chat colours are control characters that cannot be typed into JSON, so the
     // literal token "CHATCOLORS.RED" is swapped for the real character at load
@@ -48,6 +51,7 @@ public sealed class LocalizationService : ILocalizationService
     {
         _embeddedEnglish = LoadEmbeddedEnglish();
         _external = LoadExternal(_externalLanguagePath);
+        ValidateCatalogs();
     }
 
     private TranslationCatalog LoadEmbeddedEnglish()
@@ -65,6 +69,34 @@ public sealed class LocalizationService : ILocalizationService
         if (string.IsNullOrEmpty(path) || !File.Exists(path)) return TranslationCatalog.Empty;
 
         return ApplyLoadTimeSubstitutions(TranslationCatalog.FromJson(File.ReadAllText(path)));
+    }
+
+    private void ValidateCatalogs()
+    {
+        var errors = new List<string>();
+        errors.AddRange(TranslationValidator.FindMalformedFormatStrings(_embeddedEnglish)
+            .Select(error => $"embedded English {error}"));
+
+        foreach (var skill in BuiltInSkillIds.All)
+        {
+            if (!_embeddedEnglish.TryGet(skill.Value, out _))
+                errors.Add($"embedded English is missing skill name '{skill.Value}'");
+            if (!_embeddedEnglish.TryGet($"{skill.Value}_desc", out _))
+                errors.Add($"embedded English is missing skill description '{skill.Value}_desc'");
+        }
+
+        if (_external.Keys.Count > 0)
+        {
+            errors.AddRange(TranslationValidator.FindMalformedFormatStrings(_external)
+                .Select(error => $"external language {error}"));
+            errors.AddRange(TranslationValidator.FindUnknownExternalKeys(_embeddedEnglish, _external)
+                .Select(key => $"external language contains unknown key '{key}'"));
+            errors.AddRange(TranslationValidator.FindPlaceholderMismatches(_embeddedEnglish, _external)
+                .Select(key => $"external language placeholder mismatch at '{key}'"));
+        }
+
+        if (errors.Count > 0)
+            throw new InvalidDataException("HeroShift localization validation failed. " + string.Join(" ", errors));
     }
 
     // "CHATCOLORS.RED" -> the real control character; "css_useSkill" -> both

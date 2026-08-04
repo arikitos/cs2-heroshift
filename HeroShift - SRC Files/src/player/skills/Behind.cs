@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class Behind : ISkill
     {
-        private const Skills skillName = Skills.Behind;
+        private static readonly SkillId skillName = BuiltInSkillIds.Behind;
 
         private static BehindOptions Options => SkillConfigurationResolver.Get<BehindOptions>(BuiltInSkillIds.Behind);
         public static void LoadSkill()

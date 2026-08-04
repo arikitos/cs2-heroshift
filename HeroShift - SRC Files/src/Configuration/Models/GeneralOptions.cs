@@ -23,6 +23,7 @@ public sealed record GeneralOptions
     public bool PerfMode { get; init; }
 
     public string? AlternativeSkillButton { get; init; }
+    public string Language { get; init; } = "en";
 
     public float SkillTimeBeforeStart { get; init; } = 7f;
 

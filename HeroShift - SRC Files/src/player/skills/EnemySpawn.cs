@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class EnemySpawn : ISkill
     {
-        private const Skills skillName = Skills.EnemySpawn;
+        private static readonly SkillId skillName = BuiltInSkillIds.EnemySpawn;
         private static EnemySpawnOptions Options => SkillConfigurationResolver.Get<EnemySpawnOptions>(BuiltInSkillIds.EnemySpawn);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

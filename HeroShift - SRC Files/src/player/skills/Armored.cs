@@ -42,7 +42,7 @@ namespace src.player.skills
      */
     public class Armored : ISkill
     {
-        private const Skills skillName = Skills.Armored;
+        private static readonly SkillId skillName = BuiltInSkillIds.Armored;
 
         private static ArmoredOptions Options => SkillConfigurationResolver.Get<ArmoredOptions>(BuiltInSkillIds.Armored);
         public static void LoadSkill()

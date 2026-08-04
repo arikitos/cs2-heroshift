@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class Thorns : ISkill
     {
-        private const Skills skillName = Skills.Thorns;
+        private static readonly SkillId skillName = BuiltInSkillIds.Thorns;
 
         private static ThornsOptions Options => SkillConfigurationResolver.Get<ThornsOptions>(BuiltInSkillIds.Thorns);
         public static void LoadSkill()

@@ -31,7 +31,7 @@ namespace src.player.skills
      */
     public class AntyHead : ISkill
     {
-        private const Skills skillName = Skills.AntyHead;
+        private static readonly SkillId skillName = BuiltInSkillIds.AntyHead;
 
         public static void LoadSkill()
         {

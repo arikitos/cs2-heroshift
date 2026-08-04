@@ -46,7 +46,7 @@ namespace src.player.skills
      */
     public class ReZombie : ISkill
     {
-        private const Skills skillName = Skills.ReZombie;
+        private static readonly SkillId skillName = BuiltInSkillIds.ReZombie;
         private static ReZombieOptions Options => SkillConfigurationResolver.Get<ReZombieOptions>(BuiltInSkillIds.ReZombie);
         private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<uint, int> zombies = [];

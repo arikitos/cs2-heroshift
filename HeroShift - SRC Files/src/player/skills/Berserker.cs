@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class Berserker : ISkill
     {
-        private const Skills skillName = Skills.Berserker;
+        private static readonly SkillId skillName = BuiltInSkillIds.Berserker;
         private static BerserkerOptions Options => SkillConfigurationResolver.Get<BerserkerOptions>(BuiltInSkillIds.Berserker);
         public static readonly ConcurrentDictionary<uint, int> jumpedPlayers = [];
 

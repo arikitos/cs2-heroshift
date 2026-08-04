@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class SoundMaker : ISkill
     {
-        private const Skills skillName = Skills.SoundMaker;
+        private static readonly SkillId skillName = BuiltInSkillIds.SoundMaker;
         private static SoundMakerOptions Options => SkillConfigurationResolver.Get<SoundMakerOptions>(BuiltInSkillIds.SoundMaker);
         private static readonly ConcurrentDictionary<uint, byte> SkillPlayerInfo = [];
         private static readonly object setLock = new();

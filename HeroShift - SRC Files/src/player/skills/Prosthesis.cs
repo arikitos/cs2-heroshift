@@ -31,7 +31,7 @@ namespace src.player.skills
      */
     public class Prosthesis : ISkill
     {
-        private const Skills skillName = Skills.Prosthesis;
+        private static readonly SkillId skillName = BuiltInSkillIds.Prosthesis;
 
         public static void LoadSkill()
         {

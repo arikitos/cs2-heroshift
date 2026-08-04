@@ -46,7 +46,7 @@ namespace src.player.skills
      */
     public class HomingNades : ISkill
     {
-        private const Skills skillName = Skills.HomingNades;
+        private static readonly SkillId skillName = BuiltInSkillIds.HomingNades;
         private static HomingNadesOptions Options => SkillConfigurationResolver.Get<HomingNadesOptions>(BuiltInSkillIds.HomingNades);
         private readonly static ConcurrentDictionary<uint, Vector> nades = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

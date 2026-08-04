@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class Spectator : ISkill
     {
-        private const Skills skillName = Skills.Spectator;
+        private static readonly SkillId skillName = BuiltInSkillIds.Spectator;
         private static SpectatorOptions Options => SkillConfigurationResolver.Get<SpectatorOptions>(BuiltInSkillIds.Spectator);
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint, uint)> cameras = [];

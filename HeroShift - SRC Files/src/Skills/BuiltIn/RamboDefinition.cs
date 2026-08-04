@@ -34,6 +34,7 @@ public static class RamboDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new RamboOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.MinExtraHealth, options.MaxExtraHealth, "minExtraHealth", "maxExtraHealth"),
         Hooks = new SkillHookSet
         {
             LoadSkill = Rambo.LoadSkill,

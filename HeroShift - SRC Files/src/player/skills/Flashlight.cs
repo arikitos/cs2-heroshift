@@ -46,7 +46,7 @@ namespace src.player.skills
      */
     public class Flashlight : ISkill
     {
-        private const Skills skillName = Skills.Flashlight;
+        private static readonly SkillId skillName = BuiltInSkillIds.Flashlight;
         private static FlashlightOptions Options => SkillConfigurationResolver.Get<FlashlightOptions>(BuiltInSkillIds.Flashlight);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
 
@@ -300,7 +300,7 @@ namespace src.player.skills
                     continue;
 
                 var targetInfo = PlayerManager.GetPlayerByIndex(target.Index);
-                if (targetInfo != null && targetInfo.Skill == Skills.AntyFlash)
+                if (targetInfo != null && targetInfo.Skill == BuiltInSkillIds.AntyFlash)
                     continue;
 
                 var targetPawn = target.PlayerPawn.Value;

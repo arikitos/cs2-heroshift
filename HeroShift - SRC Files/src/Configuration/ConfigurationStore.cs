@@ -21,25 +21,45 @@ public static class ConfigurationStore
         ?? throw new InvalidOperationException("HeroShift configuration has not been initialized.");
 
     public static HeroShiftConfiguration Settings => Current.Configuration;
+    public static string EffectivePath => _path
+        ?? throw new InvalidOperationException("HeroShift configuration has not been initialized.");
 
-    public static RuntimeConfigurationSnapshot Initialize(string path, SkillRegistry registry, ILogger? logger = null)
+    public static RuntimeConfigurationSnapshot Initialize(
+        string path,
+        SkillRegistry registry,
+        ILogger? logger = null,
+        Action<RuntimeConfigurationSnapshot>? validateBeforePublish = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
         ArgumentNullException.ThrowIfNull(registry);
 
         lock (Sync)
         {
+            string? previousPath = _path;
+            SkillRegistry? previousRegistry = _registry;
+            ILogger? previousLogger = _logger;
             _path = path;
             _registry = registry;
             _logger = logger;
 
-            var snapshot = Load(path, registry, logger);
-            Publish(snapshot);
-            return snapshot;
+            try
+            {
+                var snapshot = Load(path, registry, logger);
+                validateBeforePublish?.Invoke(snapshot);
+                Publish(snapshot);
+                return snapshot;
+            }
+            catch
+            {
+                _path = previousPath;
+                _registry = previousRegistry;
+                _logger = previousLogger;
+                throw;
+            }
         }
     }
 
-    public static RuntimeConfigurationSnapshot Reload()
+    public static RuntimeConfigurationSnapshot Reload(Action<RuntimeConfigurationSnapshot>? validateBeforePublish = null)
     {
         lock (Sync)
         {
@@ -49,6 +69,7 @@ public static class ConfigurationStore
             try
             {
                 var snapshot = Load(_path, _registry, _logger);
+                validateBeforePublish?.Invoke(snapshot);
                 Publish(snapshot);
                 return snapshot;
             }
@@ -57,6 +78,18 @@ public static class ConfigurationStore
                 _logger?.LogError(ex, "HeroShift configuration reload failed; retaining the previous valid snapshot.");
                 throw;
             }
+        }
+    }
+
+    public static void Reset()
+    {
+        lock (Sync)
+        {
+            Volatile.Write(ref _current, null);
+            _path = null;
+            _registry = null;
+            _logger = null;
+            SkillRuntime.Reset();
         }
     }
 
@@ -73,9 +106,7 @@ public static class ConfigurationStore
             configuration.Skills.TryGetValue(definition.Id, out var @override);
             var metadata = MergeMetadata(definition, @override, errors);
             var options = MergeOptions(definition, @override?.Options, errors);
-            var legacySkill = ResolveLegacySkill(definition.Id, errors);
-
-            effective.Add(new EffectiveSkillConfiguration(definition.Id, legacySkill, metadata, options));
+            effective.Add(new EffectiveSkillConfiguration(definition.Id, metadata, options));
         }
 
         if (errors.Count > 0)
@@ -134,18 +165,27 @@ public static class ConfigurationStore
         Newtonsoft.Json.Linq.JObject? optionOverrides,
         List<string> errors)
     {
+        errors.AddRange(SkillOptionValidator.Validate(definition.Id, optionOverrides));
+
         foreach (var unknown in JsonMerge.FindUnknownProperties(optionOverrides, definition.DefaultOptionsBoxed.GetType()))
             errors.Add($"skills.{definition.Id}.options.{unknown}: unknown field");
 
         if (optionOverrides == null)
+        {
+            errors.AddRange(definition.ValidateOptionsBoxed(definition.DefaultOptionsBoxed)
+                .Select(error => $"skills.{definition.Id}.options: {error}"));
             return definition.DefaultOptionsBoxed;
+        }
 
         try
         {
-            return (ISkillOptions)JsonMerge.MergeOnto(
+            var merged = (ISkillOptions)JsonMerge.MergeOnto(
                 optionOverrides,
                 definition.DefaultOptionsBoxed,
                 definition.DefaultOptionsBoxed.GetType());
+            errors.AddRange(definition.ValidateOptionsBoxed(merged)
+                .Select(error => $"skills.{definition.Id}.options: {error}"));
+            return merged;
         }
         catch (JsonException ex)
         {
@@ -154,12 +194,4 @@ public static class ConfigurationStore
         }
     }
 
-    private static Skills ResolveLegacySkill(SkillId id, List<string> errors)
-    {
-        if (Enum.TryParse<Skills>(id.Value, true, out var skill))
-            return skill;
-
-        errors.Add($"skills.{id}: no matching legacy Skills value exists during runtime cutover");
-        return Skills.None;
-    }
 }

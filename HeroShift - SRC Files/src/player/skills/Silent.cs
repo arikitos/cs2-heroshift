@@ -33,7 +33,7 @@ namespace src.player.skills
      */
     public class Silent : ISkill
     {
-        private const Skills skillName = Skills.Silent;
+        private static readonly SkillId skillName = BuiltInSkillIds.Silent;
 
         public static void LoadSkill()
         {

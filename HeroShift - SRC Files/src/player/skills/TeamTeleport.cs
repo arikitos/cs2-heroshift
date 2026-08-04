@@ -42,7 +42,7 @@ namespace src.player.skills
      */
     public class TeamTeleport : ISkill
     {
-        private const Skills skillName = Skills.TeamTeleport;
+        private static readonly SkillId skillName = BuiltInSkillIds.TeamTeleport;
         private static TeamTeleportOptions Options => SkillConfigurationResolver.Get<TeamTeleportOptions>(BuiltInSkillIds.TeamTeleport);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
 

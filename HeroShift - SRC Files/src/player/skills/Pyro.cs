@@ -41,7 +41,7 @@ namespace src.player.skills
      */
     public class Pyro : ISkill
     {
-        private const Skills skillName = Skills.Pyro;
+        private static readonly SkillId skillName = BuiltInSkillIds.Pyro;
         private static PyroOptions Options => SkillConfigurationResolver.Get<PyroOptions>(BuiltInSkillIds.Pyro);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 

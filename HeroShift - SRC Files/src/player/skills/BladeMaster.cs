@@ -43,7 +43,7 @@ namespace src.player.skills
      */
     public class BladeMaster : ISkill
     {
-        private const Skills skillName = Skills.BladeMaster;
+        private static readonly SkillId skillName = BuiltInSkillIds.BladeMaster;
         private static BladeMasterOptions Options => SkillConfigurationResolver.Get<BladeMasterOptions>(BuiltInSkillIds.BladeMaster);
         private static readonly string[] noReflectionWeapon = ["inferno", "flashbang", "smokegrenade", "decoy", "hegrenade", "knife", "taser", "bayonet"];
 

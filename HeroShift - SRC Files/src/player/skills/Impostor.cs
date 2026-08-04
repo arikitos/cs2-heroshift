@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class Impostor : ISkill
     {
-        private const Skills skillName = Skills.Impostor;
+        private static readonly SkillId skillName = BuiltInSkillIds.Impostor;
         private static readonly string defaultCTModel = "agents/models/ctm_sas/ctm_sas.vmdl";
         private static readonly string defaultTModel = "agents/models/tm_phoenix/tm_phoenix.vmdl";
         private static readonly ConcurrentDictionary<uint, string> originalModels = [];

@@ -6,6 +6,7 @@ namespace WASDMenuAPI;
 
 public class WASDMenuAPI
 {
+    private static BasePlugin? plugin;
     public static string ModuleName => "WASDMenuAPI";
     public static string ModuleVersion => "1.0.2";
     public static string ModuleAuthor => "Interesting";
@@ -14,6 +15,7 @@ public class WASDMenuAPI
     
     public static void LoadPlugin(BasePlugin basePlugin, bool hotReload)
     {
+        plugin = basePlugin;
         basePlugin.RegisterEventHandler<EventPlayerActivate>((@event, info) =>
         {
             if (@event.Userid != null)
@@ -61,5 +63,15 @@ public class WASDMenuAPI
             if (!string.IsNullOrEmpty(player.CenterHtml))
                 player.Player.PrintToCenterHtml(player.CenterHtml);
         }
+    }
+
+    public static void UnloadPlugin()
+    {
+        plugin?.RemoveListener<Listeners.OnTick>(OnTick);
+        foreach (var player in Players.Values)
+            player.OpenMainMenu(null);
+
+        Players.Clear();
+        plugin = null;
     }
 }

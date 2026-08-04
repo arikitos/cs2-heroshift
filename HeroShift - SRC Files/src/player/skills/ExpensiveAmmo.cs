@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class ExpensiveAmmo : ISkill
     {
-        private const Skills skillName = Skills.ExpensiveAmmo;
+        private static readonly SkillId skillName = BuiltInSkillIds.ExpensiveAmmo;
         private static ExpensiveAmmoOptions Options => SkillConfigurationResolver.Get<ExpensiveAmmoOptions>(BuiltInSkillIds.ExpensiveAmmo);
         private static readonly ConcurrentDictionary<uint, byte> cursedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];

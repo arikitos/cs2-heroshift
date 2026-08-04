@@ -8,15 +8,11 @@ namespace src.SkillsCore.Abstractions;
 /*
  * SkillHookSet - typed replacement for reflection-based skill dispatch.
  *
- * Every delegate here matches one legacy src/player/ISkill static method
+ * Every delegate here matches one src/player/ISkill static method
  * signature exactly (see that file for full hook documentation). A skill
  * only sets the hooks it actually implements; everything else stays null,
- * so the dispatcher (SkillDispatcher, added once every skill is migrated)
- * can pre-index skills per hook instead of probing every skill for every
+ * so SkillRegistry can pre-index skills per hook instead of probing every skill for every
  * event (REFACTOR.md section 10).
- *
- * This coexists with the legacy reflection dispatch during migration - it is
- * not wired into the event pipeline until the dispatcher replacement commit.
  */
 public sealed class SkillHookSet
 {

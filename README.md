@@ -27,38 +27,46 @@ The runtime does not use reflection-based skill dispatch, `SkillsInfo`, nested `
 - Metamod
 - CounterStrikeSharp
 - .NET 10-compatible CounterStrikeSharp runtime
-- RayTrace-CSS-API and RayTrace-MM
+- Network access while generating a release, or a local copy of the pinned RayTrace archives
 
-RayTrace remains an external server dependency and must be installed at these CounterStrikeSharp-relative paths:
+The generated release bundles the pinned official RayTrace managed and Linux Metamod distributions. Runtime paths include:
 
 ```text
-shared/RayTraceApi/RayTraceApi.dll
-plugins/RayTraceImpl/RayTraceImpl.dll
-metamod/RayTrace.vdf
+addons/counterstrikesharp/shared/RayTraceApi/RayTraceApi.dll
+addons/counterstrikesharp/plugins/RayTraceImpl/RayTraceImpl.dll
+addons/metamod/RayTrace.vdf
+addons/RayTrace/gamedata.json
+addons/RayTrace/bin/linuxsteamrt64/RayTrace.so
 ```
 
 HeroShift preserves the capability key `raytrace:craytraceinterface` and the existing native trace behavior. Skills that require RayTrace degrade safely when the capability is unavailable.
 
 ## Installation
 
-Download the generated `HeroShift-vX.Y.Z.zip` release archive and extract it into:
+Download the generated `HeroShift-vX.Y.Z.zip` release archive and extract it into the CS2 game directory:
 
 ```text
-game/csgo/addons/counterstrikesharp/
+game/csgo/
 ```
 
-The archive contains exactly:
+The archive contains the generated HeroShift files and the complete pinned RayTrace runtime tree. Core paths are:
 
 ```text
-gamedata/HeroShift.gamedata.json
-plugins/HeroShift/HeroShift.dll
-plugins/HeroShift/Newtonsoft.Json.dll
-plugins/HeroShift/WASDMenuAPI.dll
-plugins/HeroShift/configs/heroshift.json
+addons/counterstrikesharp/gamedata/HeroShift.gamedata.json
+addons/counterstrikesharp/plugins/HeroShift/HeroShift.dll
+addons/counterstrikesharp/plugins/HeroShift/Newtonsoft.Json.dll
+addons/counterstrikesharp/plugins/HeroShift/WASDMenuAPI.dll
+addons/counterstrikesharp/plugins/HeroShift/configs/heroshift.json
+addons/counterstrikesharp/plugins/RayTraceImpl/
+addons/counterstrikesharp/shared/RayTraceApi/
+addons/metamod/RayTrace.vdf
+addons/RayTrace/
 package-manifest.json
+THIRD_PARTY_NOTICES.md
+licenses/RayTrace-GPL-3.0.txt
 ```
 
-`package-manifest.json` records the size and SHA-256 hash of every packaged runtime file and lists the external RayTrace dependencies.
+`package-manifest.json` records the size and SHA-256 hash of every packaged runtime file and the exact version and archive hashes of the bundled RayTrace release. PDB and XML documentation files are excluded.
 
 For Docker deployments, persist the configuration and optional language files as volumes. Example:
 
@@ -71,10 +79,10 @@ Adjust the container prefix to match the server image. HeroShift resolves runtim
 
 ## Configuration
 
-HeroShift reads one override file:
+HeroShift reads one override file relative to the CS2 game directory:
 
 ```text
-plugins/HeroShift/configs/heroshift.json
+addons/counterstrikesharp/plugins/HeroShift/configs/heroshift.json
 ```
 
 The minimal valid file is:
@@ -95,6 +103,7 @@ Example:
   "general": {
     "gameMode": "NoRepeat",
     "enableBotSkills": true,
+    "language": "en",
     "skillTimeBeforeStart": 7.0
   },
   "commands": {
@@ -124,7 +133,7 @@ The legacy `config.json` and `skillsInfo.json` formats are intentionally unsuppo
 English is embedded in `HeroShift.dll`; an external English file is not required. Optional language files are loaded from:
 
 ```text
-plugins/HeroShift/languages/<language>.json
+addons/counterstrikesharp/plugins/HeroShift/languages/<language>.json
 ```
 
 Lookup order is:
@@ -165,7 +174,9 @@ dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
 ./scripts/package.ps1 -Configuration Release -Version dev -NoBuild
 ```
 
-The validation workflow runs tests, Release builds, architecture scans, package-inventory validation, and deterministic ZIP generation on Windows and Linux.
+The packaging script downloads RayTrace release `build-f483aba` from its official release server and verifies both archives before extraction. For offline packaging, place the two archives named in `scripts/package.ps1` in one directory and pass `-RayTraceAssetsDirectory <path>`.
+
+The validation workflow runs tests, Debug and Release builds, architecture scans, package-inventory validation, and deterministic ZIP generation on Windows and Linux.
 
 ## Releases
 

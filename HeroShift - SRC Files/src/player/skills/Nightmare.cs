@@ -45,7 +45,7 @@ namespace src.player.skills
      */
     public class Nightmare : ISkill
     {
-        private const Skills skillName = Skills.Nightmare;
+        private static readonly SkillId skillName = BuiltInSkillIds.Nightmare;
         private static NightmareOptions Options => SkillConfigurationResolver.Get<NightmareOptions>(BuiltInSkillIds.Nightmare);
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly ConcurrentDictionary<uint, uint> targetVolumes = [];

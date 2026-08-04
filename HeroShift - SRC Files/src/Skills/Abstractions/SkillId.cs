@@ -3,16 +3,13 @@ namespace src.SkillsCore.Abstractions;
 /*
  * SkillId - the canonical, stable identity for a skill.
  *
- * Replaces string-based lookups keyed on the Skills enum's ToString() or a
- * class/file name coincidence (see legacy src/player/ISkill.cs Skills enum
- * and src/HeroShift.cs SkillAction). Values are lowercase-invariant so
+ * Replaces the previous enum, class-name and file-name identity coincidence.
+ * Values are lowercase-invariant so
  * command-line input, JSON override keys and console output all compare
  * equal regardless of the caller's casing.
  *
- * During the migration (REFACTOR.md commits 2-13) this type is created
- * alongside the legacy Skills enum, not instead of it - existing code keeps
- * working until every skill and consumer has moved over (removal happens in
- * the "remove legacy configuration and dispatch" commit).
+ * BuiltInSkillIds is the compile-time source for built-in IDs. TryParse exists
+ * only for external user and configuration input.
  */
 public readonly record struct SkillId : IComparable<SkillId>
 {

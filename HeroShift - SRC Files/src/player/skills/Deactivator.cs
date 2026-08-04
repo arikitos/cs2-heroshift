@@ -33,7 +33,7 @@ namespace src.player.skills
      */
     public class Deactivator : ISkill
     {
-        private const Skills skillName = Skills.Deactivator;
+        private static readonly SkillId skillName = BuiltInSkillIds.Deactivator;
 
         public static void LoadSkill()
         {
@@ -133,7 +133,7 @@ namespace src.player.skills
         {
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
-            playerInfo.SpecialSkill = Skills.None;
+            playerInfo.SpecialSkill = BuiltInSkillIds.None;
             SkillUtils.CloseMenu(player);
         }
 
@@ -147,7 +147,7 @@ namespace src.player.skills
 
             if (playerInfo != null)
             {
-                playerInfo.Skill = Skills.None;
+                playerInfo.Skill = BuiltInSkillIds.None;
                 playerInfo.SpecialSkill = skillName;
                 playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("deactivator_player_info", enemy.PlayerName));
             }
@@ -156,7 +156,7 @@ namespace src.player.skills
             {
                 Instance.InvokeDisableSkill(enemyInfo.Skill, enemy);
                 enemyInfo.SpecialSkill = enemyInfo.Skill;
-                enemyInfo.Skill = Skills.None;
+                enemyInfo.Skill = BuiltInSkillIds.None;
 
                 var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
                 if (enemyEvent == null || !enemyEvent.IsValid) return;

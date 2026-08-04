@@ -42,7 +42,7 @@ namespace src.player.skills
      */
     public class LongKnife : ISkill
     {
-        private const Skills skillName = Skills.LongKnife;
+        private static readonly SkillId skillName = BuiltInSkillIds.LongKnife;
 
         private static LongKnifeOptions Options => SkillConfigurationResolver.Get<LongKnifeOptions>(BuiltInSkillIds.LongKnife);
         private static bool hooked = false;

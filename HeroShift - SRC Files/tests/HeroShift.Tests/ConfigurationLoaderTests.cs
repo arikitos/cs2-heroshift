@@ -119,4 +119,42 @@ public class ConfigurationLoaderTests
     {
         Assert.Throws<ConfigurationValidationException>(() => ConfigurationLoader.LoadFromJson("{ not valid json", null));
     }
+
+    [Fact]
+    public void LoadFromJson_NormalizesAliasesAndLanguage()
+    {
+        const string json = """
+        {
+          "general": { "language": "HE_il" },
+          "commands": {
+            "healCommand": { "aliases": ["  HEALME  "] }
+          }
+        }
+        """;
+
+        var snapshot = ConfigurationLoader.LoadFromJson(json, null);
+        Assert.Equal("HE_il", snapshot.Configuration.General.Language);
+        Assert.Equal(["healme"], snapshot.Configuration.Commands.HealCommand.Aliases);
+    }
+
+    [Fact]
+    public void LoadFromJson_DuplicateAliasAcrossCommandAndVoting_Throws()
+    {
+        const string json = """
+        {
+          "commands": { "healCommand": { "aliases": ["start"] } }
+        }
+        """;
+
+        var ex = Assert.Throws<ConfigurationValidationException>(() => ConfigurationLoader.LoadFromJson(json, null));
+        Assert.Contains(ex.Errors, error => error.Contains("already registered"));
+    }
+
+    [Fact]
+    public void LoadFromJson_InvalidLanguageName_Throws()
+    {
+        const string json = """{ "general": { "language": "../he" } }""";
+        var ex = Assert.Throws<ConfigurationValidationException>(() => ConfigurationLoader.LoadFromJson(json, null));
+        Assert.Contains(ex.Errors, error => error.Contains("general.language"));
+    }
 }
