@@ -3,7 +3,7 @@ name: Refactor Validation
 on:
   workflow_dispatch:
   push:
-    branches: [development]
+    branches: [main, development]
   pull_request:
     branches: [main]
 

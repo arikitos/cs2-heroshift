@@ -50,3 +50,4 @@ All notable changes to this project are documented in this file.
 - Normalize package manifest paths across Windows and Linux and reject unexpected, missing, PDB, or XML files from release archives.
 - Repair the captured global configuration baseline so it is valid deterministic JSON and enforce every canonical global, HUD, chat, command, and voting default against it.
 - Characterize the 19 intentional `PlayerDisconnect` cleanup hooks separately while preserving strict baseline equality for every gameplay hook.
+- Run the full refactor validation workflow for direct updates to both `main` and `development`.
