@@ -34,6 +34,7 @@ public static class DeafDefinition
             NewRound = Deaf.NewRound,
             PlayerMakeSound = Deaf.PlayerMakeSound,
             PlayerDeath = Deaf.PlayerDeath,
+            PlayerDisconnect = Deaf.PlayerDisconnect,
         },
     };
 }

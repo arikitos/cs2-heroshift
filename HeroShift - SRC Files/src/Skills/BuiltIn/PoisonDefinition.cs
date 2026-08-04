@@ -36,6 +36,7 @@ public static class PoisonDefinition
             OnTick = Poison.OnTick,
             NewRound = Poison.NewRound,
             PlayerDeath = Poison.PlayerDeath,
+            PlayerDisconnect = Poison.PlayerDisconnect,
         },
     };
 }

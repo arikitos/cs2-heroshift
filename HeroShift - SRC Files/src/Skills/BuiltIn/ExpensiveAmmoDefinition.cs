@@ -35,6 +35,7 @@ public static class ExpensiveAmmoDefinition
             NewRound = ExpensiveAmmo.NewRound,
             PlayerDeath = ExpensiveAmmo.PlayerDeath,
             WeaponFire = ExpensiveAmmo.WeaponFire,
+            PlayerDisconnect = ExpensiveAmmo.PlayerDisconnect,
         },
     };
 }

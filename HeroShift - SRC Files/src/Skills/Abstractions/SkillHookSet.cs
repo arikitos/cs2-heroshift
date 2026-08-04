@@ -45,6 +45,7 @@ public sealed class SkillHookSet
     public Action<EventPlayerJump>? PlayerJump { get; init; }
     public Action<EventSwitchTeam, GameEventInfo>? SwitchTeam { get; init; }
     public Action<EventBotTakeover>? BotTakeover { get; init; }
+    public Action<uint>? PlayerDisconnect { get; init; }
 
     // ---- Weapon / grenade events ----------------------------------------
     public Action<EventWeaponFire>? WeaponFire { get; init; }

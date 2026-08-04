@@ -34,6 +34,7 @@ public static class JumpBanDefinition
             NewRound = JumpBan.NewRound,
             PlayerDeath = JumpBan.PlayerDeath,
             PlayerJump = JumpBan.PlayerJump,
+            PlayerDisconnect = JumpBan.PlayerDisconnect,
         },
     };
 }

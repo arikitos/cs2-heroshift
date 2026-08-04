@@ -188,6 +188,7 @@ namespace src
                 nameof(SkillHookSet.PlayerJump) => Invoke(definition.Hooks.PlayerJump, Arg<EventPlayerJump>(param, 0)),
                 nameof(SkillHookSet.SwitchTeam) => Invoke(definition.Hooks.SwitchTeam, Arg<EventSwitchTeam>(param, 0), Arg<GameEventInfo>(param, 1)),
                 nameof(SkillHookSet.BotTakeover) => Invoke(definition.Hooks.BotTakeover, Arg<EventBotTakeover>(param, 0)),
+                nameof(SkillHookSet.PlayerDisconnect) => Invoke(definition.Hooks.PlayerDisconnect, Arg<uint>(param, 0)),
                 nameof(SkillHookSet.WeaponFire) => Invoke(definition.Hooks.WeaponFire, Arg<EventWeaponFire>(param, 0)),
                 nameof(SkillHookSet.WeaponEquip) => Invoke(definition.Hooks.WeaponEquip, Arg<EventItemEquip>(param, 0)),
                 nameof(SkillHookSet.WeaponPickup) => Invoke(definition.Hooks.WeaponPickup, Arg<EventItemPickup>(param, 0)),

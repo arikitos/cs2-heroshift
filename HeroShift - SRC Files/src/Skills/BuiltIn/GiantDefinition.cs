@@ -34,6 +34,7 @@ public static class GiantDefinition
             TypeSkill = Giant.TypeSkill,
             OnTick = Giant.OnTick,
             NewRound = Giant.NewRound,
+            PlayerDisconnect = Giant.PlayerDisconnect,
         },
     };
 }

@@ -34,6 +34,7 @@ public static class GlitchDefinition
             NewRound = Glitch.NewRound,
             PlayerDeath = Glitch.PlayerDeath,
             BotTakeover = Glitch.BotTakeover,
+            PlayerDisconnect = Glitch.PlayerDisconnect,
         },
     };
 }

@@ -38,6 +38,7 @@ public static class DarknessDefinition
             NewRound = Darkness.NewRound,
             PlayerDeath = Darkness.PlayerDeath,
             BotTakeover = Darkness.BotTakeover,
+            PlayerDisconnect = Darkness.PlayerDisconnect,
         },
     };
 }

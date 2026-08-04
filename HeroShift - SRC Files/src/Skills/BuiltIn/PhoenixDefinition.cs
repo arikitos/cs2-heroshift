@@ -33,6 +33,7 @@ public static class PhoenixDefinition
             DisableSkill = Phoenix.DisableSkill,
             OnTakeDamage = Phoenix.OnTakeDamage,
             NewRound = Phoenix.NewRound,
+            PlayerDisconnect = Phoenix.PlayerDisconnect,
         },
     };
 }

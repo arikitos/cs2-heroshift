@@ -32,6 +32,7 @@ public static class BunnyHopDefinition
             LoadSkill = BunnyHop.LoadSkill,
             OnTick = BunnyHop.OnTick,
             NewRound = BunnyHop.NewRound,
+            PlayerDisconnect = BunnyHop.PlayerDisconnect,
         },
     };
 }

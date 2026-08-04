@@ -34,6 +34,7 @@ public static class SpectatorDefinition
             OnTick = Spectator.OnTick,
             NewRound = Spectator.NewRound,
             WeaponPickup = Spectator.WeaponPickup,
+            PlayerDisconnect = Spectator.PlayerDisconnect,
         },
     };
 }

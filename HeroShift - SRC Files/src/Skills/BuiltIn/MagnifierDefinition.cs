@@ -35,6 +35,7 @@ public static class MagnifierDefinition
             NewRound = Magnifier.NewRound,
             PlayerDeath = Magnifier.PlayerDeath,
             BotTakeover = Magnifier.BotTakeover,
+            PlayerDisconnect = Magnifier.PlayerDisconnect,
         },
     };
 }

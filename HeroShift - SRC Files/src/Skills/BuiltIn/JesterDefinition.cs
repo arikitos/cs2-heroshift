@@ -36,6 +36,7 @@ public static class JesterDefinition
             PlayerHurtPre = Jester.PlayerHurtPre,
             BombBeginplant = Jester.BombBeginplant,
             BombBegindefuse = Jester.BombBegindefuse,
+            PlayerDisconnect = Jester.PlayerDisconnect,
         },
     };
 }

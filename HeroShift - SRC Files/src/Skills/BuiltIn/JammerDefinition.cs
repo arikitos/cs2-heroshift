@@ -34,6 +34,7 @@ public static class JammerDefinition
             NewRound = Jammer.NewRound,
             PlayerDeath = Jammer.PlayerDeath,
             BotTakeover = Jammer.BotTakeover,
+            PlayerDisconnect = Jammer.PlayerDisconnect,
         },
     };
 }

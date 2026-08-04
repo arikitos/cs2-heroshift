@@ -34,6 +34,7 @@ public static class PrimaryBanDefinition
             NewRound = PrimaryBan.NewRound,
             PlayerDeath = PrimaryBan.PlayerDeath,
             WeaponEquip = PrimaryBan.WeaponEquip,
+            PlayerDisconnect = PrimaryBan.PlayerDisconnect,
         },
     };
 }

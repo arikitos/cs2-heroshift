@@ -39,6 +39,7 @@ public static class TripwireDefinition
             OnTick = Tripwire.OnTick,
             NewRound = Tripwire.NewRound,
             PlayerDeath = Tripwire.PlayerDeath,
+            PlayerDisconnect = Tripwire.PlayerDisconnect,
         },
     };
 }

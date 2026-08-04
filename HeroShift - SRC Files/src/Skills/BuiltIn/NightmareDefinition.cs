@@ -38,6 +38,7 @@ public static class NightmareDefinition
             CheckTransmit = Nightmare.CheckTransmit,
             NewRound = Nightmare.NewRound,
             PlayerDeath = Nightmare.PlayerDeath,
+            PlayerDisconnect = Nightmare.PlayerDisconnect,
         },
     };
 }

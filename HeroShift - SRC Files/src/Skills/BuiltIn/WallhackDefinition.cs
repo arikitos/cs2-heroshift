@@ -32,6 +32,7 @@ public static class WallhackDefinition
             CheckTransmit = Wallhack.CheckTransmit,
             NewRound = Wallhack.NewRound,
             PlayerDeath = Wallhack.PlayerDeath,
+            PlayerDisconnect = Wallhack.PlayerDisconnect,
         },
     };
 }

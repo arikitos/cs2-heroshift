@@ -30,6 +30,7 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- Preserve player-disconnect cleanup for all 19 stateful skills by registering and invoking the typed `PlayerDisconnect` hook.
 - Repair runtime-cutover compilation by importing the legacy Skill identity into the compatibility facade and defining the typed max-distance contract used by RayTrace skills.
 - Generate runtime-cutover payloads from the staged index so new configuration, compatibility, test, and server-resource files are included alongside tracked modifications.
 - Decouple runtime-cutover code application from changelog context and update `Unreleased` idempotently after the reviewed patch applies.

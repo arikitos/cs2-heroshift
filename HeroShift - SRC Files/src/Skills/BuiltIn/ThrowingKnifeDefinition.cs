@@ -38,6 +38,7 @@ public static class ThrowingKnifeDefinition
             PlayerMakeSound = ThrowingKnife.PlayerMakeSound,
             OnTriggerEnter = ThrowingKnife.OnTriggerEnter,
             OnWeaponCanAcquire = ThrowingKnife.OnWeaponCanAcquire,
+            PlayerDisconnect = ThrowingKnife.PlayerDisconnect,
         },
     };
 }

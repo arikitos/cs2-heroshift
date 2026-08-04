@@ -35,6 +35,7 @@ public static class JumpCurseDefinition
             NewRound = JumpCurse.NewRound,
             PlayerDeath = JumpCurse.PlayerDeath,
             PlayerJump = JumpCurse.PlayerJump,
+            PlayerDisconnect = JumpCurse.PlayerDisconnect,
         },
     };
 }
