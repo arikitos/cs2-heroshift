@@ -6,7 +6,15 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
-- Remove the one-time v1.0.0 replacement workflow after publishing the verified production artifact.
+* Normalize the repository into root solution, source, test, configuration, documentation, and license directories.
+* Move all packaging behavior into the root release script and publish GitHub releases directly from that script.
+* Replace refactor specific validation and tag release workflows with a normal continuous integration workflow.
+
+### Removed
+
+* Remove the obsolete refactor plan, migration inventory, extraction tool, redundant project solution, and empty generated resource files.
+* Remove the fully commented and unregistered Mute implementation.
+* Remove the scripts and packaging directories.
 
 ## [1.0.0] - 2026-08-04
 

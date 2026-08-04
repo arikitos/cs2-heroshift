@@ -1,4 +1,3 @@
-# Ignore build outputs recursively
 **/bin/
 **/obj/
 **/publish/
@@ -6,12 +5,6 @@
 **/out/
 **/TestResults/
 
-HeroShift\ -\ SRC Files/*/bin/
-HeroShift\ -\ SRC Files/*/obj/
-WASDMenuAPI\ -\ SRC Files/*/bin/
-WASDMenuAPI\ -\ SRC Files/*/obj/
-
-# .NET / MSBuild artifacts
 *.exe
 *.pdb
 *.nupkg
@@ -19,7 +12,6 @@ WASDMenuAPI\ -\ SRC Files/*/obj/
 project.lock.json
 project.fragment.lock.json
 
-# IDE / editor
 .vs/
 .vscode/
 .idea/
@@ -27,7 +19,6 @@ project.fragment.lock.json
 *.user
 *.userosscache
 
-# Logs, caches, temp
 *.log
 debug_*.txt
 perf_*.txt
@@ -35,7 +26,8 @@ perf_*.txt
 *.tmp
 *.temp
 
-# Other common ignores
 node_modules/
 dist/
 .env
+
+/HeroShift-v*.zip

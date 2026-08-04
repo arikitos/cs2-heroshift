@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore HeroShift.sln
+
+      - name: Test
+        run: dotnet test HeroShift.sln -c Release --no-restore
+
+      - name: Build Debug
+        run: dotnet build HeroShift.sln -c Debug --no-restore
+
+      - name: Build Release
+        run: dotnet build HeroShift.sln -c Release --no-restore
+
+      - name: Validate repository structure
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(grep -c 'registry.Register(' src/HeroShift/Skills/BuiltInSkillCatalog.cs)" -eq 142
+          test ! -e scripts
+          test ! -e packaging
+          test ! -e REFACTOR.md
+          test ! -e 'HeroShift - SRC Files'
+          test ! -e 'WASDMenuAPI - SRC Files'
+          test ! -e src/HeroShift/Runtime/Skills/Mute.cs
+          ! grep -RIn --include='*.cs' -E '\bSkillsInfo\b|\bSkillAction\b|MethodInfo\.Invoke|public class SkillConfig\b|public static class Config([[:space:]]|$)|public enum Skills\b|\bjSkill_(PlayerInfo|SkillInfo)\b|\bLegacySkill\b' src/HeroShift
+
+      - name: Validate release package
+        if: runner.os == 'Linux'
+        shell: pwsh
+        run: |
+          ./release.ps1 -Version 0.0.0 -Configuration Release -NoBuild -NoPublish
+          $zip = Join-Path $PWD 'HeroShift-v0.0.0.zip'
+          if (-not (Test-Path -LiteralPath $zip -PathType Leaf)) { throw 'Release archive was not created in the repository root.' }
+          $extract = Join-Path $env:RUNNER_TEMP 'heroshift-release-check'
+          Expand-Archive -LiteralPath $zip -DestinationPath $extract -Force
+          $manifest = Get-Content -Raw -LiteralPath (Join-Path $extract 'package-manifest.json') | ConvertFrom-Json
+          $required = @(
+            'addons/counterstrikesharp/gamedata/HeroShift.gamedata.json',
+            'addons/counterstrikesharp/plugins/HeroShift/HeroShift.dll',
+            'addons/counterstrikesharp/plugins/HeroShift/Newtonsoft.Json.dll',
+            'addons/counterstrikesharp/plugins/HeroShift/WASDMenuAPI.dll',
+            'addons/counterstrikesharp/plugins/HeroShift/configs/heroshift.json',
+            'addons/counterstrikesharp/plugins/RayTraceImpl/RayTraceImpl.dll',
+            'addons/counterstrikesharp/shared/RayTraceApi/RayTraceApi.dll',
+            'addons/metamod/RayTrace.vdf',
+            'addons/RayTrace/gamedata.json',
+            'addons/RayTrace/bin/linuxsteamrt64/RayTrace.so'
+          )
+          foreach ($path in $required) {
+            if ($path -notin @($manifest.files.path)) { throw "Required package file is missing: $path" }
+          }
+          Remove-Item -LiteralPath $zip -Force
