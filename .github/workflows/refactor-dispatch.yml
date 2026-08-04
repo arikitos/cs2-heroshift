@@ -1,0 +1,100 @@
+name: Refactor Typed Dispatch
+
+on:
+  pull_request:
+    branches: [main]
+    types: [edited]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: refactor-typed-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'refactor' &&
+      github.event.pull_request.user.login == 'arikitos' &&
+      contains(github.event.pull_request.body || '', '<!-- dispatch:typed-bridge -->')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout refactor
+        uses: actions/checkout@v4
+        with:
+          ref: refactor
+          fetch-depth: 0
+
+      - name: Apply typed dispatch bridge
+        shell: bash
+        run: |
+          base64 --decode tools/refactor-dispatch/typed-bridge.patch.gz.b64 \
+            | gzip --decompress > typed-bridge.patch
+          git apply --check typed-bridge.patch
+          git apply typed-bridge.patch
+          rm typed-bridge.patch
+          rm tools/refactor-dispatch/typed-bridge.patch.gz.b64
+
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('CHANGELOG.md')
+          text = path.read_text(encoding='utf-8')
+          entry = '- Replace assembly scanning and `MethodInfo.Invoke` in the compatibility skill dispatcher with explicit typed delegates resolved from `SkillRegistry`.'
+          if entry not in text:
+              text = text.replace('### Changed\n\n', f'### Changed\n\n{entry}\n\n', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          git diff --check
+
+      - name: Validate dispatch invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          file='HeroShift - SRC Files/src/HeroShift.cs'
+          ! grep -Fq 'using System.Reflection;' "$file"
+          ! grep -Fq 'MethodInfo' "$file"
+          ! grep -Fq 'Assembly.GetExecutingAssembly' "$file"
+          grep -Fq 'SkillRegistry = BuiltInSkillCatalog.BuildRegistry();' "$file"
+          grep -Fq 'new SkillDispatcher(SkillRegistry, Server.PrintToConsole)' "$file"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore "HeroShift - SRC Files/HeroShift.sln"
+
+      - name: Test
+        run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Build
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Commit typed dispatch bridge
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'refactor: replace reflection skill dispatch'
+          git push origin HEAD:refactor
+
+      - name: Clear dispatch request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const cleaned = body.replace('<!-- dispatch:typed-bridge -->', '<!-- dispatch:typed-bridge-complete -->');
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              body: cleaned,
+            });
