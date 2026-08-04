@@ -22,6 +22,7 @@ All notable changes to this project are documented in this file.
 
 ### Fixed
 
+- Repair runtime-cutover compilation by importing the legacy Skill identity into the compatibility facade and defining the typed max-distance contract used by RayTrace skills.
 - Generate runtime-cutover payloads from the staged index so new configuration, compatibility, test, and server-resource files are included alongside tracked modifications.
 - Decouple runtime-cutover code application from changelog context and update `Unreleased` idempotently after the reviewed patch applies.
 - Make runtime-cutover invariant checks deterministic and diagnostic, reporting the exact missing file, initialization, or remaining legacy dependency.
