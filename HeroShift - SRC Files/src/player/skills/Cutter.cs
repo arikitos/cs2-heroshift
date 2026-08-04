@@ -31,7 +31,7 @@ namespace src.player.skills
      */
     public class Cutter : ISkill
     {
-        private const Skills skillName = Skills.Cutter;
+        private static readonly SkillId skillName = BuiltInSkillIds.Cutter;
 
         public static void LoadSkill()
         {

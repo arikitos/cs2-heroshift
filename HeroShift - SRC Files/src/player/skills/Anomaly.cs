@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class Anomaly : ISkill
     {
-        private const Skills skillName = Skills.Anomaly;
+        private static readonly SkillId skillName = BuiltInSkillIds.Anomaly;
         private static AnomalyOptions Options => SkillConfigurationResolver.Get<AnomalyOptions>(BuiltInSkillIds.Anomaly);
         private static readonly float tickRate = 64;
 

@@ -33,7 +33,7 @@ namespace src.player.skills
      */
     public class Glitch : ISkill
     {
-        private const Skills skillName = Skills.Glitch;
+        private static readonly SkillId skillName = BuiltInSkillIds.Glitch;
         private static readonly ConcurrentDictionary<uint, byte> glitchedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();

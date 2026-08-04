@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class AimLock : ISkill
     {
-        private const Skills skillName = Skills.AimLock;
+        private static readonly SkillId skillName = BuiltInSkillIds.AimLock;
         private static AimLockOptions Options => SkillConfigurationResolver.Get<AimLockOptions>(BuiltInSkillIds.AimLock);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

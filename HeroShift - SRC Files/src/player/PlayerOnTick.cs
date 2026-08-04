@@ -52,36 +52,47 @@ namespace src.player
         // Registers the HUD tick listener and the map start/end hooks.
         public static void Load()
         {
-            Instance.RegisterListener<OnTick>(() =>
-            {
-                // GameRules is checked every tick (cheap, and other code depends on it);
-                // the HUD itself only refreshes on even ticks.
-                UpdateGameRules();
-                if (Server.TickCount % 2 != 0) return;
-
-                // ~every 30 seconds at 64 tick: entity leak watchdog. Compares the total
-                // live server entities against what EntityManager believes it owns.
-                if (PerfLog.Enabled && Server.TickCount % 1920 == 0)
-                {
-                    int server = Utilities.GetAllEntities().Count(e => e != null && e.IsValid);
-                    var (tracked, owners) = EntityManager.GetStatistics();
-                    PerfLog.Info($"ENTITIES server={server} tracked={tracked} owners={owners}");
-                }
-
-                long perfStart = PerfLog.Start();
-                // Shared per-tick controller snapshot: the skill OnTick loop already scans the
-                // player list this frame, so reuse that native scan instead of running a second one.
-                var now = DateTime.Now;
-                foreach (var player in PlayerManager.GetTickPlayers())
-                {
-                    if (player != null && player.IsValid)
-                        UpdatePlayerHud(player, now);
-                }
-                PerfLog.Sample("OnTick(hud)", perfStart);
-            });
+            Instance.RegisterListener<OnTick>(Tick);
 
             Instance.RegisterListener<OnMapStart>(OnMapStart);
             Instance.RegisterListener<OnMapEnd>(OnMapEnd);
+        }
+
+        public static void Unload()
+        {
+            BotManager.Stop();
+            Instance.RemoveListener<OnTick>(Tick);
+            Instance.RemoveListener<OnMapStart>(OnMapStart);
+            Instance.RemoveListener<OnMapEnd>(OnMapEnd);
+            Instance.GameRules = null;
+        }
+
+        private static void Tick()
+        {
+            // GameRules is checked every tick (cheap, and other code depends on it);
+            // the HUD itself only refreshes on even ticks.
+            UpdateGameRules();
+            if (Server.TickCount % 2 != 0) return;
+
+            // ~every 30 seconds at 64 tick: entity leak watchdog. Compares the total
+            // live server entities against what EntityManager believes it owns.
+            if (PerfLog.Enabled && Server.TickCount % 1920 == 0)
+            {
+                int server = Utilities.GetAllEntities().Count(e => e != null && e.IsValid);
+                var (tracked, owners) = EntityManager.GetStatistics();
+                PerfLog.Info($"ENTITIES server={server} tracked={tracked} owners={owners}");
+            }
+
+            long perfStart = PerfLog.Start();
+            // Shared per-tick controller snapshot: the skill OnTick loop already scans the
+            // player list this frame, so reuse that native scan instead of running a second one.
+            var now = DateTime.Now;
+            foreach (var player in PlayerManager.GetTickPlayers())
+            {
+                if (player != null && player.IsValid)
+                    UpdatePlayerHud(player, now);
+            }
+            PerfLog.Sample("OnTick(hud)", perfStart);
         }
 
         // Dropping GameRules forces UpdateGameRules to re-resolve it from the new map's
@@ -203,7 +214,7 @@ namespace src.player
                         // Third line is either the hero's own live text (PrintHTML, set by
                         // the hero itself) or the static description. isDescription only
                         // selects which font/colour block the HUD builder uses.
-                        if (skillInfo.Skill != Skills.None)
+                        if (skillInfo.Skill != BuiltInSkillIds.None)
                         {
                             remainingLine = string.IsNullOrEmpty(skillPlayer.PrintHTML)
                                 ? (showDescriptionHUD ? player.GetSkillDescription(skillInfo.Skill, skillPlayer.SkillChance) : "")
@@ -250,12 +261,12 @@ namespace src.player
                     if (observedSkill == null) return;
 
                     var observedSkillInfo = SkillData.GetInfo(observedSkill.Skill);
-                    var observedSpecialInfo = observedSkill.SpecialSkill != Skills.None
+                    var observedSpecialInfo = observedSkill.SpecialSkill != BuiltInSkillIds.None
                         ? SkillData.GetInfo(observedSkill.SpecialSkill)
                         : null;
 
                     string primaryName = player.GetSkillName(observedSkill.Skill, observedSkill.SkillChance);
-                    string primaryColor = observedSkillInfo?.Color ?? SkillRuntime.GetMetadata(Skills.None).Color;
+                    string primaryColor = observedSkillInfo?.Color ?? SkillRuntime.GetMetadata(BuiltInSkillIds.None).Color;
                     // The HUD is real HTML, so a nickname containing < or & must be encoded
                     // or it would break the markup. Names are also truncated so a long one
                     // cannot push the hero name out of the box.
@@ -268,7 +279,7 @@ namespace src.player
                     infoLine = string.IsNullOrEmpty(observerSkill) ? pName : $"{observerSkill} {pName}";
 
                     // A transformed player is shown as "original(current)".
-                    if (observedSkill.SpecialSkill == Skills.None || observedSpecialInfo == null)
+                    if (observedSkill.SpecialSkill == BuiltInSkillIds.None || observedSpecialInfo == null)
                         skillLine = $"<font color='{primaryColor}'>{primaryName}</font>";
                     else
                     {

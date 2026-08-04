@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class SniperElite : ISkill
     {
-        private const Skills skillName = Skills.SniperElite;
+        private static readonly SkillId skillName = BuiltInSkillIds.SniperElite;
         private static readonly ConcurrentDictionary<uint, List<uint>> playerAWPIndexes = [];
         private static readonly ConcurrentDictionary<uint, string> savedWeapons = [];
         private static readonly ConcurrentDictionary<uint, byte> isProcessing = [];

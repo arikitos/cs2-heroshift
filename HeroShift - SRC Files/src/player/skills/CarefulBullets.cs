@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class CarefulBullets : ISkill
     {
-        private const Skills skillName = Skills.CarefulBullets;
+        private static readonly SkillId skillName = BuiltInSkillIds.CarefulBullets;
         private static CarefulBulletsOptions Options => SkillConfigurationResolver.Get<CarefulBulletsOptions>(BuiltInSkillIds.CarefulBullets);
         private static readonly ConcurrentDictionary<uint, byte> targetPlayers = [];
         private static readonly ConcurrentDictionary<uint, bool> lastShot = [];

@@ -15,8 +15,8 @@ namespace src.player.skills
      */
     public class RadarHack : ISkill
     {
-        private const Skills skillName = Skills.RadarHack;
-        private static readonly Skills[] hidingSkills = [Skills.Ghost, Skills.Ninja, Skills.C4Camouflage];
+        private static readonly SkillId skillName = BuiltInSkillIds.RadarHack;
+        private static readonly SkillId[] hidingSkills = [BuiltInSkillIds.Ghost, BuiltInSkillIds.Ninja, BuiltInSkillIds.C4Camouflage];
 
         public static void LoadSkill()
         {

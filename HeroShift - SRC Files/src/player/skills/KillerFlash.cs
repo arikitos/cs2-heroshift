@@ -50,7 +50,7 @@ namespace src.player.skills
      */
     public class KillerFlash : ISkill
     {
-        private const Skills skillName = Skills.KillerFlash;
+        private static readonly SkillId skillName = BuiltInSkillIds.KillerFlash;
         private static KillerFlashOptions Options => SkillConfigurationResolver.Get<KillerFlashOptions>(BuiltInSkillIds.KillerFlash);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
@@ -70,7 +70,7 @@ namespace src.player.skills
 
             if (!Options.FriendlyFire && player!.Team == attacker!.Team) return;
 
-            if (attackerInfo?.Skill == skillName && playerInfo?.Skill != Skills.AntyFlash && player!.PlayerPawn.Value!.FlashDuration >= Options.FlashDuration)
+            if (attackerInfo?.Skill == skillName && playerInfo?.Skill != BuiltInSkillIds.AntyFlash && player!.PlayerPawn.Value!.FlashDuration >= Options.FlashDuration)
                 SkillUtils.TakeHealth(player.PlayerPawn.Value, 9999, attacker, KillfeedIcons.Flashbang);
         }
 

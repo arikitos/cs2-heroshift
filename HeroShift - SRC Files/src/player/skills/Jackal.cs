@@ -41,7 +41,7 @@ namespace src.player.skills
      */
     public class Jackal : ISkill
     {
-        private const Skills skillName = Skills.Jackal;
+        private static readonly SkillId skillName = BuiltInSkillIds.Jackal;
         private static JackalOptions Options => SkillConfigurationResolver.Get<JackalOptions>(BuiltInSkillIds.Jackal);
         private static Timer? mainSkillTimer = null;
         private static readonly ConcurrentDictionary<uint, uint?> activeTrails = [];

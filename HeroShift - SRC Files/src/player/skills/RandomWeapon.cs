@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class RandomWeapon : ISkill
     {
-        private const Skills skillName = Skills.RandomWeapon;
+        private static readonly SkillId skillName = BuiltInSkillIds.RandomWeapon;
         private static RandomWeaponOptions Options => SkillConfigurationResolver.Get<RandomWeaponOptions>(BuiltInSkillIds.RandomWeapon);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = new();
         private static readonly object setLock = new();

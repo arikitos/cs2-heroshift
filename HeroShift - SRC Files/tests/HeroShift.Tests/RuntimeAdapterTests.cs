@@ -19,11 +19,13 @@ public sealed class RuntimeAdapterTests
         });
 
         Assert.Equal(0, created);
+        Assert.Equal("not loaded", service.Status);
         Assert.False(service.HasMenu(null));
         Assert.Equal(1, created);
 
         service.CloseMenu(null);
         service.SetPaused(null, true);
+        service.Unload();
 
         Assert.Equal(1, manager.CloseCalls);
         Assert.Equal(1, manager.PauseCalls);

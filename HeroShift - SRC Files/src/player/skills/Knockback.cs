@@ -35,7 +35,7 @@ namespace src.player.skills
      */
     public class Knockback : ISkill
     {
-        private const Skills skillName = Skills.Knockback;
+        private static readonly SkillId skillName = BuiltInSkillIds.Knockback;
 
         private static KnockbackOptions Options => SkillConfigurationResolver.Get<KnockbackOptions>(BuiltInSkillIds.Knockback);
         public static void LoadSkill()

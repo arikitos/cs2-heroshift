@@ -33,7 +33,7 @@ namespace src.player.skills
      */
     public class JumpingJack : ISkill
     {
-        private const Skills skillName = Skills.JumpingJack;
+        private static readonly SkillId skillName = BuiltInSkillIds.JumpingJack;
 
         private static JumpingJackOptions Options => SkillConfigurationResolver.Get<JumpingJackOptions>(BuiltInSkillIds.JumpingJack);
         public static void LoadSkill()

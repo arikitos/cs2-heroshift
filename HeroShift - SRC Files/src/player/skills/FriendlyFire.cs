@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class FriendlyFire : ISkill
     {
-        private const Skills skillName = Skills.FriendlyFire;
+        private static readonly SkillId skillName = BuiltInSkillIds.FriendlyFire;
         private static FriendlyFireOptions Options => SkillConfigurationResolver.Get<FriendlyFireOptions>(BuiltInSkillIds.FriendlyFire);
         private static bool defaultAutoKick = true;
         private static bool autoKickOverridden;

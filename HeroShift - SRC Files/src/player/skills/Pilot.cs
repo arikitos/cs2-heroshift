@@ -41,7 +41,7 @@ namespace src.player.skills
      */
     public class Pilot : ISkill
     {
-        private const Skills skillName = Skills.Pilot;
+        private static readonly SkillId skillName = BuiltInSkillIds.Pilot;
         private static PilotOptions Options => SkillConfigurationResolver.Get<PilotOptions>(BuiltInSkillIds.Pilot);
         private static readonly ConcurrentDictionary<uint, Pilot_PlayerInfo> PlayerPilotInfo = [];
 

@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class QuickShot : ISkill
     {
-        private const Skills skillName = Skills.QuickShot;
+        private static readonly SkillId skillName = BuiltInSkillIds.QuickShot;
 
         public static void LoadSkill()
         {

@@ -42,7 +42,7 @@ namespace src.player.skills
      */
     public class Fortnite : ISkill
     {
-        private const Skills skillName = Skills.Fortnite;
+        private static readonly SkillId skillName = BuiltInSkillIds.Fortnite;
         private static FortniteOptions Options => SkillConfigurationResolver.Get<FortniteOptions>(BuiltInSkillIds.Fortnite);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<uint, int> barricades = [];

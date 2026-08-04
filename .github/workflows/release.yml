@@ -47,7 +47,7 @@ jobs:
         run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
 
       - name: Build
-        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore -p:Version=${{ steps.vars.outputs.version }}
 
       - name: Package
         shell: pwsh

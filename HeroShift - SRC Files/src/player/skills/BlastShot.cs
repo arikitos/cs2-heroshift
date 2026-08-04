@@ -52,7 +52,7 @@ namespace src.player.skills
      */
     public class BlastShot : ISkill
     {
-        private const Skills skillName = Skills.BlastShot;
+        private static readonly SkillId skillName = BuiltInSkillIds.BlastShot;
         private static BlastShotOptions Options => SkillConfigurationResolver.Get<BlastShotOptions>(BuiltInSkillIds.BlastShot);
         private static readonly QAngle angle = new(13, -5, 5);
         private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];

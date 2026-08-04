@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class Retreat : ISkill
     {
-        private const Skills skillName = Skills.Retreat;
+        private static readonly SkillId skillName = BuiltInSkillIds.Retreat;
         private static RetreatOptions Options => SkillConfigurationResolver.Get<RetreatOptions>(BuiltInSkillIds.Retreat);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

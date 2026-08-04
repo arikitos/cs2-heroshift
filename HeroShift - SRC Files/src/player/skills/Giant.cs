@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class Giant : ISkill
     {
-        private const Skills skillName = Skills.Giant;
+        private static readonly SkillId skillName = BuiltInSkillIds.Giant;
         private static GiantOptions Options => SkillConfigurationResolver.Get<GiantOptions>(BuiltInSkillIds.Giant);
         private static readonly ConcurrentDictionary<uint, uint> enlargedEnemies = [];
         private static readonly object setLock = new();
@@ -146,7 +146,7 @@ namespace src.player.skills
                 return;
             }
 
-            if (PlayerManager.GetPlayerByIndex(enemy.Index)?.Skill == Skills.Chicken)
+            if (PlayerManager.GetPlayerByIndex(enemy.Index)?.Skill == BuiltInSkillIds.Chicken)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;
@@ -208,7 +208,7 @@ namespace src.player.skills
         private static CCSPlayerController[] GetSelectableEnemies(CCSPlayerController player)
         {
             return [.. SkillUtils.GetSelectableEnemies(player, true)
-                .Where(p => PlayerManager.GetPlayerByIndex(p.Index)?.Skill != Skills.Chicken)];
+                .Where(p => PlayerManager.GetPlayerByIndex(p.Index)?.Skill != BuiltInSkillIds.Chicken)];
         }
     }
 }

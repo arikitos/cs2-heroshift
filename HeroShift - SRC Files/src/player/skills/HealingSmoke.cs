@@ -45,7 +45,7 @@ namespace src.player.skills
      */
     public class HealingSmoke : ISkill
     {
-        private const Skills skillName = Skills.HealingSmoke;
+        private static readonly SkillId skillName = BuiltInSkillIds.HealingSmoke;
         private static HealingSmokeOptions Options => SkillConfigurationResolver.Get<HealingSmokeOptions>(BuiltInSkillIds.HealingSmoke);
         private static readonly ConcurrentDictionary<Vector, byte> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

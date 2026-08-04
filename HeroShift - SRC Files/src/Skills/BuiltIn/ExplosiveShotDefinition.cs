@@ -28,6 +28,7 @@ public static class ExplosiveShotDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new ExplosiveShotOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.ChanceFrom, options.ChanceTo, "chanceFrom", "chanceTo"),
         Hooks = new SkillHookSet
         {
             LoadSkill = ExplosiveShot.LoadSkill,

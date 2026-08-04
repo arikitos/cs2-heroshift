@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class Teleporter : ISkill
     {
-        private const Skills skillName = Skills.Teleporter;
+        private static readonly SkillId skillName = BuiltInSkillIds.Teleporter;
 
         private static TeleporterOptions Options => SkillConfigurationResolver.Get<TeleporterOptions>(BuiltInSkillIds.Teleporter);
         public static void LoadSkill()

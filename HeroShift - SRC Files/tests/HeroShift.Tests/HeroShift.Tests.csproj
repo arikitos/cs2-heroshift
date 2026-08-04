@@ -29,4 +29,9 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\tools\refactor-baseline\snapshot\baseline.json" Link="baseline.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\tools\refactor-baseline\snapshot\global-config-baseline.json" Link="global-config-baseline.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

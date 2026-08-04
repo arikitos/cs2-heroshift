@@ -36,7 +36,7 @@ namespace src.player.skills
      */
     public class ShortBomb : ISkill
     {
-        private const Skills skillName = Skills.ShortBomb;
+        private static readonly SkillId skillName = BuiltInSkillIds.ShortBomb;
         private static ShortBombOptions Options => SkillConfigurationResolver.Get<ShortBombOptions>(BuiltInSkillIds.ShortBomb);
         // mp_c4timer is an Int32 cvar; captured at load so restore never picks up another skill's override.
         private static int defaultC4Timer = 40;

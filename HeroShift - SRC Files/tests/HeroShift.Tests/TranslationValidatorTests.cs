@@ -54,4 +54,27 @@ public class TranslationValidatorTests
 
         Assert.Empty(TranslationValidator.FindPlaceholderMismatches(baseline, external));
     }
+
+    [Fact]
+    public void FindPlaceholderMismatches_DetectsNamedPlaceholderDifferences()
+    {
+        var baseline = TranslationCatalog.FromJson("""{ "welcome": "Hello {PLAYER} on {SERVER_NAME}" }""");
+        var external = TranslationCatalog.FromJson("""{ "welcome": "Hello {PLAYER}" }""");
+
+        Assert.Equal(["welcome"], TranslationValidator.FindPlaceholderMismatches(baseline, external));
+    }
+
+    [Fact]
+    public void FindMalformedFormatStrings_ReportsUnbalancedBraces()
+    {
+        var catalog = TranslationCatalog.FromJson("""{ "broken": "Hello {0" }""");
+        Assert.Contains(TranslationValidator.FindMalformedFormatStrings(catalog), error => error.Contains("broken"));
+    }
+
+    [Fact]
+    public void TranslationCatalog_RejectsDuplicateKeys()
+    {
+        Assert.Throws<Newtonsoft.Json.JsonReaderException>(() =>
+            TranslationCatalog.FromJson("""{ "same": "one", "same": "two" }"""));
+    }
 }

@@ -31,7 +31,7 @@ namespace src.player.skills
      */
     public class None : ISkill
     {
-        private const Skills skillName = Skills.None;
+        private static readonly SkillId skillName = BuiltInSkillIds.None;
 
         public static void LoadSkill()
         {

@@ -43,7 +43,7 @@ namespace src.player.skills
      */
     public class FrozenDecoy : ISkill
     {
-        private const Skills skillName = Skills.FrozenDecoy;
+        private static readonly SkillId skillName = BuiltInSkillIds.FrozenDecoy;
         private static FrozenDecoyOptions Options => SkillConfigurationResolver.Get<FrozenDecoyOptions>(BuiltInSkillIds.FrozenDecoy);
         private static readonly ConcurrentDictionary<Vector, byte> decoys = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

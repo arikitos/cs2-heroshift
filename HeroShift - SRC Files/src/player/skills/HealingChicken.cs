@@ -46,7 +46,7 @@ namespace src.player.skills
      */
     public class HealingChicken : ISkill
     {
-        private const Skills skillName = Skills.HealingChicken;
+        private static readonly SkillId skillName = BuiltInSkillIds.HealingChicken;
 
         private static HealingChickenOptions Options => SkillConfigurationResolver.Get<HealingChickenOptions>(BuiltInSkillIds.HealingChicken);
         private class ChickenState

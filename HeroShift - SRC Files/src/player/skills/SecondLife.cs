@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class SecondLife : ISkill
     {
-        private const Skills skillName = Skills.SecondLife;
+        private static readonly SkillId skillName = BuiltInSkillIds.SecondLife;
         private static SecondLifeOptions Options => SkillConfigurationResolver.Get<SecondLifeOptions>(BuiltInSkillIds.SecondLife);
         private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<nint, int> usedThisRound = [];

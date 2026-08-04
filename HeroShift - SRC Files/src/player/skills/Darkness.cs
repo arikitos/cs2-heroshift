@@ -45,7 +45,7 @@ namespace src.player.skills
      */
     public class Darkness : ISkill
     {
-        private const Skills skillName = Skills.Darkness;
+        private static readonly SkillId skillName = BuiltInSkillIds.Darkness;
         private static DarknessOptions Options => SkillConfigurationResolver.Get<DarknessOptions>(BuiltInSkillIds.Darkness);
         private static readonly ConcurrentDictionary<uint, byte> playersInDark = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];

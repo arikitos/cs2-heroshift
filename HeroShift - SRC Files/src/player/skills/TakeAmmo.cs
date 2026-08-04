@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class TakeAmmo : ISkill
     {
-        private const Skills skillName = Skills.TakeAmmo;
+        private static readonly SkillId skillName = BuiltInSkillIds.TakeAmmo;
         private static TakeAmmoOptions Options => SkillConfigurationResolver.Get<TakeAmmoOptions>(BuiltInSkillIds.TakeAmmo);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

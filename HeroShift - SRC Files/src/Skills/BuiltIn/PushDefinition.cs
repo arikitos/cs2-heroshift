@@ -36,6 +36,7 @@ public static class PushDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new PushOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.ChanceFrom, options.ChanceTo, "chanceFrom", "chanceTo"),
         Hooks = new SkillHookSet
         {
             LoadSkill = Push.LoadSkill,

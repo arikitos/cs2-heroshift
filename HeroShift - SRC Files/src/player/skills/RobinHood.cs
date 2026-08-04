@@ -36,7 +36,7 @@ namespace src.player.skills
      */
     public class RobinHood : ISkill
     {
-        private const Skills skillName = Skills.RobinHood;
+        private static readonly SkillId skillName = BuiltInSkillIds.RobinHood;
 
         private static RobinHoodOptions Options => SkillConfigurationResolver.Get<RobinHoodOptions>(BuiltInSkillIds.RobinHood);
         public static void LoadSkill()

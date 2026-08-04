@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class WeaponsSwap : ISkill
     {
-        private const Skills skillName = Skills.WeaponsSwap;
+        private static readonly SkillId skillName = BuiltInSkillIds.WeaponsSwap;
         private static WeaponsSwapOptions Options => SkillConfigurationResolver.Get<WeaponsSwapOptions>(BuiltInSkillIds.WeaponsSwap);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class Ghost : ISkill
     {
-        private const Skills skillName = Skills.Ghost;
+        private static readonly SkillId skillName = BuiltInSkillIds.Ghost;
         private static readonly string[] allowedWeapons = [
             "weapon_molotov", "weapon_incgrenade", "weapon_flashbang", "weapon_smokegrenade", "weapon_decoy", "weapon_hegrenade", "weapon_knife", "weapon_bayonet", "weapon_c4"
         ];

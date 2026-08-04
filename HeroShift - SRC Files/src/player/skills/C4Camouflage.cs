@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class C4Camouflage : ISkill
     {
-        private const Skills skillName = Skills.C4Camouflage;
+        private static readonly SkillId skillName = BuiltInSkillIds.C4Camouflage;
         private static readonly ConcurrentDictionary<uint, byte> invisiblePlayers = [];
         private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";

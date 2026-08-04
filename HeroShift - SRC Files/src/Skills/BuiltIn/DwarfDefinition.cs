@@ -34,6 +34,7 @@ public static class DwarfDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new DwarfOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.MinScale, options.MaxScale, "minScale", "maxScale"),
         Hooks = new SkillHookSet
         {
             LoadSkill = Dwarf.LoadSkill,

@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class LongZeus : ISkill
     {
-        private const Skills skillName = Skills.LongZeus;
+        private static readonly SkillId skillName = BuiltInSkillIds.LongZeus;
 
         private static LongZeusOptions Options => SkillConfigurationResolver.Get<LongZeusOptions>(BuiltInSkillIds.LongZeus);
         public static void LoadSkill()

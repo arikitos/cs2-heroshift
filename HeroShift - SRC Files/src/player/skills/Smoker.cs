@@ -45,7 +45,7 @@ namespace src.player.skills
      */
     public class Smoker : ISkill
     {
-        private const Skills skillName = Skills.Smoker;
+        private static readonly SkillId skillName = BuiltInSkillIds.Smoker;
         private static SmokerOptions Options => SkillConfigurationResolver.Get<SmokerOptions>(BuiltInSkillIds.Smoker);
         private readonly static ConcurrentDictionary<uint, List<Timer>> playerSmokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

@@ -42,7 +42,7 @@ namespace src.player.skills
      */
     public class Replicator : ISkill
     {
-        private const Skills skillName = Skills.Replicator;
+        private static readonly SkillId skillName = BuiltInSkillIds.Replicator;
         private static ReplicatorOptions Options => SkillConfigurationResolver.Get<ReplicatorOptions>(BuiltInSkillIds.Replicator);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<uint, byte> consumedReplicas = [];

@@ -34,7 +34,7 @@ namespace src.player.skills
      */
     public class Grenadier : ISkill
     {
-        private const Skills skillName = Skills.Grenadier;
+        private static readonly SkillId skillName = BuiltInSkillIds.Grenadier;
 
         public static void LoadSkill()
         {

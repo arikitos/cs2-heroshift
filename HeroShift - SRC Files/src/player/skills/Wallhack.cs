@@ -35,7 +35,7 @@ namespace src.player.skills
      */
     public class Wallhack : ISkill
     {
-        private const Skills skillName = Skills.Wallhack;
+        private static readonly SkillId skillName = BuiltInSkillIds.Wallhack;
         private static readonly ConcurrentDictionary<uint, byte> playersInAction = new();
         private static readonly ConcurrentDictionary<uint, (uint RelayIndex, uint GlowIndex, CsTeam Team)> glows = new();
         private static readonly ConcurrentDictionary<uint, DateTime> temporaryBlockList = new();
@@ -56,7 +56,7 @@ namespace src.player.skills
             if (glows.IsEmpty && temporaryBlockList.IsEmpty) return;
 
             // One pawn->info map per frame instead of a GetPlayers scan per client.
-            var infoByPawnHandle = new Dictionary<nint, jSkill_PlayerInfo?>();
+            var infoByPawnHandle = new Dictionary<nint, PlayerRuntimeState?>();
             foreach (var p in PlayerManager.GetTickPlayers())
             {
                 var h = p?.Pawn?.Value?.Handle;
@@ -91,7 +91,7 @@ namespace src.player.skills
 
                 var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
                 var targetHandle = player.Pawn.Value?.ObserverServices?.ObserverTarget?.Value?.Handle ?? nint.Zero;
-                jSkill_PlayerInfo? observerInfo = null;
+                PlayerRuntimeState? observerInfo = null;
                 if (targetHandle != nint.Zero)
                     infoByPawnHandle.TryGetValue(targetHandle, out observerInfo);
 
@@ -222,7 +222,7 @@ namespace src.player.skills
         private static void SpawnGlowFor(CCSPlayerController enemy)
         {
             var enemyInfo = PlayerManager.GetPlayerByIndex(enemy.Index);
-            if (enemyInfo?.Skill == Skills.Ghost)
+            if (enemyInfo?.Skill == BuiltInSkillIds.Ghost)
                 return;
 
             var enemyPawn = enemy.PlayerPawn?.Value;

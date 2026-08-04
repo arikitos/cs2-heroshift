@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class ChillOut : ISkill
     {
-        private const Skills skillName = Skills.ChillOut;
+        private static readonly SkillId skillName = BuiltInSkillIds.ChillOut;
         private static ChillOutOptions Options => SkillConfigurationResolver.Get<ChillOutOptions>(BuiltInSkillIds.ChillOut);
         private static readonly ConcurrentDictionary<uint, float> plantingPlayers = [];
 

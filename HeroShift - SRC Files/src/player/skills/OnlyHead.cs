@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class OnlyHead : ISkill
     {
-        private const Skills skillName = Skills.OnlyHead;
+        private static readonly SkillId skillName = BuiltInSkillIds.OnlyHead;
 
         public static void LoadSkill()
         {

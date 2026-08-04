@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class OneShot : ISkill
     {
-        private const Skills skillName = Skills.OneShot;
+        private static readonly SkillId skillName = BuiltInSkillIds.OneShot;
 
         public static void LoadSkill()
         {

@@ -41,7 +41,7 @@ namespace src.player.skills
      */
     public class Astronaut : ISkill
     {
-        private const Skills skillName = Skills.Astronaut;
+        private static readonly SkillId skillName = BuiltInSkillIds.Astronaut;
 
         private static AstronautOptions Options => SkillConfigurationResolver.Get<AstronautOptions>(BuiltInSkillIds.Astronaut);
         public static void LoadSkill()

@@ -36,7 +36,7 @@ namespace src.player.skills
      */
     public class Chicken : ISkill
     {
-        private const Skills skillName = Skills.Chicken;
+        private static readonly SkillId skillName = BuiltInSkillIds.Chicken;
         private static readonly HashSet<string> disabledWeapons =
         [
             "weapon_ak47", "weapon_m4a4", "weapon_m4a1", "weapon_m4a1_silencer",

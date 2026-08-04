@@ -80,4 +80,36 @@ public class LocalizationServiceTests
         var result = service.GetTranslation("aimlock_desc");
         Assert.Contains("css_useSkill/e", result);
     }
+
+    [Fact]
+    public void Reload_ExternalUnknownKey_FailsValidation()
+    {
+        var tempPath = Path.Combine(Path.GetTempPath(), $"heroshift-lang-test-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(tempPath, """{ "not_in_english": "value" }""");
+            Assert.Throws<InvalidDataException>(() =>
+                new LocalizationService(externalLanguagePath: tempPath, alternativeSkillButton: null));
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
+    }
+
+    [Fact]
+    public void Reload_ExternalPlaceholderMismatch_FailsValidation()
+    {
+        var tempPath = Path.Combine(Path.GetTempPath(), $"heroshift-lang-test-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(tempPath, """{ "areareaper_site_disabled": "Site disabled" }""");
+            Assert.Throws<InvalidDataException>(() =>
+                new LocalizationService(externalLanguagePath: tempPath, alternativeSkillButton: null));
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
+    }
 }

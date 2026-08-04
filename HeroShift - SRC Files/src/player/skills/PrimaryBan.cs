@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class PrimaryBan : ISkill
     {
-        private const Skills skillName = Skills.PrimaryBan;
+        private static readonly SkillId skillName = BuiltInSkillIds.PrimaryBan;
         private static readonly ConcurrentDictionary<uint, byte> bannedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly object setLock = new();

@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class JetKick : ISkill
     {
-        private const Skills skillName = Skills.JetKick;
+        private static readonly SkillId skillName = BuiltInSkillIds.JetKick;
         private static JetKickOptions Options => SkillConfigurationResolver.Get<JetKickOptions>(BuiltInSkillIds.JetKick);
         private static readonly ConcurrentDictionary<uint, byte> targetedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];

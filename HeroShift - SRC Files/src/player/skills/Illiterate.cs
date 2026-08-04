@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class Illiterate : ISkill
     {
-        private const Skills skillName = Skills.Illiterate;
+        private static readonly SkillId skillName = BuiltInSkillIds.Illiterate;
         private static bool isActive = false;
         private static int offset = 5;
         private static int lastChange = 0;

@@ -41,7 +41,7 @@ namespace src.player.skills
      */
     public class Medic : ISkill
     {
-        private const Skills skillName = Skills.Medic;
+        private static readonly SkillId skillName = BuiltInSkillIds.Medic;
         private static MedicOptions Options => SkillConfigurationResolver.Get<MedicOptions>(BuiltInSkillIds.Medic);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

@@ -36,7 +36,7 @@ namespace src.player.skills
      */
     public class Distancer : ISkill
     {
-        private const Skills skillName = Skills.Distancer;
+        private static readonly SkillId skillName = BuiltInSkillIds.Distancer;
         private static readonly ConcurrentDictionary<uint, byte> distancerPlayers = [];
         private static readonly object setLock = new();
 

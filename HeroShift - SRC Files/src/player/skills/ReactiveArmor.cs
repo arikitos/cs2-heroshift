@@ -36,7 +36,7 @@ namespace src.player.skills
      */
     public class ReactiveArmor : ISkill
     {
-        private const Skills skillName = Skills.ReactiveArmor;
+        private static readonly SkillId skillName = BuiltInSkillIds.ReactiveArmor;
         private static ReactiveArmorOptions Options => SkillConfigurationResolver.Get<ReactiveArmorOptions>(BuiltInSkillIds.ReactiveArmor);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

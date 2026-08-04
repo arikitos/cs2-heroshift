@@ -26,6 +26,7 @@ public static class JesterDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new JesterOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.MinTime, options.MaxTime, "minTime", "maxTime"),
         Hooks = new SkillHookSet
         {
             LoadSkill = Jester.LoadSkill,

@@ -34,7 +34,7 @@ namespace src.player.skills
      */
     public class Thief : ISkill
     {
-        private const Skills skillName = Skills.Thief;
+        private static readonly SkillId skillName = BuiltInSkillIds.Thief;
 
         public static void LoadSkill()
         {
@@ -148,7 +148,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            playerInfo.SpecialSkill = Skills.None;
+            playerInfo.SpecialSkill = BuiltInSkillIds.None;
             SkillUtils.CloseMenu(player);
         }
 
@@ -161,8 +161,8 @@ namespace src.player.skills
             if (playerInfo == null || enemyInfo == null) return;
 
             var enemySkill = enemyInfo.Skill;
-            bool ctSkill = Event.counterterroristSkills.Any(s => s.Name == enemySkill.ToString());
-            bool ttSkill = Event.terroristSkills.Any(s => s.Name == enemySkill.ToString());
+            bool ctSkill = Event.counterterroristSkills.Any(s => s.Id == enemySkill);
+            bool ttSkill = Event.terroristSkills.Any(s => s.Id == enemySkill);
 
             uint playerIndex = player.Index;
             uint enemyIndex = enemy.Index;
@@ -242,7 +242,7 @@ namespace src.player.skills
                 Instance.InvokeDisableSkill(enemySkill, e);
 
                 eInfo.SpecialSkill = enemySkill;
-                eInfo.Skill = Skills.None;
+                eInfo.Skill = BuiltInSkillIds.None;
                 enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("thief_enemy_info"));
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }

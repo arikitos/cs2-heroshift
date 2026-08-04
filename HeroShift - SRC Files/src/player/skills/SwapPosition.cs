@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class SwapPosition : ISkill
     {
-        private const Skills skillName = Skills.SwapPosition;
+        private static readonly SkillId skillName = BuiltInSkillIds.SwapPosition;
         private static SwapPositionOptions Options => SkillConfigurationResolver.Get<SwapPositionOptions>(BuiltInSkillIds.SwapPosition);
         private static readonly ConcurrentDictionary<uint, ZamianaMiejsc_PlayerInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();

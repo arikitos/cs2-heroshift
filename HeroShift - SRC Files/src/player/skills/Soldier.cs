@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class Soldier : ISkill
     {
-        private const Skills skillName = Skills.Soldier;
+        private static readonly SkillId skillName = BuiltInSkillIds.Soldier;
 
         private static SoldierOptions Options => SkillConfigurationResolver.Get<SoldierOptions>(BuiltInSkillIds.Soldier);
         public static void LoadSkill()

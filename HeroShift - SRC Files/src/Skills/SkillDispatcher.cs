@@ -6,16 +6,13 @@ namespace src.SkillsCore;
 
 /*
  * SkillDispatcher - typed replacement for the reflection-based fan-out in
- * legacy src/player/PlayerEvents.cs / EntityEvents.cs (HeroShift.SkillAction +
- * DispatchToActiveSkills). See BOOLEAN_HOOK_SEMANTICS.md for the exact,
+ * previous fan-out in PlayerEvents.cs and EntityEvents.cs. See
+ * BOOLEAN_HOOK_SEMANTICS.md for the exact,
  * characterized rules this preserves.
  *
- * Deliberately decoupled from player runtime state (jSkill_PlayerInfo /
- * PlayerManager) - callers pass in "the distinct active SkillIds this call"
- * so this dispatcher can be introduced and tested before REFACTOR.md's
- * runtime-state migration commit. A future adapter maps
- * PlayerManager.GetAllPlayers() -> IReadOnlyList<SkillId> the same way
- * Instance.SkillPlayer feeds DispatchToActiveSkills today.
+ * Deliberately decoupled from PlayerRuntimeState. Callers pass the distinct
+ * active SkillIds in established player order, while the dispatcher owns only
+ * definition lookup, hook invocation and exception isolation.
  *
  * Every hook invocation is wrapped so a thrown exception is caught and
  * logged rather than aborting the engine callback and skipping every later
@@ -25,7 +22,7 @@ namespace src.SkillsCore;
  */
 public sealed class SkillDispatcher(SkillRegistry registry, Action<string>? onHookException = null)
 {
-    // Legacy "late damage skills" - revive-on-lethal-damage heroes that must
+    // Revive-on-lethal-damage heroes that must
     // observe the FINAL damage value after every other active skill's
     // OnTakeDamage/OnTakeDamagePost already ran this call.
     private static readonly SkillId[] LateDamageSkillIds =
@@ -78,7 +75,7 @@ public sealed class SkillDispatcher(SkillRegistry registry, Action<string>? onHo
 
     // ---- Simple fan-out hooks: every distinct active skill, independently, in
     // the order given by the caller (already deduplicated upstream, matching
-    // legacy DispatchToActiveSkills' `seen` HashSet<Skills> collapsing). ----
+    // legacy DispatchToActiveSkills' `seen` HashSet<SkillId> collapsing). ----
 
     public void DispatchTick(IReadOnlyList<SkillId> activeSkillIds)
     {

@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class InfiniteAmmo : ISkill
     {
-        private const Skills skillName = Skills.InfiniteAmmo;
+        private static readonly SkillId skillName = BuiltInSkillIds.InfiniteAmmo;
 
         public static void LoadSkill()
         {

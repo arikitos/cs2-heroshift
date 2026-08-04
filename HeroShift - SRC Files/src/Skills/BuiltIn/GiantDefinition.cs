@@ -26,6 +26,7 @@ public static class GiantDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new GiantOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.MinScale, options.MaxScale, "minScale", "maxScale"),
         Hooks = new SkillHookSet
         {
             LoadSkill = Giant.LoadSkill,

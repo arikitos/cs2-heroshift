@@ -40,7 +40,7 @@ namespace src.player.skills
      */
     public class PsychicDefusing : ISkill
     {
-        private const Skills skillName = Skills.PsychicDefusing;
+        private static readonly SkillId skillName = BuiltInSkillIds.PsychicDefusing;
         private static PsychicDefusingOptions Options => SkillConfigurationResolver.Get<PsychicDefusingOptions>(BuiltInSkillIds.PsychicDefusing);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static Vector? bombLocation = null;

@@ -30,7 +30,7 @@ namespace src.player.skills
      */
     public class Glue : ISkill
     {
-        private const Skills skillName = Skills.Glue;
+        private static readonly SkillId skillName = BuiltInSkillIds.Glue;
 
         public static void LoadSkill()
         {

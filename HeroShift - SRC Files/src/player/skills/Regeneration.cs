@@ -15,7 +15,7 @@ namespace src.player.skills
      */
     public class Regeneration : ISkill
     {
-        private const Skills skillName = Skills.Regeneration;
+        private static readonly SkillId skillName = BuiltInSkillIds.Regeneration;
 
         private static RegenerationOptions Options => SkillConfigurationResolver.Get<RegenerationOptions>(BuiltInSkillIds.Regeneration);
         public static void LoadSkill()

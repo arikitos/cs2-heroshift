@@ -34,6 +34,7 @@ public static class BehindDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Common),
         DefaultOptions = new BehindOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.ChanceFrom, options.ChanceTo, "chanceFrom", "chanceTo"),
         Hooks = new SkillHookSet
         {
             LoadSkill = Behind.LoadSkill,

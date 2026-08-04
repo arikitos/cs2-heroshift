@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class Miner : ISkill
     {
-        private const Skills skillName = Skills.Miner;
+        private static readonly SkillId skillName = BuiltInSkillIds.Miner;
         private static MinerOptions Options => SkillConfigurationResolver.Get<MinerOptions>(BuiltInSkillIds.Miner);
         private readonly static ConcurrentDictionary<uint, byte> nades = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

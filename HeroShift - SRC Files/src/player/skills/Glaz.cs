@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class Glaz : ISkill
     {
-        private const Skills skillName = Skills.Glaz;
+        private static readonly SkillId skillName = BuiltInSkillIds.Glaz;
         private static GlazOptions Options => SkillConfigurationResolver.Get<GlazOptions>(BuiltInSkillIds.Glaz);
         private readonly static ConcurrentDictionary<int, byte> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];

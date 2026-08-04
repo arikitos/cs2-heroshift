@@ -41,7 +41,7 @@ namespace src.player.skills
      */
     public class HotBomb : ISkill
     {
-        private const Skills skillName = Skills.HotBomb;
+        private static readonly SkillId skillName = BuiltInSkillIds.HotBomb;
         private static HotBombOptions Options => SkillConfigurationResolver.Get<HotBombOptions>(BuiltInSkillIds.HotBomb);
         private readonly static ConcurrentDictionary<uint, byte> players = [];
 

@@ -12,6 +12,7 @@ using static src.HeroShift;
 
 using src.SkillsCore;
 using src.Configuration;
+using src.LocalizationCore;
 namespace src.command
 {
     /*
@@ -119,6 +120,20 @@ namespace src.command
             }
         }
 
+        public static void Unload()
+        {
+            lock (setLock)
+            {
+                foreach (var command in oldCommands)
+                    Instance.RemoveCommand(command.Key, command.Value);
+
+                oldCommands.Clear();
+                nextSkill.Clear();
+                VoteSystem.Unload();
+                gamePaused = false;
+            }
+        }
+
         // The "use my skill" command. No arguments -> the hero's UseSkill hook;
         // with arguments -> its TypeSkill hook, receiving the arguments as string[].
         // Both are invoked through the typed lifecycle coordinator.
@@ -155,7 +170,7 @@ namespace src.command
         }
 
         // Assigns a hero to a target player for the current round only.
-        // Usage: <command> <steamid|name> <skill name or enum name>
+        // Usage: <command> <steamid|name> <localized skill name or stable skill ID>
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_SetSkill(CCSPlayerController? player, CommandInfo command)
         {
@@ -190,7 +205,7 @@ namespace src.command
             // Skill names can contain a space ("Second Life"), so a 4th argument is
             // treated as the second half of the name rather than a separate option.
             var skillName = command.ArgCount > 3 ? $"{command.GetArg(2)} {command.GetArg(3)}" : command.GetArg(2);
-            // Matched against both the localized display name and the raw Skills enum name.
+            // Matched against both the localized display name and the stable skill ID.
             var skill = SkillData.Skills.FirstOrDefault(s => player != null && player.GetSkillName(s.Skill).Equals(skillName, StringComparison.OrdinalIgnoreCase) || s.Skill.ToString().Equals(skillName, StringComparison.OrdinalIgnoreCase));
 
             if (skill == null)
@@ -211,7 +226,7 @@ namespace src.command
                 // swap the stored skill, then let the new hero set itself up.
                 Instance.InvokeDisableSkill(skillPlayer.Skill, targetPlayer);
                 skillPlayer.Skill = skill.Skill;
-                skillPlayer.SpecialSkill = Skills.None;
+                skillPlayer.SpecialSkill = BuiltInSkillIds.None;
                 Instance.InvokeEnableSkill(skill.Skill, targetPlayer);
                 Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
@@ -592,7 +607,7 @@ namespace src.command
 
         // Like Command_SetSkill, but the assignment is remembered in Event.staticSkills
         // and re-applied every round instead of being replaced by the random roll.
-        // Assigning Skills.None removes the player's static entry again.
+        // Assigning BuiltInSkillIds.None removes the player's static entry again.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_SetStaticSkill(CCSPlayerController? player, CommandInfo command)
         {
@@ -646,13 +661,13 @@ namespace src.command
             {
                 Instance.InvokeDisableSkill(skillPlayer.Skill, targetPlayer);
                 skillPlayer.Skill = skill.Skill;
-                skillPlayer.SpecialSkill = Skills.None;
+                skillPlayer.SpecialSkill = BuiltInSkillIds.None;
                 Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
                 // The round-start draw checks staticSkills first (RoundEvents), so an
                 // entry here pins the player's hero across rounds. Entries are cleared
                 // on map change.
-                if (skill.Skill == Skills.None)
+                if (skill.Skill == BuiltInSkillIds.None)
                     Event.staticSkills.TryRemove(targetPlayer.Index, out _);
                 else
                     Event.staticSkills.TryAdd(targetPlayer.Index, skill);
@@ -683,7 +698,7 @@ namespace src.command
 
         // Live-reloads heroshift.json and the selected optional language file, then
         // re-registers commands and rebuilds the active hero list by calling
-        // invokes LoadSkill on every Skills value whose effective metadata is active.
+        // invokes LoadSkill on every registered skill whose effective metadata is active.
         // Finally it downgrades any player currently holding a hero that was just
         // deactivated, so nobody keeps a skill that is no longer loaded.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
@@ -696,7 +711,10 @@ namespace src.command
             {
                 try
                 {
-                    ConfigurationStore.Reload();
+                    LocalizationService? localization = null;
+                    ConfigurationStore.Reload(snapshot =>
+                        localization = Localization.CreateService(snapshot.Configuration));
+                    Localization.UseService(localization!);
                 }
                 catch (ConfigurationValidationException ex)
                 {
@@ -704,16 +722,20 @@ namespace src.command
                         Server.PrintToConsole($"[HeroShift] {error}");
                     return;
                 }
-                Localization.Load();
+                catch (InvalidDataException ex)
+                {
+                    Server.PrintToConsole($"[HeroShift] {ex.Message}");
+                    return;
+                }
                 Load();
 
                 SkillData.Skills.Clear();
-                foreach (var skill in Enum.GetValues<Skills>())
+                foreach (var skill in BuiltInSkillIds.All)
                     if (SkillRuntime.GetMetadata(skill).Active)
                         Instance.InvokeLoadSkill(skill);
 
                 // Both are lazy caches derived from the list just rebuilt: the
-                // Skills -> info lookup map and the set of disableOnFreezeTime heroes.
+                // Skill ID to info lookup map and the set of disableOnFreezeTime heroes.
                 // They must be dropped here or they keep describing the old skill list.
                 SkillData.Invalidate();
                 Event.InvalidateFreezeDisabledCache();
@@ -796,7 +818,7 @@ namespace src.command
 
             Instance.InvokeDisableSkill(skillPlayer.Skill, targetPlayer);
             skillPlayer.Skill = skill.Skill;
-            skillPlayer.SpecialSkill = Skills.None;
+            skillPlayer.SpecialSkill = BuiltInSkillIds.None;
 
             nextSkill[targetPlayer.Index] = nextIndex;
 

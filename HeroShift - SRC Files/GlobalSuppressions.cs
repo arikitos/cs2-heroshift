@@ -6,7 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE1006:Style nazewnictwa", Justification = "<Oczekujące>", Scope = "type", Target = "~T:src.HeroShift")]
-[assembly: SuppressMessage("Performance", "CA1822:Oznaczaj elementy członkowskie jako statyczne", Justification = "<Oczekujące>", Scope = "member", Target = "~M:src.HeroShift.SkillAction(System.String,System.String,System.Object[])")]
 [assembly: SuppressMessage("Performance", "CA1822:Oznaczaj elementy członkowskie jako statyczne", Justification = "<Oczekujące>", Scope = "member", Target = "~M:src.HeroShift.IsPlayerValid(CounterStrikeSharp.API.Core.CCSPlayerController)~System.Boolean")]
-[assembly: SuppressMessage("Style", "IDE1006:Style nazewnictwa", Justification = "<Oczekujące>", Scope = "type", Target = "~T:src.jSkill_PlayerInfo")]
-[assembly: SuppressMessage("Style", "IDE1006:Style nazewnictwa", Justification = "<Oczekujące>", Scope = "type", Target = "~T:src.jSkill_SkillInfo")]

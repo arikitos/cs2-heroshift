@@ -44,7 +44,7 @@ namespace src.player.skills
      */
     public class Shade : ISkill
     {
-        private const Skills skillName = Skills.Shade;
+        private static readonly SkillId skillName = BuiltInSkillIds.Shade;
         private static ShadeOptions Options => SkillConfigurationResolver.Get<ShadeOptions>(BuiltInSkillIds.Shade);
         private static readonly ConcurrentDictionary<uint, float> noSpace = [];
 

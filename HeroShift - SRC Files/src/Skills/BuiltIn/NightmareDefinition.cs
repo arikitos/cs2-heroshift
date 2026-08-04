@@ -28,6 +28,7 @@ public static class NightmareDefinition
             MaxPerServer: -1,
             Rarity: global::src.utils.Rarity.Rare),
         DefaultOptions = new NightmareOptions(),
+        OptionsValidator = options => SkillOptionRules.Ordered(options.MinExposure, options.MaxExposure, "minExposure", "maxExposure"),
         Hooks = new SkillHookSet
         {
             LoadSkill = Nightmare.LoadSkill,

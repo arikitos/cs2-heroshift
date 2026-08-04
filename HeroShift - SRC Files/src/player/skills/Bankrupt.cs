@@ -33,7 +33,7 @@ namespace src.player.skills
      */
     public class Bankrupt : ISkill
     {
-        private const Skills skillName = Skills.Bankrupt;
+        private static readonly SkillId skillName = BuiltInSkillIds.Bankrupt;
 
         public static void LoadSkill()
         {

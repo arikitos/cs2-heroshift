@@ -19,6 +19,8 @@ param(
 
     [string]$OutputDirectory = 'artifacts',
 
+    [string]$RayTraceAssetsDirectory,
+
     [switch]$NoBuild
 )
 
@@ -32,6 +34,7 @@ if (-not (Test-Path -LiteralPath $packageScript -PathType Leaf)) {
     -Configuration $Configuration `
     -Version "v$Version" `
     -OutputDirectory $OutputDirectory `
+    -RayTraceAssetsDirectory $RayTraceAssetsDirectory `
     -NoBuild:$NoBuild
 
 if ($LASTEXITCODE -ne 0) {

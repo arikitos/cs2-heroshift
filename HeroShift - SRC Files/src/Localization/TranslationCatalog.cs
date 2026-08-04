@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace src.LocalizationCore;
 
@@ -22,8 +23,19 @@ public sealed class TranslationCatalog
 
     public static TranslationCatalog FromJson(string json)
     {
-        var entries = JsonConvert.DeserializeObject<Dictionary<string, string>>(json)
-            ?? new Dictionary<string, string>();
+        using var stringReader = new StringReader(json);
+        using var jsonReader = new JsonTextReader(stringReader);
+        var root = JObject.Load(jsonReader, new JsonLoadSettings
+        {
+            DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error,
+        });
+
+        var entries = root.Properties().ToDictionary(
+            property => property.Name,
+            property => property.Value.Type == JTokenType.String
+                ? property.Value.Value<string>()!
+                : throw new JsonException($"Translation '{property.Name}' must be a string."),
+            StringComparer.Ordinal);
         return new TranslationCatalog(entries);
     }
 

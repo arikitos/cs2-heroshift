@@ -34,7 +34,7 @@ namespace src.player.skills
      */
     public class Zeus : ISkill
     {
-        private const Skills skillName = Skills.Zeus;
+        private static readonly SkillId skillName = BuiltInSkillIds.Zeus;
 
         public static void LoadSkill()
         {

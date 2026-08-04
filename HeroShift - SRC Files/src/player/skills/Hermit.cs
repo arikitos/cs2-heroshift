@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class Hermit : ISkill
     {
-        private const Skills skillName = Skills.Hermit;
+        private static readonly SkillId skillName = BuiltInSkillIds.Hermit;
         private static HermitOptions Options => SkillConfigurationResolver.Get<HermitOptions>(BuiltInSkillIds.Hermit);
         private static readonly ConcurrentDictionary<string, int> ConcurrentDictionary = new(
         [

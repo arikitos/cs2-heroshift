@@ -37,7 +37,7 @@ namespace src.player.skills
      */
     public class Magnifier : ISkill
     {
-        private const Skills skillName = Skills.Magnifier;
+        private static readonly SkillId skillName = BuiltInSkillIds.Magnifier;
         private static MagnifierOptions Options => SkillConfigurationResolver.Get<MagnifierOptions>(BuiltInSkillIds.Magnifier);
         private static readonly ConcurrentDictionary<uint, uint> playersFOV = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];

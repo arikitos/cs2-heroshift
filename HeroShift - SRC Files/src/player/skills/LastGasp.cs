@@ -38,7 +38,7 @@ namespace src.player.skills
      */
     public class LastGasp : ISkill
     {
-        private const Skills skillName = Skills.LastGasp;
+        private static readonly SkillId skillName = BuiltInSkillIds.LastGasp;
 
         private static LastGaspOptions Options => SkillConfigurationResolver.Get<LastGaspOptions>(BuiltInSkillIds.LastGasp);
         public static void LoadSkill()

@@ -33,7 +33,7 @@ namespace src.player.skills
      */
     public class NoNades : ISkill
     {
-        private const Skills skillName = Skills.NoNades;
+        private static readonly SkillId skillName = BuiltInSkillIds.NoNades;
 
         public static void LoadSkill()
         {

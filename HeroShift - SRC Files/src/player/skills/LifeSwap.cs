@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class LifeSwap : ISkill
     {
-        private const Skills skillName = Skills.LifeSwap;
+        private static readonly SkillId skillName = BuiltInSkillIds.LifeSwap;
 
         public static void LoadSkill()
         {

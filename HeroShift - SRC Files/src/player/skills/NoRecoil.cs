@@ -34,7 +34,7 @@ namespace src.player.skills
      */
     public class NoRecoil : ISkill
     {
-        private const Skills skillName = Skills.NoRecoil;
+        private static readonly SkillId skillName = BuiltInSkillIds.NoRecoil;
 
         private static readonly ConcurrentDictionary<uint, byte> holders = [];
         private static bool noSpreadActive;

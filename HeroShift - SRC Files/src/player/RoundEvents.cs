@@ -72,10 +72,10 @@ namespace src.player
         // in that tier that are still under their MaxPerServer cap, pick one at random.
         // Retried up to 6 times because a rolled tier can be empty after filtering.
         // Then two fallbacks: any candidate under its cap, else any candidate at all -
-        // so a player always gets something rather than Skills.None.
+        // so a player always gets something rather than BuiltInSkillIds.None.
         // SameSkills/TeamSkills ignore MaxPerServer, since by definition the whole team
         // shares one hero.
-        private static jSkill_SkillInfo ChooseSkillByRarityAndMax(List<jSkill_SkillInfo> candidates, Dictionary<Skills, int> assignmentCounts, GameMode gameMode)
+        private static SkillRuntimeInfo ChooseSkillByRarityAndMax(List<SkillRuntimeInfo> candidates, Dictionary<SkillId, int> assignmentCounts, GameMode gameMode)
         {
             if (candidates == null || candidates.Count == 0) return noneSkill;
 
@@ -89,10 +89,10 @@ namespace src.player
                 var filtered = candidates.Where(s =>
                 {
                     if (s == null) return false;
-                    var def = SkillRuntime.All.FirstOrDefault(d => d.Name == s.Skill.ToString());
+                    var def = SkillRuntime.All.FirstOrDefault(d => d.Id == s.Skill);
                     if (def == null) return false;
 
-                    if (!string.Equals(def.Rarity ?? string.Empty, rolled.ToString(), StringComparison.OrdinalIgnoreCase))
+                    if (def.Metadata.Rarity != rolled)
                         return false;
 
                     if (!ignoreMax && def.MaxPerServer >= 0)
@@ -110,7 +110,7 @@ namespace src.player
 
             var fallback = candidates.Where(s =>
             {
-                var def = SkillRuntime.All.FirstOrDefault(d => d.Name == s.Skill.ToString());
+                var def = SkillRuntime.All.FirstOrDefault(d => d.Id == s.Skill);
                 if (def == null) return true;
                 if (ignoreMax) return true;
                 if (def.MaxPerServer < 0) return true;
@@ -201,12 +201,12 @@ namespace src.player
                     var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                     if (playerInfo == null) continue;
 
-                    ActiveSkillsThisRound.TryAdd(playerInfo.Skill.ToString(), 0);
-                    SkillsUsedThisMap.TryAdd(playerInfo.Skill.ToString(), 0);
+                    ActiveSkillsThisRound.TryAdd(playerInfo.Skill, 0);
+                    SkillsUsedThisMap.TryAdd(playerInfo.Skill, 0);
                     if (playerInfo.SpecialSkill != noneSkill.Skill)
                     {
-                        ActiveSkillsThisRound.TryAdd(playerInfo.SpecialSkill.ToString(), 0);
-                        SkillsUsedThisMap.TryAdd(playerInfo.SpecialSkill.ToString(), 0);
+                        ActiveSkillsThisRound.TryAdd(playerInfo.SpecialSkill, 0);
+                        SkillsUsedThisMap.TryAdd(playerInfo.SpecialSkill, 0);
                     }
 
                     Instance.InvokeDisableSkill(playerInfo.Skill, player);
@@ -223,9 +223,8 @@ namespace src.player
                 // Reset every skill used so far on this map, not only the ones held this round: a skill
                 // nobody drew now would otherwise never clear state left over from an earlier round.
                 // Skills that never ran cannot hold state, so they stay out of the sweep.
-                foreach (var skillName in SkillsUsedThisMap.Keys)
-                    if (Enum.TryParse<Skills>(skillName, ignoreCase: true, out var skill))
-                        Instance.InvokeNewRoundSkill(skill);
+                foreach (var skill in SkillsUsedThisMap.Keys)
+                    Instance.InvokeNewRoundSkill(skill);
                 ActiveSkillsThisRound.Clear();
                 tickFailuresLogged.Clear();
             }
@@ -272,6 +271,43 @@ namespace src.player
             }
         }
 
+        public static void Shutdown()
+        {
+            lock (setLock)
+            {
+                setSkillTimer?.Kill();
+                setSkillTimer = null;
+
+                DisableAllCore();
+                Instance.RemoveListener<CheckTransmit>(CheckTransmit);
+                isTransmitRegistered = false;
+
+                EntityManager.SuppressKills = true;
+                try
+                {
+                    EntityManager.DestroyAllTracked();
+                }
+                finally
+                {
+                    EntityManager.SuppressKills = false;
+                }
+
+                ActiveSkillsThisRound.Clear();
+                SkillsUsedThisMap.Clear();
+                nextRoundPicks.Clear();
+                playersSkills.Clear();
+                staticSkills.Clear();
+                tickFailuresLogged.Clear();
+                PlayerManager.Clear();
+                SkillUtils.ClearKillCredits();
+                SkillUtils.ClearCurses();
+
+                ctSkill = noneSkill;
+                tSkill = noneSkill;
+                allSkill = noneSkill;
+            }
+        }
+
         // Round end: stop the Illiterate text scrambler, tell every hero the round is
         // over, then schedule the summary, the next-round precompute and (optionally)
         // the reset. See the timeline in the class header for the ordering rationale.
@@ -302,7 +338,7 @@ namespace src.player
                             var specialSkillInfo = SkillData.Skills.FirstOrDefault(s => s.Skill == _playerSkill.SpecialSkill);
                             if (skillInfo == null) continue;
 
-                            skillsText += $" {ChatColors.DarkRed}\u202A{_player.PlayerName}\u202C{ChatColors.Lime}: {(_playerSkill.SpecialSkill == Skills.None || specialSkillInfo == null ? player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance) : $"{player.GetSkillName(specialSkillInfo.Skill)} -> {player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance)}")}\n";
+                            skillsText += $" {ChatColors.DarkRed}\u202A{_player.PlayerName}\u202C{ChatColors.Lime}: {(_playerSkill.SpecialSkill == BuiltInSkillIds.None || specialSkillInfo == null ? player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance) : $"{player.GetSkillName(specialSkillInfo.Skill)} -> {player.GetSkillName(skillInfo.Skill, _playerSkill.SkillChance)}")}\n";
                         }
 
                         if (string.IsNullOrEmpty(skillsText)) continue;
@@ -341,55 +377,46 @@ namespace src.player
         // The team counts are snapshots taken at build time.
         private sealed class PickContext
         {
-            public required List<jSkill_SkillInfo> BaseList { get; init; }
-            public required Dictionary<Skills, string> RequiredPermissions { get; init; }
-            public required HashSet<Skills> NeedsTeammates { get; init; }
-            public required HashSet<Skills> CtOnly { get; init; }
-            public required HashSet<Skills> TOnly { get; init; }
+            public required List<SkillRuntimeInfo> BaseList { get; init; }
+            public required Dictionary<SkillId, string> RequiredPermissions { get; init; }
+            public required HashSet<SkillId> NeedsTeammates { get; init; }
+            public required HashSet<SkillId> CtOnly { get; init; }
+            public required HashSet<SkillId> TOnly { get; init; }
             public required int TerroristCount { get; init; }
             public required int CounterTerroristCount { get; init; }
         }
 
         // Flattens the effective skill snapshot into fast lookup sets for one draw pass.
-        // Skills.None is excluded from BaseList so it is never drawn on purpose.
+        // BuiltInSkillIds.None is excluded from BaseList so it is never drawn on purpose.
         private static PickContext BuildPickContext(List<CCSPlayerController> validPlayers)
         {
-            Dictionary<Skills, string> perms = [];
+            Dictionary<SkillId, string> perms = [];
             foreach (var s in SkillData.Skills)
             {
-                if (s == null || s.Skill == Skills.None) continue;
+                if (s == null || s.Skill == BuiltInSkillIds.None) continue;
                 string perm = SkillRuntime.GetMetadata(s.Skill).RequiredPermission;
                 if (!string.IsNullOrEmpty(perm)) perms[s.Skill] = perm;
             }
 
             return new PickContext
             {
-                BaseList = [.. SkillData.Skills.Where(s => s != null && s.Skill != Skills.None)],
+                BaseList = [.. SkillData.Skills.Where(s => s != null && s.Skill != BuiltInSkillIds.None)],
                 RequiredPermissions = perms,
-                NeedsTeammates = ToSkillSet(SkillRuntime.All.Where(s => s.NeedsTeammates).Select(s => s.Name)),
-                CtOnly = ToSkillSet(counterterroristSkills.Select(s => s.Name)),
-                TOnly = ToSkillSet(terroristSkills.Select(s => s.Name)),
+                NeedsTeammates = SkillRuntime.All.Where(s => s.NeedsTeammates).Select(s => s.Id).ToHashSet(),
+                CtOnly = counterterroristSkills.Select(s => s.Id).ToHashSet(),
+                TOnly = terroristSkills.Select(s => s.Id).ToHashSet(),
                 TerroristCount = validPlayers.Count(p => p.Team == CsTeam.Terrorist),
                 CounterTerroristCount = validPlayers.Count(p => p.Team == CsTeam.CounterTerrorist),
             };
-        }
-
-        // Converts typed skill identities into the legacy enum used by player state.
-        private static HashSet<Skills> ToSkillSet(IEnumerable<string> names)
-        {
-            HashSet<Skills> set = [];
-            foreach (var name in names)
-                if (Enum.TryParse<Skills>(name, out var skill)) set.Add(skill);
-            return set;
         }
 
         // Builds this player's candidate list by removing everything they may not have,
         // then hands it to the weighted picker. Filters, in order:
         //   admin permission, previous hero, needs-teammates, team restriction, NoRepeat
         // history. assignmentCounts is the running per-hero tally used for MaxPerServer.
-        private static jSkill_SkillInfo PickSkillForPlayer(CCSPlayerController player, jSkill_PlayerInfo skillPlayer, PickContext ctx, Dictionary<Skills, int> assignmentCounts, GameMode gameMode)
+        private static SkillRuntimeInfo PickSkillForPlayer(CCSPlayerController player, PlayerRuntimeState skillPlayer, PickContext ctx, Dictionary<SkillId, int> assignmentCounts, GameMode gameMode)
         {
-            List<jSkill_SkillInfo> skillList = [.. ctx.BaseList];
+            List<SkillRuntimeInfo> skillList = [.. ctx.BaseList];
 
             // Bots bypass permission checks - they have no SteamID to hold admin flags.
             if (!player.IsBot && ctx.RequiredPermissions.Count != 0)
@@ -412,7 +439,7 @@ namespace src.player
 
             // NoRepeat: exclude every hero this player already had. Once the history has
             // consumed all of them the history is wiped and the cycle starts over.
-            if (gameMode == GameMode.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
+            if (gameMode == GameMode.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<SkillRuntimeInfo>? skills))
             {
                 skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
                 if (skillList.Count == 0) skills.Clear();
@@ -422,7 +449,7 @@ namespace src.player
 
             if (gameMode == GameMode.NoRepeat)
             {
-                if (playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? value))
+                if (playersSkills.TryGetValue(player.Index, out ConcurrentBag<SkillRuntimeInfo>? value))
                     value.Add(randomSkill);
                 else
                     playersSkills.TryAdd(player.Index, [randomSkill]);
@@ -435,16 +462,15 @@ namespace src.player
         // the START of this one. Between those two moments a player can switch teams,
         // teammates can leave (breaking NeedsTeammates), a hero can hit MaxPerServer, or
         // a config reload can remove the hero entirely - each of those forces a re-draw.
-        private static bool IsPickStillValid(jSkill_SkillInfo pick, CCSPlayerController player, List<CCSPlayerController> validPlayers, Dictionary<Skills, int> assignmentCounts)
+        private static bool IsPickStillValid(SkillRuntimeInfo pick, CCSPlayerController player, List<CCSPlayerController> validPlayers, Dictionary<SkillId, int> assignmentCounts)
         {
-            if (pick.Skill == Skills.None) return true;
+            if (pick.Skill == BuiltInSkillIds.None) return true;
             if (!SkillData.Skills.Any(s => s.Skill == pick.Skill)) return false;
 
-            string name = pick.Skill.ToString();
-            if (player.Team == CsTeam.Terrorist && counterterroristSkills.Any(s => s.Name == name)) return false;
-            if (player.Team == CsTeam.CounterTerrorist && terroristSkills.Any(s => s.Name == name)) return false;
+            if (player.Team == CsTeam.Terrorist && counterterroristSkills.Any(s => s.Id == pick.Skill)) return false;
+            if (player.Team == CsTeam.CounterTerrorist && terroristSkills.Any(s => s.Id == pick.Skill)) return false;
 
-            var def = SkillRuntime.All.FirstOrDefault(d => d.Name == name);
+            var def = SkillRuntime.All.FirstOrDefault(d => d.Id == pick.Skill);
             if (def == null) return false;
             if (def.NeedsTeammates && validPlayers.Count(p => p.Team == player.Team) == 1) return false;
             if (def.MaxPerServer >= 0 && assignmentCounts.TryGetValue(pick.Skill, out var c) && c >= def.MaxPerServer) return false;
@@ -475,7 +501,7 @@ namespace src.player
 
                 var ctx = BuildPickContext(validPlayers);
 
-                Dictionary<Skills, int> assignmentCounts = [];
+                Dictionary<SkillId, int> assignmentCounts = [];
                 foreach (var player in validPlayers)
                 {
                     var skillPlayer = PlayerManager.GetPlayerByIndex(player.Index);
@@ -484,7 +510,7 @@ namespace src.player
                     var pick = PickSkillForPlayer(player, skillPlayer, ctx, assignmentCounts, gameMode);
                     nextRoundPicks[player.Index] = pick;
 
-                    if (pick.Skill != Skills.None)
+                    if (pick.Skill != BuiltInSkillIds.None)
                         assignmentCounts[pick.Skill] = assignmentCounts.TryGetValue(pick.Skill, out var c) ? c + 1 : 1;
                 }
             }
@@ -496,7 +522,7 @@ namespace src.player
         // Per-skill metadata (hudDuration / descriptionHudDuration) wins over the
         // global typed configuration value; -1 in either place means "never expire" and is stored as
         // DateTime.MaxValue, which PlayerOnTick then compares against DateTime.Now.
-        public static void UpdateSkillHudExpired(jSkill_PlayerInfo skillPlayer, Skills skill)
+        public static void UpdateSkillHudExpired(PlayerRuntimeState skillPlayer, SkillId skill)
         {
             float globalHudExpired = ConfigurationStore.Settings.General.SkillHudDuration;
             float? skillHudExpired = SkillRuntime.GetMetadata(skill).HudDuration;
@@ -552,18 +578,18 @@ namespace src.player
                 // rounds in a row, and the team filters keep a CT-only hero off the Ts.
                 if (ConfigurationStore.Settings.General.GameMode == GameMode.TeamSkills)
                 {
-                    List<jSkill_SkillInfo> tSkills = [.. SkillData.Skills];
-                    tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == Skills.None || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    List<SkillRuntimeInfo> tSkills = [.. SkillData.Skills];
+                    tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == BuiltInSkillIds.None || counterterroristSkills.Any(s2 => s2.Id == s.Skill));
                     tSkill = tSkills.Count == 0 ? noneSkill : tSkills[Instance.Random.Next(tSkills.Count)];
 
-                    List<jSkill_SkillInfo> ctSkills = [.. SkillData.Skills];
-                    ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == Skills.None || terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    List<SkillRuntimeInfo> ctSkills = [.. SkillData.Skills];
+                    ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == BuiltInSkillIds.None || terroristSkills.Any(s2 => s2.Id == s.Skill));
                     ctSkill = ctSkills.Count == 0 ? noneSkill : ctSkills[Instance.Random.Next(ctSkills.Count)];
                 }
                 else if (ConfigurationStore.Settings.General.GameMode == GameMode.SameSkills)
                 {
-                    List<jSkill_SkillInfo> allSkills = [.. SkillData.Skills];
-                    allSkills.RemoveAll(s => s.Skill == allSkill.Skill || s.Skill == Skills.None || !allTeamsSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    List<SkillRuntimeInfo> allSkills = [.. SkillData.Skills];
+                    allSkills.RemoveAll(s => s.Skill == allSkill.Skill || s.Skill == BuiltInSkillIds.None || !allTeamsSkills.Any(s2 => s2.Id == s.Skill));
                     allSkill = allSkills.Count == 0 ? noneSkill : allSkills[Instance.Random.Next(allSkills.Count)];
                 }
                 else if (ConfigurationStore.Settings.General.GameMode == GameMode.Debug && debugSkills.Count == 0)
@@ -572,7 +598,7 @@ namespace src.player
                 // Live per-hero headcount, seeded from whatever players already hold and
                 // incremented as picks are applied below. This is what enforces
                 // MaxPerServer across the whole draw.
-                Dictionary<Skills, int> assignmentCounts = new();
+                Dictionary<SkillId, int> assignmentCounts = new();
                 foreach (var sp in Instance.SkillPlayer)
                 {
                     if (sp == null) continue;
@@ -600,11 +626,11 @@ namespace src.player
                     // No pawn = nothing a hero could act on, so leave them on None.
                     if (player.PlayerPawn.Value == null || !player.PlayerPawn.IsValid)
                     {
-                        skillPlayer.Skill = Skills.None;
+                        skillPlayer.Skill = BuiltInSkillIds.None;
                         continue;
                     }
 
-                    jSkill_SkillInfo randomSkill = noneSkill;
+                    SkillRuntimeInfo randomSkill = noneSkill;
 
                     GameMode gameMode = ConfigurationStore.Settings.General.GameMode;
                     if (gameMode == GameMode.Normal || gameMode == GameMode.FullRandom || gameMode == GameMode.NoRepeat)
@@ -634,15 +660,15 @@ namespace src.player
 
                     Instance?.InvokeDisableSkill(skillPlayer.Skill, player);
                     skillPlayer.Skill = randomSkill.Skill;
-                    skillPlayer.SpecialSkill = Skills.None;
+                    skillPlayer.SpecialSkill = BuiltInSkillIds.None;
 
-                    if (randomSkill.Skill != Skills.None)
+                    if (randomSkill.Skill != BuiltInSkillIds.None)
                     {
                         if (assignmentCounts.TryGetValue(randomSkill.Skill, out var cnt)) assignmentCounts[randomSkill.Skill] = cnt + 1;
                         else assignmentCounts[randomSkill.Skill] = 1;
                     }
 
-                    if (randomSkill.Skill == Skills.Illiterate)
+                    if (randomSkill.Skill == BuiltInSkillIds.Illiterate)
                         Illiterate.Enable();
 
                     // Only the INDEX is captured, never the controller: the deferred
@@ -699,7 +725,7 @@ namespace src.player
                                 if (teammateInfo != null && teammateInfo?.Skill != null)
                                 {
                                     var skillInfo = SkillData.Skills.FirstOrDefault(p => p.Skill == teammateInfo.Skill);
-                                    teammateSkills += $" {ChatColors.DarkRed}\u202A{teammate.PlayerName}\u202C{ChatColors.Lime}: {(skillInfo == null ? player.GetSkillName(Skills.None) : player.GetSkillName(skillInfo.Skill, teammateInfo.SkillChance))}\n";
+                                    teammateSkills += $" {ChatColors.DarkRed}\u202A{teammate.PlayerName}\u202C{ChatColors.Lime}: {(skillInfo == null ? player.GetSkillName(BuiltInSkillIds.None) : player.GetSkillName(skillInfo.Skill, teammateInfo.SkillChance))}\n";
                                 }
                             }
 
@@ -734,12 +760,12 @@ namespace src.player
 
                 if (ConfigurationStore.Settings.General.GameMode == GameMode.TeamSkills)
                 {
-                    List<jSkill_SkillInfo> tSkills = [.. SkillData.Skills];
-                    tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == Skills.None || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    List<SkillRuntimeInfo> tSkills = [.. SkillData.Skills];
+                    tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == BuiltInSkillIds.None || counterterroristSkills.Any(s2 => s2.Id == s.Skill));
                     tSkill = tSkills.Count == 0 ? noneSkill : tSkills[0];
 
-                    List<jSkill_SkillInfo> ctSkills = [.. SkillData.Skills];
-                    ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == Skills.None || terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                    List<SkillRuntimeInfo> ctSkills = [.. SkillData.Skills];
+                    ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == BuiltInSkillIds.None || terroristSkills.Any(s2 => s2.Id == s.Skill));
                     ctSkill = ctSkills.Count == 0 ? noneSkill : ctSkills[0];
                 }
 
@@ -750,11 +776,11 @@ namespace src.player
                 skillPlayer.IsDrawing = false;
                 if (player.PlayerPawn.Value == null || !player.PlayerPawn.IsValid)
                 {
-                    skillPlayer.Skill = Skills.None;
+                    skillPlayer.Skill = BuiltInSkillIds.None;
                     return;
                 }
 
-                jSkill_SkillInfo randomSkill = noneSkill;
+                SkillRuntimeInfo randomSkill = noneSkill;
                 if (Instance?.GameRules != null && Instance?.GameRules.WarmupPeriod == false)
                 {
                     GameMode gameMode = ConfigurationStore.Settings.General.GameMode;
@@ -762,8 +788,8 @@ namespace src.player
                         randomSkill = staticSkill;
                     else if (gameMode == GameMode.Normal || gameMode == GameMode.FullRandom || gameMode == GameMode.NoRepeat)
                     {
-                        List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
-                        skillList.RemoveAll(s => s?.Skill == Skills.None);
+                        List<SkillRuntimeInfo> skillList = [.. SkillData.Skills];
+                        skillList.RemoveAll(s => s?.Skill == BuiltInSkillIds.None);
                         if (!player.IsBot)
                             skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillRuntime.GetMetadata(s.Skill).RequiredPermission) && !AdminManager.PlayerHasPermissions(player, SkillRuntime.GetMetadata(s.Skill).RequiredPermission));
 
@@ -773,21 +799,21 @@ namespace src.player
                         if (validPlayers.Count(p => p.Team == player.Team) == 1)
                         {
                             var skillsNeedsTeammates = SkillRuntime.All.Where(s => s.NeedsTeammates).ToArray();
-                            skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));
+                            skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Id == s.Skill));
                         }
 
                         if (player.Team == CsTeam.Terrorist)
-                            skillList.RemoveAll(s => counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                            skillList.RemoveAll(s => counterterroristSkills.Any(s2 => s2.Id == s.Skill));
                         else
-                            skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
+                            skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Id == s.Skill));
 
-                        if (gameMode == GameMode.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
+                        if (gameMode == GameMode.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<SkillRuntimeInfo>? skills))
                         {
                             skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
                             if (skillList.Count == 0) skills.Clear();
                         }
 
-                        var assignmentCounts = new Dictionary<Skills, int>();
+                        var assignmentCounts = new Dictionary<SkillId, int>();
                         foreach (var sp in Instance.SkillPlayer)
                         {
                             if (sp == null) continue;
@@ -813,13 +839,13 @@ namespace src.player
 
                 Instance?.InvokeDisableSkill(skillPlayer.Skill, player);
                 skillPlayer.Skill = randomSkill.Skill;
-                skillPlayer.SpecialSkill = Skills.None;
+                skillPlayer.SpecialSkill = BuiltInSkillIds.None;
 
                 if (randomSkill.Display && ConfigurationStore.Settings.General.YourSkillChatInfo)
                     SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
                         border: !Utilities.GetPlayers().Any(p => p != null && p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
 
-                if (randomSkill.Skill == Skills.Illiterate)
+                if (randomSkill.Skill == BuiltInSkillIds.Illiterate)
                     Illiterate.Enable();
 
                 Instance?.AddTimer(.2f, () =>

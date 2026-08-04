@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class Assassin : ISkill
     {
-        private const Skills skillName = Skills.Assassin;
+        private static readonly SkillId skillName = BuiltInSkillIds.Assassin;
         private static AssassinOptions Options => SkillConfigurationResolver.Get<AssassinOptions>(BuiltInSkillIds.Assassin);
         private static readonly string[] nadeWeapons =
         [

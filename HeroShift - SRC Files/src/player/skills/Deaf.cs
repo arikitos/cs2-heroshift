@@ -35,7 +35,7 @@ namespace src.player.skills
      */
     public class Deaf : ISkill
     {
-        private const Skills skillName = Skills.Deaf;
+        private static readonly SkillId skillName = BuiltInSkillIds.Deaf;
         private static readonly ConcurrentDictionary<uint, byte> deafPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 

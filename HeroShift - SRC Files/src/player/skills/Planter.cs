@@ -39,7 +39,7 @@ namespace src.player.skills
      */
     public class Planter : ISkill
     {
-        private const Skills skillName = Skills.Planter;
+        private static readonly SkillId skillName = BuiltInSkillIds.Planter;
         private static PlanterOptions Options => SkillConfigurationResolver.Get<PlanterOptions>(BuiltInSkillIds.Planter);
         private static readonly ConcurrentDictionary<uint, float> plantingPlayers = [];
         // mp_c4timer is an Int32 cvar; captured at load so restore never picks up another skill's override.

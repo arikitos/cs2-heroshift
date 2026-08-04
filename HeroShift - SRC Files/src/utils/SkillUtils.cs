@@ -116,10 +116,10 @@ namespace src.utils
             return HeroShift.Instance?.GameRules?.FreezePeriod == true;
         }
 
-        public static void RegisterSkill(Skills skill, string color, bool display = true)
+        public static void RegisterSkill(SkillId skill, string color, bool display = true)
         {
             if (!SkillData.Skills.Any(s => s.Skill == skill))
-                SkillData.Skills.Add(new jSkill_SkillInfo(skill, color, display));
+                SkillData.Skills.Add(new SkillRuntimeInfo(skill, color, display));
         }
 
         public static void UpdateGrenadeCount(CCSPlayerController player, CsItem item, int ammo)
@@ -434,16 +434,14 @@ namespace src.utils
             return bulletWeapons.Contains(weapon);
         }
 
-        private static readonly HashSet<Skills> curseSkills =
+        private static readonly HashSet<SkillId> curseSkills =
         [
-            Skills.Bankrupt, Skills.CarefulBullets, Skills.Darkness, Skills.Deactivator,
-            Skills.Deaf, Skills.ExpensiveAmmo, Skills.Giant, Skills.Glitch,
-            Skills.Jammer, Skills.JumpBan, Skills.JumpCurse, Skills.LifeSwap,
-            Skills.Magnifier, Skills.MoneySwap, Skills.Nightmare, Skills.Poison,
-            Skills.PrimaryBan, Skills.Thief, Skills.WildThrow
+            BuiltInSkillIds.Bankrupt, BuiltInSkillIds.CarefulBullets, BuiltInSkillIds.Darkness, BuiltInSkillIds.Deactivator,
+            BuiltInSkillIds.Deaf, BuiltInSkillIds.ExpensiveAmmo, BuiltInSkillIds.Giant, BuiltInSkillIds.Glitch,
+            BuiltInSkillIds.Jammer, BuiltInSkillIds.JumpBan, BuiltInSkillIds.JumpCurse, BuiltInSkillIds.LifeSwap,
+            BuiltInSkillIds.Magnifier, BuiltInSkillIds.MoneySwap, BuiltInSkillIds.Nightmare, BuiltInSkillIds.Poison,
+            BuiltInSkillIds.PrimaryBan, BuiltInSkillIds.Thief, BuiltInSkillIds.WildThrow
         ];
-
-        private static readonly HashSet<string> curseSkillNames = new(curseSkills.Select(s => s.ToString()), StringComparer.Ordinal);
 
         private static readonly Dictionary<uint, int> curseCounts = [];
         private static readonly Dictionary<uint, uint> curserToVictim = [];
@@ -461,9 +459,7 @@ namespace src.utils
             }
         }
 
-        public static bool IsCurseSkill(Skills skill) => curseSkills.Contains(skill);
-
-        public static bool IsCurseSkill(string skill) => curseSkillNames.Contains(skill);
+        public static bool IsCurseSkill(SkillId skill) => curseSkills.Contains(skill);
 
         public static void ClearCurses()
         {
@@ -590,7 +586,7 @@ namespace src.utils
                 return false;
 
             CCSPlayerController? victim = null;
-            jSkill_PlayerInfo? playerInfo = null;
+            PlayerRuntimeState? playerInfo = null;
 
             var player = pawn.Controller.Value;
             if (player != null && player.IsValid)
@@ -599,24 +595,24 @@ namespace src.utils
                 playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null) return false;
 
-                if (playerInfo.Skill == Skills.Jester && Jester.GetJesterInfo(player.Index)?.Active == true)
+                if (playerInfo.Skill == BuiltInSkillIds.Jester && Jester.GetJesterInfo(player.Index)?.Active == true)
                     return false;
 
-                if (playerInfo.Skill == Skills.GodMode && GodMode.HaveHodMode(player.Index))
+                if (playerInfo.Skill == BuiltInSkillIds.GodMode && GodMode.HaveHodMode(player.Index))
                     return false;
 
-                if (playerInfo.Skill == Skills.Armored)
+                if (playerInfo.Skill == BuiltInSkillIds.Armored)
                     damage = (int)Math.Round(damage * (playerInfo.SkillChance ?? 1f));
             }
 
             int newHealth = (int)(pawn.Health - damage);
             if (newHealth <= 0 && playerInfo != null)
             {
-                if (playerInfo.Skill == Skills.SecondLife && SecondLife.TryConsumeRevive(victim, pawn))
+                if (playerInfo.Skill == BuiltInSkillIds.SecondLife && SecondLife.TryConsumeRevive(victim, pawn))
                     return true;
-                if (playerInfo.Skill == Skills.Phoenix && Phoenix.TryConsumeRevive(victim, pawn))
+                if (playerInfo.Skill == BuiltInSkillIds.Phoenix && Phoenix.TryConsumeRevive(victim, pawn))
                     return true;
-                if (playerInfo.Skill == Skills.ReZombie && ReZombie.TryBecomeZombie(victim, pawn))
+                if (playerInfo.Skill == BuiltInSkillIds.ReZombie && ReZombie.TryBecomeZombie(victim, pawn))
                     return true;
             }
 

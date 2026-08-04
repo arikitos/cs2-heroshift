@@ -42,7 +42,7 @@ namespace src.player.skills
      */
     public class Poison : ISkill
     {
-        private const Skills skillName = Skills.Poison;
+        private static readonly SkillId skillName = BuiltInSkillIds.Poison;
         private static PoisonOptions Options => SkillConfigurationResolver.Get<PoisonOptions>(BuiltInSkillIds.Poison);
         private static readonly ConcurrentDictionary<uint, byte> poisonedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];

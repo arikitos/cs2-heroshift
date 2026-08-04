@@ -32,7 +32,7 @@ namespace src.player.skills
      */
     public class Saper : ISkill
     {
-        private const Skills skillName = Skills.Saper;
+        private static readonly SkillId skillName = BuiltInSkillIds.Saper;
 
         public static void LoadSkill()
         {
