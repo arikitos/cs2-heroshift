@@ -285,7 +285,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
 
             Vector start = new(playerPawn!.AbsOrigin!.X, playerPawn!.AbsOrigin!.Y, endPos.Z);
-            var result = RayTrace.TraceHullShape(start, endPos, player);
+            var result = HeroShift.Instance.TraceService.TraceHullShape(start, endPos, player);
 
             if (!result.HasValue)
                 return false;

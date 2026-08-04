@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Isolate the bundled WASDMenu implementation and external RayTrace capability behind `IGameMenuService` and `ITraceService` adapters, preserving the current manager behavior, capability key, native trace semantics, warning behavior and server dependency paths.
+
 - Remove the final `Config` compatibility facade; all runtime consumers now read the canonical immutable typed configuration snapshot directly, including typed command aliases, permissions and game modes.
 
 - Remove the `SkillsInfo` compatibility facade and all 142 nested `SkillConfig` duplicates; skill selection now reads the immutable effective skill snapshot directly.

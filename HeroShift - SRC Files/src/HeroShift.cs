@@ -4,11 +4,12 @@ using CounterStrikeSharp.API.Core.Commands;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.command;
+using src.Infrastructure.Menu;
+using src.Infrastructure.Tracing;
 using src.player;
 using src.utils;
 using System.Collections.Concurrent;
 using System.Text.Json;
-using WASDSharedAPI;
 using static CounterStrikeSharp.API.Core.Listeners;
 
 using src.SkillsCore;
@@ -42,7 +43,8 @@ namespace src
         public Random Random { get; } = new Random();
         public CCSGameRules? GameRules { get; set; }
         private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
-        public IWasdMenuManager? MenuManager;
+        internal IGameMenuService MenuService { get; private set; } = null!;
+        internal ITraceService TraceService { get; private set; } = null!;
         internal SkillRegistry SkillRegistry { get; private set; } = null!;
         internal SkillDispatcher SkillDispatcher { get; private set; } = null!;
         // Skills enabled at least once this round; used to reset only those on round change, not all 142 definitions.
@@ -59,6 +61,8 @@ namespace src
             Instance = this;
 
             SkillRegistry = BuiltInSkillCatalog.BuildRegistry();
+            MenuService = new WasdGameMenuService();
+            TraceService = new RayTraceService();
             SkillDispatcher = new SkillDispatcher(SkillRegistry, Server.PrintToConsole);
             ConfigurationStore.Initialize(Path.Combine(ModuleDirectory, "configs", "heroshift.json"), SkillRegistry, Logger);
             Localization.Load();
@@ -66,7 +70,7 @@ namespace src
             PlayerOnTick.Load();
             Event.Load();
             Command.Load();
-            WASDMenuAPI.WASDMenuAPI.LoadPlugin(Instance, hotReload);
+            MenuService.Load(this, hotReload);
             LoadAllSkills();
             PlayerManager.SyncWithPlugin(Instance);
 

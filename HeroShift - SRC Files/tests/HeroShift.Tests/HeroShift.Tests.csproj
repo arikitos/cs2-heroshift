@@ -22,4 +22,11 @@
     <ProjectReference Include="..\..\HeroShift.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="RayTraceApi">
+      <HintPath>..\..\libs\RayTraceApi.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
 </Project>

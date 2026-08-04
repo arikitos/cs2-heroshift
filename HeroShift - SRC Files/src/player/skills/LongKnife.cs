@@ -138,7 +138,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null)
                 return;
 
-            var result = RayTrace.EyeTrace(player);
+            var result = HeroShift.Instance.TraceService.EyeTrace(player);
             if (result == null || !result.HasValue)
                 return;
 

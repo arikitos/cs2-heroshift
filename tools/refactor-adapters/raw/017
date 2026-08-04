@@ -1,9 +1,0 @@
-Size}' color='{config.WsadMenuControllsLineColor3}'>{player.GetTranslation($"menu_controlls_select")}</font>{emptySymbol}";
-@@ -970,7 +960,7 @@ namespace src.utils
- 
-             bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
- 
--            IWasdMenu menu = manager.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
-+            IWasdMenu menu = menuService.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
-             foreach (var enemy in enemies)
-      

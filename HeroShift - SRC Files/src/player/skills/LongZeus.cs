@@ -61,7 +61,7 @@ namespace src.player.skills
             var activeWeapon = pawn.WeaponServices.ActiveWeapon.Value;
             if (activeWeapon == null || !activeWeapon.IsValid || activeWeapon.DesignerName != "weapon_taser") return;
 
-            var result = RayTrace.EyeTrace(player);
+            var result = HeroShift.Instance.TraceService.EyeTrace(player);
             if (result == null || !result.HasValue)
                 return;
 

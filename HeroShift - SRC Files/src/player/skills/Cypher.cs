@@ -371,7 +371,7 @@ namespace src.player.skills
             Vector endPos = eyePos + SkillUtils.GetForwardVector(playerPawn.V_angle) * 4096f;
 
             ulong mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Window | InteractionLayers.PassBullets);
-            var result = RayTrace.TraceShape(player, eyePos, endPos, mask);
+            var result = HeroShift.Instance.TraceService.TraceShape(player, eyePos, endPos, mask);
 
             if (result.HasValue && result.Value.HitWorld(out _))
             {
@@ -400,7 +400,7 @@ namespace src.player.skills
             cameraVector += SkillUtils.GetForwardVector(new QAngle(0, playerPawn.V_angle.Y + 180, 0)) * 5;
 
             ulong mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Window | InteractionLayers.PassBullets);
-            var result = RayTrace.TraceShape(player, cameraVector, endPos, mask);
+            var result = HeroShift.Instance.TraceService.TraceShape(player, cameraVector, endPos, mask);
 
             if (result.HasValue && result.Value.HitWorld(out _))
                 return true;

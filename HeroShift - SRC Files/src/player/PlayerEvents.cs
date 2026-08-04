@@ -844,7 +844,7 @@ namespace src.player
 
                     ulong mask = (ulong)(InteractionLayers.MASK_WORLD_ONLY | InteractionLayers.Player | InteractionLayers.NPC);
                     ulong contents = 0;
-                    var result = RayTrace.TraceShape(player, eyePos, endPos, mask, contents);
+                    var result = HeroShift.Instance.TraceService.TraceShape(player, eyePos, endPos, mask, contents);
 
                     if (result.HasValue && result.Value.DidHit)
                     {

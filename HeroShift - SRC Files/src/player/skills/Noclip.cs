@@ -226,7 +226,7 @@ namespace src.player.skills
                 Vector start = new(targetPos.X, targetPos.Y, targetPos.Z + 70);
                 Vector end = new(targetPos.X, targetPos.Y, targetPos.Z - 1000);
 
-                var groundResult = RayTrace.TraceShape(player, start, end, mask, contents);
+                var groundResult = HeroShift.Instance.TraceService.TraceShape(player, start, end, mask, contents);
                 if (!groundResult.HasValue || !groundResult.Value.DidHit) continue;
 
                 Vector newPos =
@@ -237,7 +237,7 @@ namespace src.player.skills
                 hasGround = true;
                 stuckVector = newPos;
 
-                var result = RayTrace.TraceHullShape(
+                var result = HeroShift.Instance.TraceService.TraceHullShape(
                     targetPos,
                     targetPos,
                     player

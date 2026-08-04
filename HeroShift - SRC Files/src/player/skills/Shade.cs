@@ -122,7 +122,7 @@ namespace src.player.skills
             var victimPawn = victim.PlayerPawn.Value;
             if (victimPawn == null || !victimPawn.IsValid) return false;
 
-            var result = RayTrace.TraceHullShape(
+            var result = HeroShift.Instance.TraceService.TraceHullShape(
                     startPos,
                     endPos,
                     victim,

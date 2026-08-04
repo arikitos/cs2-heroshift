@@ -1,9 +1,0 @@
-seCalls { get; private set; }
-+        public int PauseCalls { get; private set; }
-+
-+        public void OpenMainMenu(CCSPlayerController? player, IWasdMenu? menu) { }
-+        public void CloseMenu(CCSPlayerController? player) => CloseCalls++;
-+        public void CloseSubMenu(CCSPlayerController? player) { }
-+        public void CloseAllSubMenus(CCSPlayerController? player) { }
-+        public void OpenSubMenu(CCSPlayerController? player, IWasdMenu? menu) { }
-+        public IWasdMenu CreateM

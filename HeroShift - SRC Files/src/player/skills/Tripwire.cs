@@ -204,7 +204,7 @@ namespace src.player.skills
         {
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return false;
-            if (!RayTrace.IsAvailable) return false;
+            if (!HeroShift.Instance.TraceService.IsAvailable) return false;
 
             float height = Options.WireHeight;
             float maxDistance = Options.MaxWallDistance;
@@ -217,8 +217,8 @@ namespace src.player.skills
 
             ulong wallMask = (ulong)InteractionLayers.MASK_WORLD_ONLY;
 
-            var rightHit = RayTrace.TraceShape(player, origin, origin + rightDir * maxDistance, wallMask, 0);
-            var leftHit = RayTrace.TraceShape(player, origin, origin + leftDir * maxDistance, wallMask, 0);
+            var rightHit = HeroShift.Instance.TraceService.TraceShape(player, origin, origin + rightDir * maxDistance, wallMask, 0);
+            var leftHit = HeroShift.Instance.TraceService.TraceShape(player, origin, origin + leftDir * maxDistance, wallMask, 0);
 
             if (rightHit == null || leftHit == null) return false;
             if (!rightHit.Value.DidHit || !leftHit.Value.DidHit) return false;

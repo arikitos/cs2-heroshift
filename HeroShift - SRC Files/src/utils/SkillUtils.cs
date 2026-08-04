@@ -14,8 +14,8 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using WASDMenuAPI.Classes;
 using WASDSharedAPI;
+using src.Infrastructure.Menu;
 
 namespace src.utils
 {
@@ -157,7 +157,7 @@ namespace src.utils
 
             var exists = player.PlayerPawn.Value.WeaponServices.MyWeapons
                 .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && w.Value.DesignerName == itemString);
-            
+
             if (exists == null || !existValidator)
                 for (int i = 0; i < count; i++)
                     player.GiveNamedItem(item);
@@ -299,7 +299,7 @@ namespace src.utils
 
             skeleton.Scale = scale;
             playerPawn.AcceptInput("SetScale", null, null, scale.ToString(CultureInfo.InvariantCulture));
-            
+
             Server.NextWorldUpdate(() => {
                 if (playerPawn == null || !playerPawn.IsValid) return;
                 Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
@@ -837,32 +837,24 @@ namespace src.utils
             return designerName;
         }
 
-        private static IWasdMenuManager? GetMenuManager()
-        {
-            if (HeroShift.Instance.MenuManager == null)
-                HeroShift.Instance.MenuManager = new WasdManager();
-            return HeroShift.Instance.MenuManager;
-        }
+        private static IGameMenuService GetMenuService() => HeroShift.Instance.MenuService;
 
         public static void CloseMenu(CCSPlayerController? player)
         {
-            var manager = GetMenuManager();
-            if (manager == null) return;
-            manager.CloseMenu(player);
+            var menuService = GetMenuService();
+            menuService.CloseMenu(player);
         }
 
         public static bool HasMenu(CCSPlayerController? player)
         {
-            var manager = GetMenuManager();
-            if (manager == null) return false;
-            return manager.HasMenu(player);
+            var menuService = GetMenuService();
+            return menuService.HasMenu(player);
         }
 
         public static bool SetMenuPaused(CCSPlayerController? player, bool pause)
         {
-            var manager = GetMenuManager();
-            if (manager == null) return false;
-            return manager.SetMenuPaused(player, pause);
+            var menuService = GetMenuService();
+            return menuService.SetPaused(player, pause);
         }
 
         private static string GetInvisibleSignature(string id)
@@ -881,8 +873,7 @@ namespace src.utils
         {
             if (player == null) return;
 
-            var manager = GetMenuManager();
-            if (manager == null) return;
+            var menuService = GetMenuService();
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
@@ -901,11 +892,11 @@ namespace src.utils
                 list.TryAdd(uniqueKey, (p, option) =>
                 {
                     HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [item.Item2]);
-                    manager.CloseMenu(p);
+                    menuService.CloseMenu(p);
                 });
             }
 
-            manager.UpdateActiveMenu(player, list);
+            menuService.UpdateActiveMenu(player, list);
         }
 
         public static void CreateMenu(CCSPlayerController? player, ConcurrentBag<(string, string)> enemies, (string, string, bool)? lastElement = null)
@@ -938,8 +929,7 @@ namespace src.utils
             var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == playerInfo.Skill);
             if (skillData == null) return;
 
-            var manager = GetMenuManager();
-            if (manager == null) return;
+            var menuService = GetMenuService();
 
             var config = ConfigurationStore.Settings.Hud;
             var your_skill = player.GetTranslation("your_skill");
@@ -960,7 +950,7 @@ namespace src.utils
 
             var hudContent = infoLine + skillLine + remainingLine;
 
-            string controllsLine = 
+            string controllsLine =
                 $"{emptySymbol}<font class='fontSize-{config.WsadMenuControllsLineSize}' color='{config.WsadMenuControllsLineColor1}'>{player.GetTranslation($"menu_controlls_scroll")}</font>"
                 + $"<font class='fontSize-{config.WsadMenuControllsLineSize}' color='{config.WsadMenuControllsLineColor2}'>{player.GetTranslation($"menu_controlls_padding")}</font>"
                 + $"<font class='fontSize-{config.WsadMenuControllsLineSize}' color='{config.WsadMenuControllsLineColor3}'>{player.GetTranslation($"menu_controlls_select")}</font>{emptySymbol}";
@@ -970,7 +960,7 @@ namespace src.utils
 
             bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
 
-            IWasdMenu menu = manager.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
+            IWasdMenu menu = menuService.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
             foreach (var enemy in enemies)
             {
                 string encodedEnemyName = isIlliterate
@@ -982,7 +972,7 @@ namespace src.utils
                 menu.Add(uniqueKey, (p, option) =>
                 {
                     HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [enemy.Item2]);
-                    manager.CloseMenu(p);
+                    menuService.CloseMenu(p);
                 });
             }
 
@@ -996,11 +986,11 @@ namespace src.utils
                 {
                     HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [lastElement.Value.Item2]);
                     if (lastElement.Value.Item3)
-                        manager.CloseMenu(p);
+                        menuService.CloseMenu(p);
                 });
             }
 
-            manager.OpenMainMenu(player, menu);
+            menuService.OpenMainMenu(player, menu);
         }
 
         public static void SetTeamScores(short ctScore, short tScore, RoundEndReason roundEndReason)
