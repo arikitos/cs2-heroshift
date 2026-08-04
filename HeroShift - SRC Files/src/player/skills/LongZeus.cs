@@ -15,8 +15,8 @@ namespace src.player.skills
      * LOGIC
      *   EnableSkill: gives the zeus and raises its range to maxDistance.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maxDistance  = 4096f
      *                    -> taser reach in game units (4096 = practically
      *                       map-wide)
@@ -77,12 +77,6 @@ namespace src.player.skills
         public static void EnableSkill(CCSPlayerController player)
         {
             SkillUtils.TryGiveWeapon(player, CsItem.Zeus);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#6effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Uncommon, float maxDistance = 4096f, bool friendlyFire = false) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MaxDistance { get; set; } = maxDistance;
-            public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

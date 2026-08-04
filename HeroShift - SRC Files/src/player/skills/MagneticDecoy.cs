@@ -16,8 +16,8 @@ namespace src.player.skills
      *   DecoyStarted/DecoyDetonate: registers the active decoy.
      *   OnTick: drags players inside triggerRadius toward it with 'strenght'.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   triggerRadius = 180
      *                     -> radius in which players are pulled (game units)
      *   strenght      = 30
@@ -166,13 +166,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#81f0c4", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float triggerRadius = 180, float strenght = 30, int grenadeLimit = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float TriggerRadius { get; set; } = triggerRadius;
-            public float Strenght { get; set; } = strenght;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

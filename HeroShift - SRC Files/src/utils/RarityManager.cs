@@ -5,7 +5,7 @@ namespace src.utils
     /*
      * RarityManager - controls how likely each hero is to be drawn.
      *
-     * Every skill declares a Rarity in its SkillConfig. RollRarity() first picks
+     * Every skill declares a Rarity in its canonical metadata. RollRarity() first picks
      * a rarity bucket using the weights below, then the round logic picks a
      * random skill from that bucket. So a Legendary hero is rare because its
      * BUCKET is only rolled 1% of the time - not because of a per-skill chance.

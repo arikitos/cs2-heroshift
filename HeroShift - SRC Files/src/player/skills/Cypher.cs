@@ -23,8 +23,8 @@ namespace src.player.skills
      *   UseSkill: spawns the watcher entity at your aim position.
      *   OnTick: checks for enemies in range and reveals them.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown = 30
      *                -> seconds before the skill can be used again
      *
@@ -440,11 +440,6 @@ namespace src.player.skills
             public float NoSpace { get; set; }
             public required QAngle LastPlayerAngle { get; set; }
             public required QAngle LastCameraAngle { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#34ebd5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

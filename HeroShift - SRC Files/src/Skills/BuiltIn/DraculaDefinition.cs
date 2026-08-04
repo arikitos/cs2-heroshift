@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * DraculaOptions - typed replacement for the legacy Dracula.SkillConfig
+ * DraculaOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record DraculaOptions : ISkillOptions

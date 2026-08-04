@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * PushOptions - typed replacement for the legacy Push.SkillConfig
+ * PushOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record PushOptions : ISkillOptions

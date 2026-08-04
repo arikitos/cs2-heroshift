@@ -16,8 +16,8 @@ namespace src.player.skills
      *     (torso vs legs) and bounces the damage back.
      *   OnTick: applies the movement speed change while holding a knife.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   torseReflectionChance = .95f
      *                             -> reflect chance for hits on the torso (0.95 =
      *                                95%)
@@ -116,13 +116,6 @@ namespace src.player.skills
 
             SkillUtils.RestoreHealth(victim);
             return true;
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc7504", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float torseReflectionChance = .95f, float legReflectionChance = .70f, float velocityModifier = .85f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float TorseReflectionChance { get; set; } = torseReflectionChance;
-            public float LegReflectionChance { get; set; } = legReflectionChance;
-            public float VelocityModifier { get; set; } = velocityModifier;
         }
     }
 }

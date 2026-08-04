@@ -17,8 +17,8 @@ namespace src.player.skills
      *   TypeSkill: pick the victim.
      *   OnTick/CheckTransmit: applies the post-processing and exposure changes.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   postProcessing = "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost"
      *                      -> post-process effect file applied to the victim's
      *                         screen
@@ -260,14 +260,6 @@ namespace src.player.skills
         {
             if (!targetVolumes.TryRemove(targetIndex, out uint volumeIndex)) return;
             EntityManager.DestroyEntity(volumeIndex);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5b2c6f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, string postProcessing = "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost", float fadeTime = .25f, float minExposure = .5f, float maxExposure = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public string PostProcessing { get; set; } = postProcessing;
-            public float FadeTime { get; set; } = fadeTime;
-            public float MinExposure { get; set; } = minExposure;
-            public float MaxExposure { get; set; } = maxExposure;
         }
     }
 }

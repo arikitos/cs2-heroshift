@@ -16,8 +16,8 @@ namespace src.player.skills
      *   OnEntitySpawned: catches your thrown HE projectile and scales its
      *     damage/radius.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   damageMultiplier       = 2f
      *                              -> HE grenade damage multiplier (2 = double
      *                                 damage)
@@ -134,13 +134,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffdd00", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float damageMultiplier = 2f, float damageRadiusMultiplier = 2f, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float DamageMultiplier { get; set; } = damageMultiplier;
-            public float DamageRadiusMultiplier { get; set; } = damageRadiusMultiplier;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

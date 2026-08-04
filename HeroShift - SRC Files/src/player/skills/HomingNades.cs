@@ -17,8 +17,8 @@ namespace src.player.skills
      *   OnTick: steers it toward the closest enemy with 'strength' and detonates
      *     it once it is within detonationRange.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   strength        = 150
      *                       -> how aggressively the grenade turns toward the
      *                          target
@@ -237,14 +237,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#384728", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float strength = 150, float maxVelocity = 2000, float detonationRange = 130, int grenadeLimit = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Strength { get; set; } = strength;
-            public float MaxVelocity { get; set; } = maxVelocity;
-            public float DetonationRange { get; set; } = detonationRange;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

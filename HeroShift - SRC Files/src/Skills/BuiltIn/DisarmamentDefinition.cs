@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * DisarmamentOptions - typed replacement for the legacy Disarmament.SkillConfig
+ * DisarmamentOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record DisarmamentOptions : ISkillOptions

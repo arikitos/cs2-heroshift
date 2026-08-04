@@ -16,8 +16,8 @@ namespace src.player.skills
      *   UseSkill/PlayerMakeSound: emits the decoy sound.
      *   OnTick: enforces the cooldown between sounds.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown = 2
      *                -> seconds between two fake sounds
      *
@@ -142,11 +142,6 @@ namespace src.player.skills
                 if (entity != null && entity.IsValid)
                     entity.EmitSound(soundEventName, volume: 1f);
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e3ed8c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int cooldown = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int Cooldown { get; set; } = cooldown;
         }
     }
 }

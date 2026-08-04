@@ -6,7 +6,7 @@ namespace src.SkillsCore.Abstractions;
  * registered hooks. Replaces the combination of:
  *   - a Skills enum entry (identity)
  *   - a class name reflection-matched from that entry (dispatch target)
- *   - a nested SkillConfig discovered by reflection (defaults/options)
+ *   - a typed options record owned by the canonical definition
  * with one object a registry can look up by SkillId (REFACTOR.md section 8).
  *
  * SkillDefinition<TOptions> is the type-safe entry point authors use; the

@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * SaperOptions - typed replacement for the legacy Saper.SkillConfig
+ * SaperOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record SaperOptions : ISkillOptions

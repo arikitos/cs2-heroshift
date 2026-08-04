@@ -22,8 +22,8 @@ namespace src.player.skills
      *   GrenadeThrown/WeaponEquip/WeaponPickup: keeps the extra flashbang count
      *     in sync in the HUD when grenadeLimit is above the server limit.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   flashDuration = 1f
      *                     -> blind seconds required to trigger the instant kill
      *                        (lower = deadlier)
@@ -138,13 +138,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.FlashbangGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#57bcff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Epic, float flashDuration = 1f, bool friendlyFire = true, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float FlashDuration { get; set; } = flashDuration;
-            public bool FriendlyFire { get; set; } = friendlyFire;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

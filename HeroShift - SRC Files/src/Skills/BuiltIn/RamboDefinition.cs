@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * RamboOptions - typed replacement for the legacy Rambo.SkillConfig
+ * RamboOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record RamboOptions : ISkillOptions

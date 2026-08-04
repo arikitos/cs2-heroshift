@@ -114,14 +114,10 @@ public interface ISkill
     public static void OnTriggerExit(CBaseTrigger _, CBaseEntity __) { }
     public static bool OnWeaponCanAcquire(DynamicHook _, CCSPlayerController __, CEconItemView ___, CCSWeaponBaseVData ____) { return false; }
 
-    // Base for the per-skill tunables class. Each skill shadows this with its
-    // own SkillConfig deriving from SkillsInfo.DefaultSkillInfo.
-    public class SkillConfig { }
 }
 
-// Master list of every hero in the plugin. The enum name MUST match the class
-// name in src/player/skills/ exactly - reflection builds the type name from it.
-// Adding a hero = new file + new entry here.
+// Legacy player-state identity retained for runtime compatibility. Canonical
+// registration and configuration identity live in BuiltInSkillCatalog/SkillId.
 
 public enum Skills
 {

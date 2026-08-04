@@ -15,8 +15,8 @@ namespace src.player.skills
      * LOGIC
      *   BombPlanted: overrides the C4 countdown with detonationTime.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   detonationTime = 20
      *                      -> seconds on the C4 timer instead of the default 40
      *
@@ -81,11 +81,6 @@ namespace src.player.skills
 
             foreach (var p in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
                 p.PrintToCenterAlert(p.GetTranslation("bombplanted", Options.DetonationTime));
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f5b74c", CsTeam onlyTeam = CsTeam.Terrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, int detonationTime = 20) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int DetonationTime { get; set; } = detonationTime;
         }
     }
 }

@@ -16,8 +16,8 @@ namespace src.player.skills
      *   UseSkill: exchanges your origin with the chosen player's.
      *   OnTick: enforces cooldown and the initial delay after round start.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown          = 30f
      *                         -> seconds before the skill can be used again
      *   cooldownBeforeUse = 10f
@@ -186,12 +186,6 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
             public DateTime LastClick { get; set; }
             public bool FindedEnemy { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1466F5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f, float cooldownBeforeUse = 10f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float CooldownBeforeUse { get; set; } = cooldownBeforeUse;
         }
     }
 }

@@ -14,8 +14,8 @@ namespace src.player.skills
      * LOGIC
      *   PlayerDeath: applies damageAfterDeath to the killer.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   damageAfterDeath = 30
      *                        -> damage dealt to the killer as you die
      *   canKill          = true
@@ -77,13 +77,6 @@ namespace src.player.skills
 
             SkillUtils.TakeHealth(attackerPawn, damageAfterDeath, victim, KillfeedIcons.Fist);
             PlayerManager.GetPlayerFromEvent(attacker)?.ExecuteClientCommand($"play player/player_damagebody_0{HeroShift.Instance.Random.Next(4, 8)}");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#88bdba", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, int damageAfterDeath = 30, bool canKill = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int DamageAfterDeath { get; set; } = damageAfterDeath;
-            public bool CanKill { get; set; } = canKill;
-
         }
     }
 }

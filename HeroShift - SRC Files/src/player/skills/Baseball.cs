@@ -19,8 +19,8 @@ namespace src.player.skills
      *   OnTick: accelerates the decoy up to maxSpeed along its flight.
      *   PlayerHurt: a player struck by it takes damageDeal (9999 = instant kill).
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   speedMultipier = 2f
      *                      -> how strongly the decoy is accelerated each tick
      *   maxSpeed       = 900f
@@ -232,14 +232,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#2effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float speedMultipier = 2f, float maxSpeed = 900f, int damageDeal = 9999, int grenadeLimit = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float SpeedMultipier { get; set; } = speedMultipier;
-            public float MaxSpeed { get; set; } = maxSpeed;
-            public float DamageDeal { get; set; } = damageDeal;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

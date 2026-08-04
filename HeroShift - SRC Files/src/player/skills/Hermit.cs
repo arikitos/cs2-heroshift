@@ -16,8 +16,8 @@ namespace src.player.skills
      *   PlayerDeath: when you are the killer, adds healthToAdd and plays the
      *     effect.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   healthToAdd    = 100
      *                      -> health gained per kill
      *   effectDuration = 1.0f
@@ -88,12 +88,6 @@ namespace src.player.skills
                 pawn.HealthShotBoostExpirationTime = Server.CurrentTime + effectDuration;
                 Utilities.SetStateChanged(pawn, "CCSPlayerPawn", "m_flHealthShotBoostExpirationTime");
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ded678", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int healthToAdd = 100, float effectDuration = 1.0f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int HealthToAdd { get; set; } = healthToAdd;
-            public float EffectDuration { get; set; } = effectDuration;
         }
     }
 }

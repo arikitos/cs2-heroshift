@@ -17,8 +17,8 @@ namespace src.player.skills
      *   UseSkill: turns on god mode and stores the expiry tick.
      *   OnTick: switches it off once 'duration' has passed.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown = 30f
      *                -> seconds before the skill can be used again
      *   duration = 2f
@@ -190,12 +190,6 @@ namespace src.player.skills
             public bool HaveGodMode { get; set; }
             public DateTime Cooldown { get; set; }
             public Color? OriginalRender { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0d83a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f, float duration = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float Duration { get; set; } = duration;
         }
     }
 }

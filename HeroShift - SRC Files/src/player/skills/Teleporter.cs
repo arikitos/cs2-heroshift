@@ -16,8 +16,8 @@ namespace src.player.skills
      *   EnableSkill: rolls the trigger chance between chanceFrom and chanceTo.
      *   PlayerHurt: on a successful roll, teleports you away from the attacker.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   chanceFrom = .5f
      *                  -> lowest trigger chance that can be rolled (0.5 = 50%)
      *   chanceTo   = .6f
@@ -92,12 +92,6 @@ namespace src.player.skills
 
             victimPawn.Look(attackerAngles);
             attackerPawn.Look(victimAngles);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8A2BE2", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float chanceFrom = .5f, float chanceTo = .6f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float ChanceFrom { get; set; } = chanceFrom;
-            public float ChanceTo { get; set; } = chanceTo;
         }
     }
 }

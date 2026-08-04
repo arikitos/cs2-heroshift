@@ -17,8 +17,8 @@ namespace src.player.skills
      *   OnTick: every 'cooldown' seconds removes 'damage' health, but never below
      *     minHealth.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown  = .85f
      *                 -> seconds between each poison tick
      *   damage    = 1
@@ -218,13 +218,6 @@ namespace src.player.skills
             targetToPlayer.TryRemove(player.Index, out _);
 
             SkillUtils.CloseMenu(player);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#902eff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = .85f, int damage = 1, int minHealth = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int Damage { get; set; } = damage;
-            public float Cooldown { get; set; } = cooldown;
-            public int MinHealth { get; set; } = minHealth;
         }
     }
 }

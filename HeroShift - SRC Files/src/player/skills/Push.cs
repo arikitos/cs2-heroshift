@@ -17,8 +17,8 @@ namespace src.player.skills
      *   PlayerHurt: on a successful roll, applies the push velocities to the
      *     attacker.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   chanceFrom   = .3f
      *                    -> lowest trigger chance that can be rolled (0.3 = 30%)
      *   chanceTo     = .4f
@@ -91,14 +91,6 @@ namespace src.player.skills
             newVelocity.Z = playerPawn.AbsVelocity.Z + Options.JumpVelocity;
 
             playerPawn.Teleport(currentPosition, null, newVelocity);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1e9ab0", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float chanceFrom = .3f, float chanceTo = .4f, float jumpVelocity = 300f, float pushVelocity = 400f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float ChanceFrom { get; set; } = chanceFrom;
-            public float ChanceTo { get; set; } = chanceTo;
-            public float JumpVelocity { get; set; } = jumpVelocity;
-            public float PushVelocity { get; set; } = pushVelocity;
         }
     }
 }

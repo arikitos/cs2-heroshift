@@ -30,7 +30,7 @@ namespace src.utils
      *   EyeTrace(player)  - the common case. Traces from the player's eye position
      *                       (AbsOrigin + ViewOffset.Z, since AbsOrigin is at the
      *                       feet) along EyeAngles for up to the hero's "maxDistance"
-     *                       value from skillsInfo.json, defaulting to 4096 units.
+     *                       value from the typed skill options, defaulting to 4096 units.
      *   TraceShape(...)   - arbitrary start/end, using a tiny 1-unit box.
      *   TraceHullShape(..)- arbitrary start/end with a caller-supplied hull, default
      *                       the player's own collision bounds. Use this to ask "does
@@ -179,7 +179,7 @@ namespace src.utils
             if (playerInfo == null) return null;
 
             // Range comes from the acting hero's own "maxDistance" key in
-            // skillsInfo.json; 0/absent falls back to 4096 units.
+            // typed options; 0/absent falls back to 4096 units.
             float maxDistance = SkillRuntime.GetMaxDistance(playerInfo.Skill);
             if (maxDistance == 0) maxDistance = 4096f;
 

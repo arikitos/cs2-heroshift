@@ -18,8 +18,8 @@ namespace src.player.skills
      *   BombPlanted: adds extraC4BlowTime to the countdown.
      *   OnTick: keeps the modified timer applied.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   extraC4BlowTime = 60
      *                       -> extra seconds added to the C4 countdown
      *
@@ -147,11 +147,6 @@ namespace src.player.skills
                     player.PrintToCenter(" ");
                 }
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7d7d7d", CsTeam onlyTeam = CsTeam.Terrorist, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, int extraC4BlowTime = 60) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int ExtraC4BlowTime { get; set; } = extraC4BlowTime;
         }
     }
 }

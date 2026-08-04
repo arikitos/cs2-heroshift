@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * IlliterateOptions - typed replacement for the legacy Illiterate.SkillConfig
+ * IlliterateOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record IlliterateOptions : ISkillOptions

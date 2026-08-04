@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * ZeusOptions - typed replacement for the legacy Zeus.SkillConfig
+ * ZeusOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record ZeusOptions : ISkillOptions

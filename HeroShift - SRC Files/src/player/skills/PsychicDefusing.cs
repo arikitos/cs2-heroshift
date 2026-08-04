@@ -16,8 +16,8 @@ namespace src.player.skills
      *   BombPlanted/OnTick: if you are within maxDefusingRange, a defuse
      *     progresses over defusingTime seconds without touching the C4.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maxDefusingRange = 80f
      *                        -> how far from the C4 you can start defusing (game
      *                           units)
@@ -158,12 +158,6 @@ namespace src.player.skills
             public ulong SteamID { get; set; }
             public bool Defusing { get; set; }
             public float DefusingTime { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxDefusingRange = 80f, float defusingTime = 10f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MaxDefusingRange { get; set; } = maxDefusingRange;
-            public float DefusingTime { get; set; } = defusingTime;
         }
     }
 }

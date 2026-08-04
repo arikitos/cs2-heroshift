@@ -12,8 +12,8 @@ namespace src.player.skills
      * LOGIC
      *   WeaponFire: applies knockbackUnits of push to the player you hit.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   knockbackUnits = 120f
      *                      -> push strength applied to the target per hit
      *   maxSpeed       = 1200f
@@ -75,12 +75,6 @@ namespace src.player.skills
             pawn.AbsVelocity.X *= scale;
             pawn.AbsVelocity.Y *= scale;
             pawn.AbsVelocity.Z *= scale;
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff8c42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float knockbackUnits = 120f, float maxSpeed = 1200f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float KnockbackUnits { get; set; } = knockbackUnits;
-            public float MaxSpeed { get; set; } = maxSpeed;
         }
     }
 }

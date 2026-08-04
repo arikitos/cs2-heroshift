@@ -16,8 +16,8 @@ namespace src.player.skills
      *     teleportAngle/teleportDistance.
      *   OnTick: enforces the cooldown.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown         = 15f
      *                        -> seconds before the skill can be used again
      *   teleportAngle    = 10.0f
@@ -280,13 +280,6 @@ namespace src.player.skills
                     playerInfo.PrintHTML = $"{player.GetTranslation("teamteleport_hud_info", $"<font color='{color}'>{System.Net.WebUtility.HtmlEncode(skillInfo.TeamateName)}</font>")}";
                 }
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#bcf542", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = true, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 15f, float teleportAngle = 10.0f, float teleportDistance = 100f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float TeleportAngle { get; set; } = teleportAngle;
-            public float TeleportDistance { get; set; } = teleportDistance;
         }
     }
 }

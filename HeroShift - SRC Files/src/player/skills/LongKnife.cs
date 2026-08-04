@@ -18,8 +18,8 @@ namespace src.player.skills
      *   WeaponFire: traces up to maxDistance from your crosshair and applies the
      *     knife hit.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maxDistance  = 4096f
      *                    -> knife reach in game units (4096 = practically
      *                       map-wide)
@@ -155,12 +155,6 @@ namespace src.player.skills
 
             target.PlayerPawn.Value.EmitSound("Player.DamageBody.Onlooker");
             SkillUtils.TakeHealth(target.PlayerPawn.Value, heavyHit ? Instance.Random.Next(45, 55) : Instance.Random.Next(21, 34), player, killfeedIcon ?? KillfeedIcons.Knife);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c9f8ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxDistance = 4096f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MaxDistance { get; set; } = maxDistance;
-            public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

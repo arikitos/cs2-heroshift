@@ -18,8 +18,8 @@ namespace src.player.skills
      *   UseSkill: spawns the barrel model in front of you.
      *   OnEntitySpawned/OnTakeDamage: detonates it and applies the blast damage.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown                = 20f
      *                               -> seconds before you can place another
      *                                  barrel
@@ -303,15 +303,6 @@ namespace src.player.skills
             public ulong SteamID { get; set; }
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c0392b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 20f, float explosionRadius = 600f, int explosionDamage = 50, string propModel = "models/props/de_train/hr_t/barrel_a/barrel_a.vmdl", float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float ExplosionRadius { get; set; } = explosionRadius;
-            public int ExplosionDamage { get; set; } = explosionDamage;
-            public string PropModel { get; set; } = propModel;
-            public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
         }
     }
 }

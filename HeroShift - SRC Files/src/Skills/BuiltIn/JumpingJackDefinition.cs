@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * JumpingJackOptions - typed replacement for the legacy JumpingJack.SkillConfig
+ * JumpingJackOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record JumpingJackOptions : ISkillOptions

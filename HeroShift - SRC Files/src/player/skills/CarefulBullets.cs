@@ -18,8 +18,8 @@ namespace src.player.skills
      *   BulletImpact: detects a shot that hit nothing (a miss).
      *   OnTakeDamage/TypeSkill: applies damageAfterMiss to the cursed player.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   damageAfterMiss = 5
      *                       -> health lost by the cursed player for each missed
      *                          bullet
@@ -262,11 +262,6 @@ namespace src.player.skills
             targetToPlayer.TryRemove(player.Index, out _);
 
             SkillUtils.CloseMenu(player);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#db6c35", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int damageAfterMiss = 5) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int DamageAfterMiss { get; set; } = damageAfterMiss;
         }
     }
 }

@@ -18,8 +18,8 @@ namespace src.player.skills
      *   TypeSkill: you choose the victim from the menu.
      *   OnTick: keeps the dark screen overlay drawn for the cursed player.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   r = 0
      *         -> overlay colour red channel (0-255)
      *   g = 0
@@ -256,14 +256,6 @@ namespace src.player.skills
                 a: Options.A,
                 duration: 100,
                 holdTime: 3000);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#383838", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, int r = 0, int g = 0, int b = 0, int a = 230) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int R { get; set; } = r;
-            public int G { get; set; } = g;
-            public int B { get; set; } = b;
-            public int A { get; set; } = a;
         }
     }
 }

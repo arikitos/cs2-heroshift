@@ -19,8 +19,8 @@ namespace src.player.skills
      *   CheckTransmit/OnTick: sets your transparency from your current state.
      *   PlayerHurt: taking damage can reveal you.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   idlePercentInvisibility  = .3f
      *                                -> invisibility while standing still (0.3 =
      *                                   30%)
@@ -266,13 +266,6 @@ namespace src.player.skills
             Vector pos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + 50);
             particle.Teleport(pos);
             particle.AcceptInput("Start");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#dedede", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float idlePercentInvisibility = .3f, float duckPercentInvisibility = .3f, float knifePercentInvisibility = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float IdlePercentInvisibility { get; set; } = idlePercentInvisibility;
-            public float DuckPercentInvisibility { get; set; } = duckPercentInvisibility;
-            public float KnifePercentInvisibility { get; set; } = knifePercentInvisibility;
         }
     }
 }

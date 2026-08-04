@@ -15,8 +15,8 @@ namespace src.player.skills
      *   WeaponFire: subtracts moneyPerShot from the cursed player's account.
      *   TypeSkill: pick the victim.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   moneyPerShot = 50
      *                    -> money deducted from the cursed player per bullet
      *                       fired
@@ -183,11 +183,6 @@ namespace src.player.skills
 
             cursedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0c341", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int moneyPerShot = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int MoneyPerShot { get; set; } = moneyPerShot;
         }
     }
 }

@@ -18,8 +18,8 @@ namespace src.player.skills
      *   BulletImpact: on a successful roll, creates a small blast at the impact
      *     point.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   damage       = 25f
      *                    -> explosion damage at the impact point
      *   damageRadius = 210f
@@ -112,14 +112,6 @@ namespace src.player.skills
 
             if (Instance.Random.NextDouble() <= playerInfo.SkillChance)
                 SpawnExplosion(pos);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9c0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float damage = 25f, float damageRadius = 210f, float chanceFrom = .15f, float chanceTo = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Damage { get; set; } = damage;
-            public float DamageRadius { get; set; } = damageRadius;
-            public float ChanceFrom { get; set; } = chanceFrom;
-            public float ChanceTo { get; set; } = chanceTo;
         }
     }
 }

@@ -17,8 +17,8 @@ namespace src.player.skills
      *   OnTick: reads your current velocity and scales speed/damage from it.
      *   OnTakeDamage: applies the velocity-based damage multiplier.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maxSpeedVelocity  = 2f
      *                         -> upper bound of the speed bonus multiplier
      *   maxDamageVelocity = 2f
@@ -143,12 +143,6 @@ namespace src.player.skills
                 if (!((PlayerFlags)player.Flags).HasFlag(PlayerFlags.FL_ONGROUND))
                     playerPawn.AbsVelocity.Z = Math.Min(playerPawn.AbsVelocity.Z, 10);
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc2929", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxSpeedVelocity = 2f, float maxDamageVelocity = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MaxSpeedVelocity { get; set; } = maxSpeedVelocity;
-            public float MaxDamageVelocity { get; set; } = maxDamageVelocity;
         }
     }
 }

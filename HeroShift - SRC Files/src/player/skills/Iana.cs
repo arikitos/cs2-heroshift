@@ -21,8 +21,8 @@ namespace src.player.skills
      *   OnTakeDamage/PlayerHurt: damage is ignored/redirected while active.
      *   OnWeaponCanAcquire/WeaponDrop: restricts weapon handling during the form.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown = 30
      *                -> seconds before the skill can be used again
      *   duration = 10
@@ -496,12 +496,6 @@ namespace src.player.skills
             public int InfoTime { get; set; }
             public int LastHit { get; set; }
             public List<ulong> Weapons { get; set; } = [];
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d0d930", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30, float duration = 10) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float Duration { get; set; } = duration;
         }
     }
 }

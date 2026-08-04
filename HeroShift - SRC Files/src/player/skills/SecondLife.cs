@@ -17,8 +17,8 @@ namespace src.player.skills
      *   OnTakeDamage/TryConsumeRevive: the first lethal hit is converted into a
      *     revive with startHealth health.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   startHealth = 50
      *                   -> health you respawn with after the second life triggers
      *
@@ -159,11 +159,6 @@ namespace src.player.skills
 
             pawn.Health = health;
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d41c1c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int startHealth = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int StartHealth { get; set; } = startHealth;
         }
     }
 }

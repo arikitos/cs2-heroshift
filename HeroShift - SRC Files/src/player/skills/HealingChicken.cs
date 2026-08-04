@@ -17,8 +17,8 @@ namespace src.player.skills
      *   OnTick: every tickCooldown ticks, heals players within healRadius by
      *     'heal'.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   amount       = 3
      *                    -> how many healing chickens are spawned
      *   heal         = 2
@@ -192,14 +192,6 @@ namespace src.player.skills
                         state.TickCounter = 0;
                 }
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5ab8f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, int amount = 3, int heal = 2, int tickCooldown = 16, float healRadius = 150.0f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int Amount { get; set; } = amount;
-            public int Heal { get; set; } = heal;
-            public int TickCooldown { get; set; } = tickCooldown;
-            public float HealRadius { get; set; } = healRadius;
         }
     }
 }

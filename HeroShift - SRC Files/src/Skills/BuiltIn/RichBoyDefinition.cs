@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * RichBoyOptions - typed replacement for the legacy RichBoy.SkillConfig
+ * RichBoyOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record RichBoyOptions : ISkillOptions

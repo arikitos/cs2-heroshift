@@ -18,8 +18,8 @@ namespace src.player.skills
      *   UseSkill: toggles the light on/off.
      *   OnTick: keeps the light entity attached to you.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown      = 2f
      *   colorR        = 255
      *   colorG        = 255
@@ -463,40 +463,6 @@ namespace src.player.skills
         {
             foreach (var key in SkillPlayerInfo.Keys)
                 RemovePlayerLight(key);
-        }
-
-        public class SkillConfig(
-            Skills skill = skillName,
-            bool active = true,
-            string color = "#a3000b",
-            CsTeam onlyTeam = CsTeam.None,
-            bool disableOnFreezeTime = true,
-            bool needsTeammates = false,
-            string requiredPermission = "",
-            float? hudDuration = null,
-            float? descriptionHudDuration = null,
-            int maxPerServer = 2,
-            Rarity rarity = Rarity.Legendary,
-            float cooldown = 2f,
-            int colorR = 255,
-            int colorG = 255,
-            int colorB = 255,
-            float brightness = 1.5f,
-            float range = 1200.0f,
-            float blindDuration = 5f,
-            float blindAngle = 10.0f,
-            float blindAlpha = 200
-        ) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public int ColorR { get; set; } = colorR;
-            public int ColorG { get; set; } = colorG;
-            public int ColorB { get; set; } = colorB;
-            public float Brightness { get; set; } = brightness;
-            public float Range { get; set; } = range;
-            public float BlindDuration { get; set; } = blindDuration;
-            public float BlindAlpha { get; set; } = blindAlpha;
-            public float BlindAngle { get; set; } = blindAngle;
         }
     }
 }

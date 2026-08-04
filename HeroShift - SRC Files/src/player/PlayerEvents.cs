@@ -15,6 +15,7 @@ using static CounterStrikeSharp.API.Core.Listeners;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.Configuration;
 using src.SkillsCore;
 namespace src.player
 {
@@ -59,9 +60,8 @@ namespace src.player
      *   - A thrown exception inside a hook would otherwise abort the whole engine
      *     callback and silently kill every later hero in the same dispatch, so the
      *     invoke helpers catch and log instead of propagating.
-     *   - Per-hero tunables come from SkillsInfo.GetValue<T>(skill, "key")
-     *     (configs/skillsInfo.json); global switches from Config.LoadedConfig
-     *     (configs/config.json).
+     *   - Per-skill metadata and options come from the immutable SkillRuntime snapshot;
+     *     global settings come from the typed ConfigurationStore snapshot.
      */
     public static partial class Event
     {
@@ -79,10 +79,10 @@ namespace src.player
         private static jSkill_SkillInfo allSkill = noneSkill;
         private static List<jSkill_SkillInfo> debugSkills = [.. SkillData.Skills];
 
-        // Team restrictions taken from skillsInfo.json: OnlyTeam 2 = T, 3 = CT, 0 = both.
-        public static readonly SkillsInfo.DefaultSkillInfo[] terroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.Terrorist)];
-        public static readonly SkillsInfo.DefaultSkillInfo[] counterterroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.CounterTerrorist)];
-        private static readonly SkillsInfo.DefaultSkillInfo[] allTeamsSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == 0)];
+        // Team restrictions come from the immutable effective skill snapshot.
+        public static readonly EffectiveSkillConfiguration[] terroristSkills = [.. SkillRuntime.All.Where(s => s.Metadata.OnlyTeam == CsTeam.Terrorist)];
+        public static readonly EffectiveSkillConfiguration[] counterterroristSkills = [.. SkillRuntime.All.Where(s => s.Metadata.OnlyTeam == CsTeam.CounterTerrorist)];
+        private static readonly EffectiveSkillConfiguration[] allTeamsSkills = [.. SkillRuntime.All.Where(s => s.Metadata.OnlyTeam == CsTeam.None)];
 
         // playersSkills: history per player index, used by the NoRepeat game mode.
         // staticSkills: admin-forced hero per player index, overrides the random draw.
@@ -495,7 +495,7 @@ namespace src.player
         // AreaReaper and ChillOut depend on other skills' tick results, so they must tick last.
         private static int TickOrder(Skills s) => s == Skills.AreaReaper ? 2 : s == Skills.ChillOut ? 1 : 0;
 
-        // Set of heroes whose "disableOnFreezeTime" flag is true in skillsInfo.json.
+        // Set of heroes whose effective metadata disables them during freeze time.
         // Built lazily and cached because reading the config per hero per tick is
         // expensive; InvalidateFreezeDisabledCache() drops it after a config reload.
         private static HashSet<Skills> BuildFreezeDisabledSkills()

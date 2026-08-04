@@ -18,7 +18,7 @@ namespace src.command
      * Command - every chat/console command the plugin exposes.
      *
      * Nothing here hardcodes a command name. Load() reads the aliases out of
-     * Config.LoadedConfig.NormalCommands / .VotingCommands (configs/config.json),
+     * the typed runtime command/voting configuration snapshot,
      * splits each Alias string on commas, and registers "css_<alias>" for each
      * one. So a single handler can answer to !skills, !skill, !list, etc., and an
      * admin can rename any command without touching this file. Load() is called
@@ -147,7 +147,7 @@ namespace src.command
 
             if (!player.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
 
-            // Per-hero tunable from configs/skillsInfo.json: heroes flagged
+            // Per-skill metadata: heroes flagged
             // "disableOnFreezeTime" simply cannot be triggered during freeze time.
             if (SkillRuntime.GetMetadata(playerInfo.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                 return;

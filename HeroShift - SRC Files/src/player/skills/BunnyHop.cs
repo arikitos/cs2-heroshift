@@ -16,8 +16,8 @@ namespace src.player.skills
      *   OnTick: re-applies the jump while the jump key is held and caps the
      *     speed.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maxSpeed     = 500f
      *                    -> speed cap while bhopping (units/s)
      *   jumpVelocity = 300f
@@ -113,13 +113,6 @@ namespace src.player.skills
                 eventPlayerPawn.AbsVelocity.X = (float)(vX * scale);
                 eventPlayerPawn.AbsVelocity.Y = (float)(vY * scale);
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d1430a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxSpeed = 500f, float jumpVelocity = 300f, float jumpBoost = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MaxSpeed { get; set; } = maxSpeed;
-            public float JumpVelocity { get; set; } = jumpVelocity;
-            public float JumpBoost { get; set; } = jumpBoost;
         }
     }
 }

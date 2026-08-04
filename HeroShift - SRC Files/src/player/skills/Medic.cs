@@ -16,8 +16,8 @@ namespace src.player.skills
      *   UseSkill: consumes a healthshot and restores healthToAdd.
      *   OnTick: enforces the cooldown between uses.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   healthToAdd     = 50
      *                       -> health restored per use
      *   healthShotLimit = 3
@@ -136,13 +136,6 @@ namespace src.player.skills
             public bool CanUse { get; set; }
             public int Count { get; set; }
             public DateTime Cooldown { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#10c212", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int healthToAdd = 50, int healthShotLimit = 3, float cooldown = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int HealthToAdd { get; set; } = healthToAdd;
-            public int HealthShotLimit { get; set; } = healthShotLimit;
-            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

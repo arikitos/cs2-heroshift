@@ -17,8 +17,8 @@ namespace src.player.skills
      *   EnableSkill/TryBecomeZombie: sets zombieHealth and tints the model red.
      *   OnWeaponCanAcquire: blocks picking up guns so you stay on knife.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   zombieHealth = 500
      *                    -> health the zombie form gets
      *   r            = 255
@@ -239,15 +239,6 @@ namespace src.player.skills
             var color = normal ? Color.FromArgb(255, 255, 255, 255) : Color.FromArgb(255, 255, 0, 0);
             pawn.Render = color;
             Utilities.SetStateChanged(pawn, "CBaseModelEntity", "m_clrRender");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff5C0A", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int zombieHealth = 500, int r = 255, int g = 0, int b = 0, int a = 60) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int ZombieHealth { get; set; } = zombieHealth;
-            public int R { get; set; } = r;
-            public int G { get; set; } = g;
-            public int B { get; set; } = b;
-            public int A { get; set; } = a;
         }
     }
 }

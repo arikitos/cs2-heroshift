@@ -15,8 +15,8 @@ namespace src.player.skills
      *   OnEntitySpawned/DecoyStarted: detects your decoy landing. Spawns repeated
      *     molotov-style fire at that position.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *
      *   Shared settings:
      *   active       = true
@@ -160,10 +160,6 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
             SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffbf47", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Epic) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
         }
     }
 }

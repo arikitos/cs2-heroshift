@@ -56,23 +56,11 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <SourceLangDir>$(MSBuildProjectDirectory)\src\lang</SourceLangDir>
-        <ServerLangDir>$(MSBuildProjectDirectory)\..\HeroShift - Server Files\plugins\HeroShift\languages</ServerLangDir>
         <SourceDLL>$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)</SourceDLL>
         <ServerDLL>$(MSBuildProjectDirectory)\..\HeroShift - Server Files\plugins\HeroShift</ServerDLL>
         <SourceGamedataDir>$(MSBuildProjectDirectory)\src\gamedata</SourceGamedataDir>
 		<ServerGamedataDir>$(MSBuildProjectDirectory)\..\HeroShift - Server Files\gamedata</ServerGamedataDir>
     </PropertyGroup>
-
-    <!-- Copy language files to server directory -->
-    <Target Name="CopyLangFilesToServer" AfterTargets="Build">
-        <Message Text="Copying language files from $(SourceLangDir) to $(ServerLangDir)" Importance="High" />
-        <ItemGroup>
-            <LangFiles Include="$(SourceLangDir)\**\*.*" />
-        </ItemGroup>
-        <MakeDir Directories="$(ServerLangDir)" Condition="!Exists('$(ServerLangDir)')" />
-        <Copy SourceFiles="@(LangFiles)" DestinationFiles="@(LangFiles->'$(ServerLangDir)\\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
-    </Target>
 
     <!-- Copy compiled DLL to server directory -->
     <Target Name="CopyDLLToServer" AfterTargets="Build">

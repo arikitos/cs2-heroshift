@@ -19,8 +19,8 @@ namespace src.player.skills
      *   OnTick: an enemy within triggerRadius trips it and is shown on radar for
      *     radarDuration seconds.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   radarDuration   = 5f
      *                       -> seconds the tripped enemy stays visible on radar
      *   triggerRadius   = 24f
@@ -353,16 +353,6 @@ namespace src.player.skills
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
             public DateTime LastAttempt { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff3b3b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, float radarDuration = 5f, float triggerRadius = 24f, float wireHeight = 30f, float wireWidth = 0.7f, float maxWallDistance = 400f, float cooldown = 20f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float RadarDuration { get; set; } = radarDuration;
-            public float TriggerRadius { get; set; } = triggerRadius;
-            public float WireHeight { get; set; } = wireHeight;
-            public float WireWidth { get; set; } = wireWidth;
-            public float MaxWallDistance { get; set; } = maxWallDistance;
-            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

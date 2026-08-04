@@ -9,6 +9,7 @@ public sealed record EffectiveSkillConfiguration(
     SkillMetadata Metadata,
     ISkillOptions Options)
 {
+    public string Name => Id.Value;
     public bool Active => Metadata.Active;
     public string Color => Metadata.Color;
     public int OnlyTeam => (int)Metadata.OnlyTeam;

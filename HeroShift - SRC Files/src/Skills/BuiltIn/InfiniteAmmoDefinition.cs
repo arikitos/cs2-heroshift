@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * InfiniteAmmoOptions - typed replacement for the legacy InfiniteAmmo.SkillConfig
+ * InfiniteAmmoOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record InfiniteAmmoOptions : ISkillOptions

@@ -16,8 +16,8 @@ namespace src.player.skills
      *   TypeSkill: you pick the victim - SkillUsed makes it one target per round.
      *   OnTick: refreshes the menu list every 32 ticks while it is open.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   pushVelocity = 400f
      *                    -> push strength applied to the marked enemy
      *
@@ -186,11 +186,6 @@ namespace src.player.skills
 
             Vector newVelocity = -SkillUtils.GetForwardVector(playerPawn.V_angle) * Options.PushVelocity;
             playerPawn.Teleport(null, null, newVelocity);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5a4fd1", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float pushVelocity = 400f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float PushVelocity { get; set; } = pushVelocity;
         }
     }
 }

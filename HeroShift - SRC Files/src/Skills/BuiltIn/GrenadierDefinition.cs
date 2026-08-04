@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * GrenadierOptions - typed replacement for the legacy Grenadier.SkillConfig
+ * GrenadierOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record GrenadierOptions : ISkillOptions

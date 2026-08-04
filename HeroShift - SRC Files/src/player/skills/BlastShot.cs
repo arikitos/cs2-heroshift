@@ -21,8 +21,8 @@ namespace src.player.skills
      *   OnTick/OnEntitySpawned: tracks the projectile and triggers the explosion.
      *   OnTakeDamage: applies explosionDamage falling off inside explosionRadius.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   explosionRadius         = 400.0f
      *                               -> blast radius in game units
      *   explosionDamage         = 60
@@ -243,15 +243,6 @@ namespace src.player.skills
             public ulong SteamID { get; set; }
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7740c9", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 400.0f, int explosionDamage = 60, float dmgReductionForTeamates = 0.5f, float cooldown = 10f, float force = 1000f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float ExplosionRadius { get; set; } = explosionRadius;
-            public int ExplosionDamage { get; set; } = explosionDamage;
-            public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
-            public float Cooldown { get; set; } = cooldown;
-            public float Force { get; set; } = force;
         }
     }
 }

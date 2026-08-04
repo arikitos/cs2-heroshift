@@ -17,8 +17,8 @@ namespace src.player.skills
      *     to the pawn.
      *   DisableSkill: restores scale 1.0.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   minScale = 1.1f
      *                -> smallest body scale that can be rolled (1.1 = 110% size)
      *   maxScale = 1.4f
@@ -209,12 +209,6 @@ namespace src.player.skills
         {
             return [.. SkillUtils.GetSelectableEnemies(player, true)
                 .Where(p => PlayerManager.GetPlayerByIndex(p.Index)?.Skill != Skills.Chicken)];
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8ad3ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float minScale = 1.1f, float maxScale = 1.4f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MinScale { get; set; } = minScale;
-            public float MaxScale { get; set; } = maxScale;
         }
     }
 }

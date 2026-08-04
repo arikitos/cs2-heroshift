@@ -16,8 +16,8 @@ namespace src.player.skills
      *   CheckTransmit: keeps enemy pawns transmitted to you even without line of
      *     sight.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *
      *   Shared settings:
      *   active       = true
@@ -271,10 +271,6 @@ namespace src.player.skills
 
             modelRelay.AcceptInput("FollowEntity", enemyPawn, modelRelay, "!activator");
             modelGlow.AcceptInput("FollowEntity", modelRelay, modelGlow, "!activator");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5d00ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Epic) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
         }
     }
 }

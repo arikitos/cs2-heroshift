@@ -16,8 +16,8 @@ namespace src.player.skills
      *   OnTick: burns fuelConsumption per tick while flying and refills at
      *     'refuelling' per tick while on the ground, capped at maximumFuel.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maximumFuel     = 150f
      *                       -> size of the fuel tank
      *   fuelConsumption = .64f
@@ -201,13 +201,6 @@ namespace src.player.skills
             public int JumpCount { get; set; } = 0;
             public float LastJumpTime { get; set; } = 0;
             public bool IsFlying { get; set; } = false;
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1466F5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maximumFuel = 150f, float fuelConsumption = .64f, float refuelling = .1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MaximumFuel { get; set; } = maximumFuel;
-            public float FuelConsumption { get; set; } = fuelConsumption;
-            public float Refuelling { get; set; } = refuelling;
         }
     }
 }

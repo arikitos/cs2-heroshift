@@ -17,8 +17,8 @@ namespace src.player.skills
      *   OnTick: every tickCooldown ticks, heals players within smokeRadius by
      *     smokeHeal.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   smokeHeal    = 1
      *                    -> health restored per heal tick
      *   smokeRadius  = 180
@@ -191,14 +191,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1fe070", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeHeal = 1, float smokeRadius = 180, int tickCooldown = 16, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int SmokeHeal { get; set; } = smokeHeal;
-            public float SmokeRadius { get; set; } = smokeRadius;
-            public int TickCooldown { get; set; } = tickCooldown;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

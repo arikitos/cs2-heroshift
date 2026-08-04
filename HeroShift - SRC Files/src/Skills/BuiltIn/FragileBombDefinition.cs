@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * FragileBombOptions - typed replacement for the legacy FragileBomb.SkillConfig
+ * FragileBombOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record FragileBombOptions : ISkillOptions

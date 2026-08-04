@@ -89,7 +89,7 @@ namespace src.player
                 var filtered = candidates.Where(s =>
                 {
                     if (s == null) return false;
-                    var def = SkillsInfo.LoadedConfig.FirstOrDefault(d => d.Name == s.Skill.ToString());
+                    var def = SkillRuntime.All.FirstOrDefault(d => d.Name == s.Skill.ToString());
                     if (def == null) return false;
 
                     if (!string.Equals(def.Rarity ?? string.Empty, rolled.ToString(), StringComparison.OrdinalIgnoreCase))
@@ -110,7 +110,7 @@ namespace src.player
 
             var fallback = candidates.Where(s =>
             {
-                var def = SkillsInfo.LoadedConfig.FirstOrDefault(d => d.Name == s.Skill.ToString());
+                var def = SkillRuntime.All.FirstOrDefault(d => d.Name == s.Skill.ToString());
                 if (def == null) return true;
                 if (ignoreMax) return true;
                 if (def.MaxPerServer < 0) return true;
@@ -350,7 +350,7 @@ namespace src.player
             public required int CounterTerroristCount { get; init; }
         }
 
-        // Flattens skillsInfo.json into fast lookup sets for one draw pass.
+        // Flattens the effective skill snapshot into fast lookup sets for one draw pass.
         // Skills.None is excluded from BaseList so it is never drawn on purpose.
         private static PickContext BuildPickContext(List<CCSPlayerController> validPlayers)
         {
@@ -366,7 +366,7 @@ namespace src.player
             {
                 BaseList = [.. SkillData.Skills.Where(s => s != null && s.Skill != Skills.None)],
                 RequiredPermissions = perms,
-                NeedsTeammates = ToSkillSet(SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates).Select(s => s.Name)),
+                NeedsTeammates = ToSkillSet(SkillRuntime.All.Where(s => s.NeedsTeammates).Select(s => s.Name)),
                 CtOnly = ToSkillSet(counterterroristSkills.Select(s => s.Name)),
                 TOnly = ToSkillSet(terroristSkills.Select(s => s.Name)),
                 TerroristCount = validPlayers.Count(p => p.Team == CsTeam.Terrorist),
@@ -374,9 +374,7 @@ namespace src.player
             };
         }
 
-        // Config stores hero names as strings; anything that does not parse to a Skills
-        // member is silently dropped, so a typo in skillsInfo.json disables that entry
-        // instead of throwing during the draw.
+        // Converts typed skill identities into the legacy enum used by player state.
         private static HashSet<Skills> ToSkillSet(IEnumerable<string> names)
         {
             HashSet<Skills> set = [];
@@ -446,7 +444,7 @@ namespace src.player
             if (player.Team == CsTeam.Terrorist && counterterroristSkills.Any(s => s.Name == name)) return false;
             if (player.Team == CsTeam.CounterTerrorist && terroristSkills.Any(s => s.Name == name)) return false;
 
-            var def = SkillsInfo.LoadedConfig.FirstOrDefault(d => d.Name == name);
+            var def = SkillRuntime.All.FirstOrDefault(d => d.Name == name);
             if (def == null) return false;
             if (def.NeedsTeammates && validPlayers.Count(p => p.Team == player.Team) == 1) return false;
             if (def.MaxPerServer >= 0 && assignmentCounts.TryGetValue(pick.Skill, out var c) && c >= def.MaxPerServer) return false;
@@ -495,7 +493,7 @@ namespace src.player
 
         // Stamps the two HUD deadlines on the player record: how long the hero name
         // stays on screen, and how long its description does. A per-hero value from
-        // skillsInfo.json ("hudDuration" / "descriptionHudDuration") wins over the
+        // Per-skill metadata (hudDuration / descriptionHudDuration) wins over the
         // global Config value; -1 in either place means "never expire" and is stored as
         // DateTime.MaxValue, which PlayerOnTick then compares against DateTime.Now.
         public static void UpdateSkillHudExpired(jSkill_PlayerInfo skillPlayer, Skills skill)
@@ -774,7 +772,7 @@ namespace src.player
 
                         if (validPlayers.Count(p => p.Team == player.Team) == 1)
                         {
-                            SkillsInfo.DefaultSkillInfo[] skillsNeedsTeammates = [.. SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates)];
+                            var skillsNeedsTeammates = SkillRuntime.All.Where(s => s.NeedsTeammates).ToArray();
                             skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));
                         }
 

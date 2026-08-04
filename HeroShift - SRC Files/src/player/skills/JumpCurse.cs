@@ -16,8 +16,8 @@ namespace src.player.skills
      *   PlayerJump: whenever someone jumps, every cursed player on the SAME team
      *     gets jumpVelocity applied to them.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   jumpVelocity = 301f
      *                    -> upward velocity forced on the cursed player
      *
@@ -197,11 +197,6 @@ namespace src.player.skills
 
             cursedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7ad1c4", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float jumpVelocity = 301f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float JumpVelocity { get; set; } = jumpVelocity;
         }
     }
 }

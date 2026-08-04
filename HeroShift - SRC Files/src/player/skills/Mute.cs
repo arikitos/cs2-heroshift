@@ -11,7 +11,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            if (Config.config.SkillsInfo.FirstOrDefault(s => s.Name == skillName.ToString())?.Active != true)
+            if (SkillRuntime.GetMetadata(skillName).Active != true)
                 return;
 
             SkillUtils.RegisterSkill(skillName, "#2fc468");

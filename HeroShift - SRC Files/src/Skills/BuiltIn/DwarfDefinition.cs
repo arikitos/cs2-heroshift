@@ -4,7 +4,7 @@ using src.SkillsCore.Abstractions;
 namespace src.SkillsCore.BuiltIn;
 
 /*
- * DwarfOptions - typed replacement for the legacy Dwarf.SkillConfig
+ * DwarfOptions - immutable typed gameplay options
  * tunables. Defaults are transcribed verbatim from the baseline snapshot.
  */
 public sealed record DwarfOptions : ISkillOptions

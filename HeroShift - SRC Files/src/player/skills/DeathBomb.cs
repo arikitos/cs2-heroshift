@@ -20,8 +20,8 @@ namespace src.player.skills
      *   OnTakeDamage: applies explosionDamage scaled by distance inside
      *     explosionRadius.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   explosionRadius         = 500.0f
      *                               -> blast radius in game units
      *   explosionDamage         = 999
@@ -190,14 +190,6 @@ namespace src.player.skills
         private static bool IsDeadPlayerValid(CCSPlayerController? player)
         {
             return player != null && player.IsValid && player.PlayerPawn?.Value != null;
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#F5CB42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 500.0f, int explosionDamage = 999, float dmgReductionForTeamates = 0.5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float ExplosionRadius { get; set; } = explosionRadius;
-            public int ExplosionDamage { get; set; } = explosionDamage;
-            public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
-
         }
     }
 }

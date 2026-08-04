@@ -5,11 +5,8 @@ namespace src.SkillsCore;
 /*
  * SkillRegistry - the single lookup for every typed SkillDefinition.
  *
- * This is a skeleton (REFACTOR.md commit 2 / section 10): it stores and
- * looks up definitions and validates uniqueness, but is not yet wired into
- * plugin load or the event pipeline. The reflection-based legacy dispatch
- * (HeroShift.SkillAction, SkillsInfo) keeps running unchanged until every
- * skill is migrated and the dispatcher replacement lands.
+ * It stores the canonical built-in definitions, validates uniqueness, and
+ * provides the hook-indexed lookup used by the live typed dispatcher.
  *
  * Registration happens once at startup (BuiltInSkillCatalog, added when
  * skills start migrating), after which lookups are pure dictionary reads -

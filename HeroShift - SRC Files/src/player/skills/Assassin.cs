@@ -14,8 +14,8 @@ namespace src.player.skills
      *   OnTakeDamage: compares your view angle to the victim's, and if you are
      *     within toleranceDeg of their back, multiplies the damage.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   damageMultiplier = 2f
      *                        -> damage multiplier for a successful backstab-style
      *                           hit
@@ -114,12 +114,6 @@ namespace src.player.skills
             if (a <= b)
                 return (target >= a && target <= b);
             return (target >= a || target <= b);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d9d9d9", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float damageMultiplier = 2f, float toleranceDeg = 45f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float DamageMultiplier { get; set; } = damageMultiplier;
-            public float ToleranceDeg { get; set; } = toleranceDeg;
         }
     }
 }
