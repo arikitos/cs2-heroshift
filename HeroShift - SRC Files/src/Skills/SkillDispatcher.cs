@@ -67,6 +67,15 @@ public sealed class SkillDispatcher(SkillRegistry registry, Action<string>? onHo
     public void InvokeTypeSkill(SkillId skillId, CCSPlayerController player, string[] arguments) =>
         Invoke(skillId, nameof(SkillHookSet.TypeSkill), d => d.Hooks.TypeSkill?.Invoke(player, arguments));
 
+    // OnTick has legacy caller-owned failure suppression: PlayerEvents logs a
+    // failing skill only once per round, then continues with later skills. This
+    // single-skill API therefore must not use Invoke(), which catches exceptions.
+    public void InvokeTickUnchecked(SkillId skillId)
+    {
+        if (!registry.TryGet(skillId, out var definition)) return;
+        definition.Hooks.OnTick?.Invoke();
+    }
+
     // ---- Simple fan-out hooks: every distinct active skill, independently, in
     // the order given by the caller (already deduplicated upstream, matching
     // legacy DispatchToActiveSkills' `seen` HashSet<Skills> collapsing). ----

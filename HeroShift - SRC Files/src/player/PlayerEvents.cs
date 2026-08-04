@@ -512,11 +512,8 @@ namespace src.player
             }
         }
 
-        // OnTick runs 64 times a second, so everything it needs is pre-allocated and
-        // reused: cached enum->string names (ToString() would allocate per tick per
-        // hero) and two scratch collections cleared and refilled in place.
-        private static readonly Dictionary<Skills, string> _skillNames =
-            Enum.GetValues<Skills>().ToDictionary(s => s, s => s.ToString());
+        // OnTick runs 64 times a second, so its two scratch collections are
+        // allocated once and cleared/refilled in place every frame.
         private static readonly HashSet<Skills> _activeSkillsSet = [];
         private static readonly List<Skills> _activeSkillsList = [];
         private static readonly Comparison<Skills> _tickOrderCmp = (a, b) => TickOrder(a).CompareTo(TickOrder(b));
@@ -566,7 +563,7 @@ namespace src.player
                     if (freeze && _freezeDisabledSkills.Contains(skill)) continue;
                     try
                     {
-                        Instance.SkillAction(_skillNames[skill], "OnTick");
+                        Instance.SkillDispatcher.InvokeTickUnchecked(SkillRuntime.GetId(skill));
                     }
                     catch (Exception ex)
                     {

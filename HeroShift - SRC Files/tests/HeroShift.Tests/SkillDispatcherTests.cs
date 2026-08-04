@@ -88,6 +88,22 @@ public class SkillDispatcherTests
     // ---- OnTick / generic fan-out: every distinct active skill runs, independently ----
 
     [Fact]
+    public void InvokeTickUnchecked_PropagatesHookFailureToCaller()
+    {
+        var registry = new SkillRegistry();
+        registry.Register(MakeDefinition(BuiltInSkillIds.Dash, new SkillHookSet
+        {
+            OnTick = () => throw new InvalidOperationException("tick failed"),
+        }));
+
+        var dispatcher = new SkillDispatcher(registry);
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => dispatcher.InvokeTickUnchecked(BuiltInSkillIds.Dash));
+        Assert.Equal("tick failed", exception.Message);
+    }
+
+    [Fact]
     public void DispatchTick_CallsEveryActiveSkillsOnTickHook()
     {
         var registry = new SkillRegistry();

@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Route the sorted per-frame skill loop through a non-swallowing typed tick invocation while preserving freeze-time filtering, AreaReaper/ChillOut ordering and one-log-per-skill-per-round failure suppression.
+
 - Route the ordered damage pre/post pipeline through typed dispatcher calls while preserving deferred revive-skill ordering and per-skill debug damage snapshots.
 
 - Route player, weapon, grenade, hurt-suppression, death, disconnect and skill-use callbacks through typed dispatcher methods while retaining the specialized tick and damage-order paths for separate migration.
