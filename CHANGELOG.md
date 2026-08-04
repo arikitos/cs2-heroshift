@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Remove the final `Config` compatibility facade; all runtime consumers now read the canonical immutable typed configuration snapshot directly, including typed command aliases, permissions and game modes.
+
 - Remove the `SkillsInfo` compatibility facade and all 142 nested `SkillConfig` duplicates; skill selection now reads the immutable effective skill snapshot directly.
 
 - Remove the final generic `SkillAction` compatibility dispatcher and migrate commands, bots, menu targeting and skill-copy/deactivation flows to explicit typed lifecycle coordinator methods.

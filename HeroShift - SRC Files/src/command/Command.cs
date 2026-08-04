@@ -19,7 +19,7 @@ namespace src.command
      *
      * Nothing here hardcodes a command name. Load() reads the aliases out of
      * the typed runtime command/voting configuration snapshot,
-     * splits each Alias string on commas, and registers "css_<alias>" for each
+     * iterates each validated alias array and registers "css_<alias>" for each
      * one. So a single handler can answer to !skills, !skill, !list, etc., and an
      * admin can rename any command without touching this file. Load() is called
      * again on !reload, which is why it first removes the previously registered
@@ -27,13 +27,13 @@ namespace src.command
      * would leave a stale duplicate handler behind.
      *
      * Permissions come from the same config entry (e.g.
-     * NormalCommands.SetSkillCommand.Permissions, a CounterStrikeSharp admin
+     * Commands.SetSkillCommand.Permission, a CounterStrikeSharp admin
      * flag/group string such as "@css/root"). Empty string means "no permission
      * required". Every handler therefore does the same two-part check:
      * skip the check when the string is empty, otherwise require
      * AdminManager.PlayerHasPermissions.
      *
-     * The commands under VotingCommands behave differently for non-admins: if
+     * The commands under the typed voting configuration behave differently for non-admins: if
      * the caller lacks the permission but EnableVoting is true, the command is
      * turned into a player vote (player.Vote(...) in VoteSystem) instead of
      * being refused. Admins bypass the vote and execute directly, which is why
@@ -59,7 +59,7 @@ namespace src.command
     public static class Command
     {
         private static bool gamePaused = false;
-        private static Config.SettingsModel config = Config.LoadedConfig;
+        private static HeroShiftConfiguration config = ConfigurationStore.Settings;
         private static readonly ConcurrentDictionary<string, CommandInfo.CommandCallback> oldCommands = [];
         private static readonly ConcurrentDictionary<uint, int> nextSkill = [];
         private static readonly object setLock = new();
@@ -68,7 +68,7 @@ namespace src.command
         // setLock serialises this against Command_Reload, which mutates the same state.
         public static void Load()
         {
-            config = Config.LoadedConfig;
+            config = ConfigurationStore.Settings;
             if (config == null) return;
 
             lock (setLock)
@@ -83,31 +83,31 @@ namespace src.command
                 }
 
                 // Alias list -> (console description, handler). The keys are the
-                // comma-separated aliases from config, not fixed command names.
+                // validated alias arrays from config, not fixed command names.
                 var commands = new Dictionary<IEnumerable<string>, (string description, CommandInfo.CommandCallback handler)>
                 {
-                    { SplitCommands(config.NormalCommands.SetSkillCommand.Alias), ("Set skill", Command_SetSkill) },
-                    { SplitCommands(config.NormalCommands.SkillsListCommand.Alias), ("Delete all records", Command_SkillsListMenu) },
-                    { SplitCommands(config.NormalCommands.UseSkillCommand.Alias), ("Use/Type skill", Command_UseTypeSkill) },
-                    { SplitCommands(config.NormalCommands.ConsoleCommand.Alias), ("Console command", Command_CustomCommand) },
-                    { SplitCommands(config.NormalCommands.HealCommand.Alias), ("Heal", Command_Heal) },
-                    { SplitCommands(config.NormalCommands.HealthCommand.Alias), ("Set heath", Command_Health) },
-                    { SplitCommands(config.NormalCommands.PlantedBomb.Alias), ("Spawn planted bomb", Command_PlantedBomb) },
-                    { SplitCommands(config.NormalCommands.BotPlace.Alias), ("Place bot on your position", Command_BotPlace) },
-                    { SplitCommands(config.NormalCommands.HudCommand.Alias), ("Enable/Disable HUD", Command_HUD) },
-                    { SplitCommands(config.NormalCommands.SetStaticSkillCommand.Alias), ("Set static skill", Command_SetStaticSkill) },
-                    { SplitCommands(config.NormalCommands.ReloadCommand.Alias), ("Reaload configs", Command_Reload) },
-                    { SplitCommands(config.NormalCommands.NextCommand.Alias), ("Next skill", Command_Next) },
-                    { SplitCommands(config.NormalCommands.CheckEntityCommand.Alias), ("Check entity", Command_CheckEntity) },
+                    { config.Commands.SetSkillCommand.Aliases, ("Set skill", Command_SetSkill) },
+                    { config.Commands.SkillsListCommand.Aliases, ("Delete all records", Command_SkillsListMenu) },
+                    { config.Commands.UseSkillCommand.Aliases, ("Use/Type skill", Command_UseTypeSkill) },
+                    { config.Commands.ConsoleCommand.Aliases, ("Console command", Command_CustomCommand) },
+                    { config.Commands.HealCommand.Aliases, ("Heal", Command_Heal) },
+                    { config.Commands.HealthCommand.Aliases, ("Set heath", Command_Health) },
+                    { config.Commands.PlantedBomb.Aliases, ("Spawn planted bomb", Command_PlantedBomb) },
+                    { config.Commands.BotPlace.Aliases, ("Place bot on your position", Command_BotPlace) },
+                    { config.Commands.HudCommand.Aliases, ("Enable/Disable HUD", Command_HUD) },
+                    { config.Commands.SetStaticSkillCommand.Aliases, ("Set static skill", Command_SetStaticSkill) },
+                    { config.Commands.ReloadCommand.Aliases, ("Reaload configs", Command_Reload) },
+                    { config.Commands.NextCommand.Aliases, ("Next skill", Command_Next) },
+                    { config.Commands.CheckEntityCommand.Aliases, ("Check entity", Command_CheckEntity) },
 
                     // Voting commands: admins execute directly, everyone else votes
                     // (when the entry's EnableVoting is true).
-                    { SplitCommands(config.VotingCommands.ChangeMapCommand.Alias), ("Change map", Command_ChangeMap) },
-                    { SplitCommands(config.VotingCommands.StartGameCommand.Alias), ("Start game", Command_StartGame) },
-                    { SplitCommands(config.VotingCommands.SwapCommand.Alias), ("Swap team", Command_Swap) },
-                    { SplitCommands(config.VotingCommands.ShuffleCommand.Alias), ("Shuffle team", Command_Shuffle) },
-                    { SplitCommands(config.VotingCommands.PauseCommand.Alias), ("Pause game", Command_Pause) },
-                    { SplitCommands(config.VotingCommands.SetScoreCommand.Alias), ("Set teams score", Command_SetScore) },
+                    { config.Voting.ChangeMapCommand.Aliases, ("Change map", Command_ChangeMap) },
+                    { config.Voting.StartGameCommand.Aliases, ("Start game", Command_StartGame) },
+                    { config.Voting.SwapCommand.Aliases, ("Swap team", Command_Swap) },
+                    { config.Voting.ShuffleCommand.Aliases, ("Shuffle team", Command_Shuffle) },
+                    { config.Voting.PauseCommand.Aliases, ("Pause game", Command_Pause) },
+                    { config.Voting.SetScoreCommand.Aliases, ("Set teams score", Command_SetScore) },
                 };
 
                 foreach (var commandPair in commands)
@@ -119,16 +119,9 @@ namespace src.command
             }
         }
 
-        // "skills, skill , list" -> ["skills", "skill", "list"]. One config Alias
-        // entry may therefore register several console command names.
-        private static IEnumerable<string> SplitCommands(string commands)
-        {
-            return commands.Split(',').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c));
-        }
-
         // The "use my skill" command. No arguments -> the hero's UseSkill hook;
         // with arguments -> its TypeSkill hook, receiving the arguments as string[].
-        // Both are invoked by reflection through Instance.SkillAction.
+        // Both are invoked through the typed lifecycle coordinator.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_ONLY)]
         private static void Command_UseTypeSkill(CCSPlayerController? player, CommandInfo _)
         {
@@ -167,7 +160,7 @@ namespace src.command
         private static void Command_SetSkill(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setskill {command.ArgString} command.");
-            if (!string.IsNullOrEmpty(config.NormalCommands.SetSkillCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetSkillCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.SetSkillCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.SetSkillCommand.Permission)) return;
             var targetPlayer = Utilities.GetPlayers().FirstOrDefault(p => p != null && p.IsValid
                                                                           && (p.SteamID.ToString().Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)
                                                                           || p.PlayerName.Equals(command.GetArg(1), StringComparison.OrdinalIgnoreCase)));
@@ -251,7 +244,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_skills {command.ArgString} command.");
             if (player == null) return;
-            if (!string.IsNullOrEmpty(config.NormalCommands.SkillsListCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SkillsListCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.SkillsListCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.SkillsListCommand.Permission)) return;
             Menu.DisplaySkillsList(player);
         }
 
@@ -264,7 +257,7 @@ namespace src.command
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_entity {command.ArgString} command.");
 
             if (player != null && player.IsValid)
-                if (!string.IsNullOrEmpty(config.NormalCommands.CheckEntityCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.CheckEntityCommand.Permissions))
+                if (!string.IsNullOrEmpty(config.Commands.CheckEntityCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.CheckEntityCommand.Permission))
                         return;
 
             int.TryParse(command.GetArg(1), out int index);
@@ -294,9 +287,9 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_map {command.ArgString} command.");
             if (player != null && player.IsValid)
-                if (!string.IsNullOrEmpty(config.VotingCommands.ChangeMapCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.ChangeMapCommand.Permissions))
+                if (!string.IsNullOrEmpty(config.Voting.ChangeMapCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Voting.ChangeMapCommand.Permission))
                 {
-                    if (!config.VotingCommands.ChangeMapCommand.EnableVoting) return;
+                    if (!config.Voting.ChangeMapCommand.EnableVoting) return;
                     player.Vote(VoteType.ChangeMap, command.ArgString);
                     return;
                 }
@@ -331,9 +324,9 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_start {command.ArgString} command.");
             if (player != null && player.IsValid)
-                if (!string.IsNullOrEmpty(config.VotingCommands.StartGameCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.StartGameCommand.Permissions))
+                if (!string.IsNullOrEmpty(config.Voting.StartGameCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Voting.StartGameCommand.Permission))
                 {
-                    if (!config.VotingCommands.StartGameCommand.EnableVoting) return;
+                    if (!config.Voting.StartGameCommand.EnableVoting) return;
                     player.Vote(VoteType.StartGame);
                     return;
                 }
@@ -348,8 +341,8 @@ namespace src.command
             int cheats = command.GetArg(1) == "sv" ? 1 : 0;
 
             foreach (string consoleCommand in cheats == 1
-                                ? Config.LoadedConfig.VotingCommands.StartGameCommand.SVStartParams.Split(";")
-                                : Config.LoadedConfig.VotingCommands.StartGameCommand.StartParams.Split(";"))
+                                ? ConfigurationStore.Settings.Voting.StartGameCommand.SvStartParams.Split(";")
+                                : ConfigurationStore.Settings.Voting.StartGameCommand.StartParams.Split(";"))
                 Server.ExecuteCommand(consoleCommand);
 
             if (Instance?.GameRules?.WarmupPeriod == true)
@@ -370,9 +363,9 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_swap {command.ArgString} command.");
             if (player != null && player.IsValid)
-                if (!string.IsNullOrEmpty(config.VotingCommands.SwapCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.SwapCommand.Permissions))
+                if (!string.IsNullOrEmpty(config.Voting.SwapCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Voting.SwapCommand.Permission))
                 {
-                    if (!config.VotingCommands.SwapCommand.EnableVoting) return;
+                    if (!config.Voting.SwapCommand.EnableVoting) return;
                     player.Vote(VoteType.SwapTeam);
                     return;
                 }
@@ -395,9 +388,9 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_shuffle {command.ArgString} command.");
             if (player != null && player.IsValid)
-                if (!string.IsNullOrEmpty(config.VotingCommands.ShuffleCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.ShuffleCommand.Permissions))
+                if (!string.IsNullOrEmpty(config.Voting.ShuffleCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Voting.ShuffleCommand.Permission))
                 {
-                    if (!config.VotingCommands.ShuffleCommand.EnableVoting) return;
+                    if (!config.Voting.ShuffleCommand.EnableVoting) return;
                     player.Vote(VoteType.ShuffleTeam);
                     return;
                 }
@@ -425,9 +418,9 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_pause {command.ArgString} command.");
             if (player != null && player.IsValid)
-                if (!string.IsNullOrEmpty(config.VotingCommands.PauseCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.PauseCommand.Permissions))
+                if (!string.IsNullOrEmpty(config.Voting.PauseCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Voting.PauseCommand.Permission))
                 {
-                    if (!config.VotingCommands.PauseCommand.EnableVoting) return;
+                    if (!config.Voting.PauseCommand.EnableVoting) return;
                     player.Vote(VoteType.PauseGame);
                     return;
                 }
@@ -450,7 +443,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_heal {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            if (!string.IsNullOrEmpty(config.NormalCommands.HealCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HealCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.HealCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.HealCommand.Permission)) return;
             SkillUtils.AddHealth(player.PlayerPawn.Value, 100);
             player.PrintToChat($" {ChatColors.Green}{player.GetTranslation("healed")}");
         }
@@ -463,7 +456,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_health {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            if (!string.IsNullOrEmpty(config.NormalCommands.HealthCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HealthCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.HealthCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.HealthCommand.Permission)) return;
 
             var pawn = player.PlayerPawn.Value;
             if (int.TryParse(command.GetArg(1), out int health))
@@ -479,7 +472,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_plantedbomb {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            if (!string.IsNullOrEmpty(config.NormalCommands.PlantedBomb.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.PlantedBomb.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.PlantedBomb.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.PlantedBomb.Permission)) return;
 
             CPlantedC4? bomb = Utilities.CreateEntityByName<CPlantedC4>("planted_c4");
             if (bomb == null || !bomb.IsValid) return;
@@ -506,7 +499,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_bot_place {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid || player.LifeState != (byte)LifeState_t.LIFE_ALIVE) return;
-            if (!string.IsNullOrEmpty(config.NormalCommands.BotPlace.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.BotPlace.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.BotPlace.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.BotPlace.Permission)) return;
 
             var pawn = player.PlayerPawn.Value;
             if (player.LifeState != (byte)LifeState_t.LIFE_ALIVE || pawn.AbsOrigin == null || pawn.AbsRotation == null) return;
@@ -541,7 +534,7 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_hud {command.ArgString} command.");
             if (player == null || !player.IsValid || player.PlayerPawn.Value == null || !player.PlayerPawn.Value.IsValid) return;
-            if (!string.IsNullOrEmpty(config.NormalCommands.HudCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.HudCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.HudCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.HudCommand.Permission)) return;
 
             var playerInfo = PlayerManager.GetPlayerByIndex(PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index);
             if (playerInfo == null) return;
@@ -560,9 +553,9 @@ namespace src.command
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setscore {command.ArgString} command.");
             if (player != null && player.IsValid)
-                if (!string.IsNullOrEmpty(config.VotingCommands.SetScoreCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.VotingCommands.SetScoreCommand.Permissions))
+                if (!string.IsNullOrEmpty(config.Voting.SetScoreCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Voting.SetScoreCommand.Permission))
                 {
-                    if (!config.VotingCommands.SetScoreCommand.EnableVoting) return;
+                    if (!config.Voting.SetScoreCommand.EnableVoting) return;
                     player.Vote(VoteType.SetScore, command.ArgString);
                     return;
                 }
@@ -585,14 +578,14 @@ namespace src.command
         }
 
         // Runs the argument string as a raw server console command. This grants full
-        // server control, so the ConsoleCommand.Permissions entry should stay
+        // server control, so the ConsoleCommand.Permission entry should stay
         // restricted; note the permission check is the only gate here.
         [CommandHelper(minArgs: 1, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
         private static void Command_CustomCommand(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_console {command.ArgString} command.");
             if (player == null) return;
-            if (!string.IsNullOrEmpty(config.NormalCommands.ConsoleCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.ConsoleCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.ConsoleCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.ConsoleCommand.Permission)) return;
             string param = command.ArgString;
             Server.ExecuteCommand(param);
         }
@@ -604,7 +597,7 @@ namespace src.command
         private static void Command_SetStaticSkill(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_setstaticskill {command.ArgString} command.");
-            if (!string.IsNullOrEmpty(config.NormalCommands.SetStaticSkillCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.SetStaticSkillCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.SetStaticSkillCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.SetStaticSkillCommand.Permission)) return;
             var targetPlayer = Utilities.GetPlayers().FirstOrDefault(p => p != null && p.IsValid
                                                                           && (p.SteamID.ToString().Equals(command.GetArg(1), StringComparison.CurrentCultureIgnoreCase)
                                                                           || p.PlayerName.Equals(command.GetArg(1), StringComparison.OrdinalIgnoreCase)));
@@ -697,13 +690,13 @@ namespace src.command
         private static void Command_Reload(CCSPlayerController? player, CommandInfo command)
         {
             Debug.WriteToDebug($"Player {player?.PlayerName} used the css_reload {command.ArgString} command.");
-            if (!string.IsNullOrEmpty(config.NormalCommands.ReloadCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.ReloadCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.ReloadCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.ReloadCommand.Permission)) return;
 
             lock (setLock)
             {
                 try
                 {
-                    Config.LoadConfig();
+                    ConfigurationStore.Reload();
                 }
                 catch (ConfigurationValidationException ex)
                 {
@@ -751,7 +744,7 @@ namespace src.command
             if (player == null || !player.IsValid) return;
 
             Debug.WriteToDebug($"Player {player.PlayerName} used the css_next {command.ArgString} command.");
-            if (!string.IsNullOrEmpty(config.NormalCommands.NextCommand.Permissions) && !AdminManager.PlayerHasPermissions(player, config.NormalCommands.NextCommand.Permissions)) return;
+            if (!string.IsNullOrEmpty(config.Commands.NextCommand.Permission) && !AdminManager.PlayerHasPermissions(player, config.Commands.NextCommand.Permission)) return;
 
             var skillsList = SkillData.Skills.OrderBy(s => s.Skill.ToString()).ToList();
             if (skillsList.Count == 0) return;

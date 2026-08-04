@@ -7,7 +7,7 @@ namespace src.player
 {
     /*
      * PerfLog - timing instrumentation for slow hooks, gated on
-     * Config.LoadedConfig.PerfMode. Writes to <plugin>/logs/perf_<session>.txt.
+     * ConfigurationStore.Settings.General.PerfMode. Writes to <plugin>/logs/perf_<session>.txt.
      *
      * Usage from a hero or hook is always the same two-step pattern:
      *
@@ -46,7 +46,7 @@ namespace src.player
         private static StreamWriter? _writer;
         private static readonly object _writeLock = new();
 
-        public static bool Enabled => Config.LoadedConfig.PerfMode;
+        public static bool Enabled => ConfigurationStore.Settings.General.PerfMode;
 
         private static bool _headerWritten;
 

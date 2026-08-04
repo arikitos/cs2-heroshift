@@ -17,9 +17,7 @@ namespace src.Configuration;
  *   resolve per-skill overrides -> validate full effective configuration ->
  *   create immutable snapshot.
  *
- * Not yet wired into plugin load in this commit - coexists with the legacy
- * src/utils/Config.cs, which keeps being the one actually read at runtime
- * until the plugin bootstrap is migrated.
+ * This is the sole runtime parser. Plugin startup and reload publish its validated result atomically through ConfigurationStore.
  */
 public static class ConfigurationLoader
 {

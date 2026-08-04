@@ -26,10 +26,10 @@ namespace src.command
      *   TimeToNextVoting            2s  - cooldown before any new vote
      *   TimeToNextSameVoting        5s  - cooldown before the same vote type again
      *   MinimumPlayersToStartVoting  2  - humans required for a vote to exist at all
-     * Note that Config's VotingCommand/StartGameCommand entries define their own
+     * Note that The typed voting command entries define their own
      * TimeToVote / PercentagesToSuccess / TimeToNextVoting / TimeToNextSameVoting /
      * MinimumPlayersToStartVoting values, but CreateVote() does not read them - only
-     * EnableVoting, Alias and Permissions from config actually affect voting today.
+     * EnableVoting, aliases and permission from config actually affect voting today.
      * Bots never count: every headcount uses Count(p => !p.IsBot).
      *
      * When the threshold is reached the vote's SuccessAction runs, which simply
@@ -241,9 +241,8 @@ namespace src.command
      * vote executes.
      *
      * These are the built-in "css_*" names, NOT the configurable aliases from
-     * config.json. That works because Command.Load() always registers each
-     * handler under every configured alias, and these canonical names are the
-     * defaults; if an alias list is changed so that the default name is no longer
+     * heroshift.json. That works because Command.Load() always registers each
+     * handler under every configured alias, and these canonical names are defaults; if an alias list is changed so that the default name is no longer
      * registered, the corresponding vote would execute a command that no longer
      * exists. The same strings are also reversed into the "!name" hint shown in
      * chat.

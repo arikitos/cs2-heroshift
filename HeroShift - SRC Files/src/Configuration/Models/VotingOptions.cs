@@ -3,7 +3,7 @@ namespace src.Configuration.Models;
 /*
  * VotingCommandDefinition - one voting command's aliases, permission and
  * timing/threshold tunables. Field-for-field equivalent of the legacy
- * src/utils/Config.VotingCommand nested class.
+ * previous voting-command configuration contract.
  */
 public sealed record VotingCommandDefinition
 {
@@ -20,7 +20,7 @@ public sealed record VotingCommandDefinition
 /*
  * StartGameCommandDefinition - the !start command additionally carries the
  * server console commands to run for its two variants (normal vs "sv").
- * Field-for-field equivalent of the legacy src/utils/Config.StartGameCommand.
+ * Field-for-field equivalent of the legacy previous start-game voting configuration contract.
  */
 public sealed record StartGameCommandDefinition
 {
@@ -38,7 +38,7 @@ public sealed record StartGameCommandDefinition
 
 /*
  * VotingOptions - field-for-field equivalent of the legacy
- * src/utils/Config.VotingCommands nested class. Default aliases, timings and
+ * previous voting configuration contract. Default aliases, timings and
  * percentages are transcribed verbatim from that type's constructor.
  */
 public sealed record VotingOptions

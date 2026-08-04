@@ -1,8 +1,7 @@
 namespace src.Configuration.Models;
 
 /*
- * HudOptions - field-for-field equivalent of the legacy
- * src/utils/Config.HtmlHudCustomisation nested class. Colours are plain
+ * HudOptions - the canonical typed HUD configuration contract. Colours are plain
  * strings (hex or CS2 named colours like "white"/"orange"/"cyan"/"green" -
  * see the legacy defaults), sizes are the HTML HUD's own size tokens
  * (xxxl/xxl/xl/l/ml/m/sm/s/xs).

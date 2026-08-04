@@ -16,7 +16,7 @@ public sealed record CommandDefinition
 
 /*
  * CommandOptions - field-for-field equivalent of the legacy
- * src/utils/Config.NormalCommands nested class. Default aliases/permissions
+ * previous command configuration contract. Default aliases/permissions
  * are transcribed verbatim from that type's constructor.
  */
 public sealed record CommandOptions

@@ -121,7 +121,7 @@ namespace src.player
         {
             if (Instance?.GameRules == null || Instance.GameRules.Handle == IntPtr.Zero)
                 InitializeGameRules();
-            else if (Instance != null && Config.LoadedConfig.EnableFlashingHtmlHudFix && !Instance.GameRules.WarmupPeriod)
+            else if (Instance != null && ConfigurationStore.Settings.General.EnableFlashingHtmlHudFix && !Instance.GameRules.WarmupPeriod)
                 Instance.GameRules.GameRestart = Instance.GameRules.RestartRoundTime < Server.CurrentTime;
         }
 
@@ -163,7 +163,7 @@ namespace src.player
             string skillLine = string.Empty;
             string remainingLine = string.Empty;
 
-            bool showDescriptionHUD = skillPlayer.SkillDescriptionHudExpired >= now || Config.LoadedConfig.DisplayAlwaysDescription;
+            bool showDescriptionHUD = skillPlayer.SkillDescriptionHudExpired >= now || ConfigurationStore.Settings.General.DisplayAlwaysDescription;
             bool isDescription = true;
 
             var skills = SkillData.Skills;
@@ -217,13 +217,13 @@ namespace src.player
                 // spectator HUD stays useful after death.
                 else
                 {
-                    if (player.Team is CsTeam.Spectator or CsTeam.None && Config.LoadedConfig.DisableSpectateHUD)
+                    if (player.Team is CsTeam.Spectator or CsTeam.None && ConfigurationStore.Settings.General.DisableSpectateHUD)
                         return;
 
                     // Admin-permission answer cached on the record (?? = resolve once) so
                     // the permission lookup does not run on every tick. Reset each round
                     // in SetSkillCore.
-                    skillPlayer.HudOnDeathBlocked ??= AdminManager.PlayerHasPermissions(player, Config.LoadedConfig.DisableHUDOnDeathPermission);
+                    skillPlayer.HudOnDeathBlocked ??= AdminManager.PlayerHasPermissions(player, ConfigurationStore.Settings.General.DisableHUDOnDeathPermission);
                     if (skillPlayer.HudOnDeathBlocked == true) return;
 
                     // While dead the controller's Pawn is the observer pawn, and

@@ -56,7 +56,7 @@ namespace src.player
      *   NeedsTeammates when alone -> team restriction (OnlyTeam) -> NoRepeat history
      *   -> rarity roll + MaxPerServer cap (ChooseSkillByRarityAndMax).
      *
-     * GAME MODES (Config.LoadedConfig.GameMode)
+     * GAME MODES (ConfigurationStore.Settings.General.GameMode)
      *   Normal / FullRandom / NoRepeat - per player, full rule set above
      *   TeamSkills - one hero per team; SameSkills - one hero for everyone
      *   Debug      - walks the whole hero list one at a time, for testing
@@ -75,11 +75,11 @@ namespace src.player
         // so a player always gets something rather than Skills.None.
         // SameSkills/TeamSkills ignore MaxPerServer, since by definition the whole team
         // shares one hero.
-        private static jSkill_SkillInfo ChooseSkillByRarityAndMax(List<jSkill_SkillInfo> candidates, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
+        private static jSkill_SkillInfo ChooseSkillByRarityAndMax(List<jSkill_SkillInfo> candidates, Dictionary<Skills, int> assignmentCounts, GameMode gameMode)
         {
             if (candidates == null || candidates.Count == 0) return noneSkill;
 
-            bool ignoreMax = gameMode == Config.GameModes.SameSkills || gameMode == Config.GameModes.TeamSkills;
+            bool ignoreMax = gameMode == GameMode.SameSkills || gameMode == GameMode.TeamSkills;
 
             const int attempts = 6;
             for (int attempt = 0; attempt < attempts; attempt++)
@@ -166,7 +166,7 @@ namespace src.player
                 // Land the draw SkillTimeBeforeStart seconds before freeze time ends, so
                 // players can read their hero before they can move. The +0.3s is slack
                 // so the timer never fires on the exact boundary tick.
-                float timeToDraw = (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0) + Math.Max(freezetime - Config.LoadedConfig.SkillTimeBeforeStart, 0) + .3f;
+                float timeToDraw = (Instance?.GameRules?.TeamIntroPeriod == true ? 7 : 0) + Math.Max(freezetime - ConfigurationStore.Settings.General.SkillTimeBeforeStart, 0) + .3f;
                 setSkillTimer = Instance?.AddTimer(timeToDraw, SetSkill, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 return HookResult.Continue;
             }
@@ -286,7 +286,7 @@ namespace src.player
                 // prints do not interleave with the summary block.
                 Instance.AddTimer(.5f, () =>
                 {
-                    if (!Config.LoadedConfig.SummaryAfterTheRound) return;
+                    if (!ConfigurationStore.Settings.General.SummaryAfterTheRound) return;
 
                     var _players = Utilities.GetPlayers().Where(p => p.IsValid && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist).OrderBy(p => p.Team).ToList();
 
@@ -319,7 +319,7 @@ namespace src.player
                 // exclusion still sees this round's skills.
                 Instance.AddTimer(.6f, PrecomputeNextRoundSkills, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
-                if (Config.LoadedConfig.DisableSkillsOnRoundEnd)
+                if (ConfigurationStore.Settings.General.DisableSkillsOnRoundEnd)
                 {
                     isTransmitRegistered = false;
                     Instance.AddTimer(1f, () => DisableAll(), CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -387,7 +387,7 @@ namespace src.player
         // then hands it to the weighted picker. Filters, in order:
         //   admin permission, previous hero, needs-teammates, team restriction, NoRepeat
         // history. assignmentCounts is the running per-hero tally used for MaxPerServer.
-        private static jSkill_SkillInfo PickSkillForPlayer(CCSPlayerController player, jSkill_PlayerInfo skillPlayer, PickContext ctx, Dictionary<Skills, int> assignmentCounts, Config.GameModes gameMode)
+        private static jSkill_SkillInfo PickSkillForPlayer(CCSPlayerController player, jSkill_PlayerInfo skillPlayer, PickContext ctx, Dictionary<Skills, int> assignmentCounts, GameMode gameMode)
         {
             List<jSkill_SkillInfo> skillList = [.. ctx.BaseList];
 
@@ -397,7 +397,7 @@ namespace src.player
 
             // Every mode except FullRandom refuses to hand out the same hero twice in a
             // row (both the current hero and the one it was transformed from).
-            if (gameMode != Config.GameModes.FullRandom)
+            if (gameMode != GameMode.FullRandom)
                 skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
 
             // Heroes whose ability needs someone to target/buff are unusable solo.
@@ -412,7 +412,7 @@ namespace src.player
 
             // NoRepeat: exclude every hero this player already had. Once the history has
             // consumed all of them the history is wiped and the cycle starts over.
-            if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
+            if (gameMode == GameMode.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
             {
                 skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
                 if (skillList.Count == 0) skills.Clear();
@@ -420,7 +420,7 @@ namespace src.player
 
             var randomSkill = skillList.Count == 0 ? noneSkill : ChooseSkillByRarityAndMax(skillList, assignmentCounts, gameMode);
 
-            if (gameMode == Config.GameModes.NoRepeat)
+            if (gameMode == GameMode.NoRepeat)
             {
                 if (playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? value))
                     value.Add(randomSkill);
@@ -463,8 +463,8 @@ namespace src.player
 
                 // Only the per-player modes benefit from precomputing; TeamSkills,
                 // SameSkills and Debug pick a single hero at draw time anyway.
-                var gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
-                if (gameMode is not (Config.GameModes.Normal or Config.GameModes.FullRandom or Config.GameModes.NoRepeat)) return;
+                var gameMode = ConfigurationStore.Settings.General.GameMode;
+                if (gameMode is not (GameMode.Normal or GameMode.FullRandom or GameMode.NoRepeat)) return;
                 if (Instance?.GameRules == null || Instance.GameRules.WarmupPeriod == true) return;
 
                 // Reading .Team can throw on a controller that is being torn down between
@@ -494,11 +494,11 @@ namespace src.player
         // Stamps the two HUD deadlines on the player record: how long the hero name
         // stays on screen, and how long its description does. A per-hero value from
         // Per-skill metadata (hudDuration / descriptionHudDuration) wins over the
-        // global Config value; -1 in either place means "never expire" and is stored as
+        // global typed configuration value; -1 in either place means "never expire" and is stored as
         // DateTime.MaxValue, which PlayerOnTick then compares against DateTime.Now.
         public static void UpdateSkillHudExpired(jSkill_PlayerInfo skillPlayer, Skills skill)
         {
-            float globalHudExpired = Config.LoadedConfig.SkillHudDuration;
+            float globalHudExpired = ConfigurationStore.Settings.General.SkillHudDuration;
             float? skillHudExpired = SkillRuntime.GetMetadata(skill).HudDuration;
 
             skillPlayer.SkillHudExpired =
@@ -507,7 +507,7 @@ namespace src.player
                 : skillHudExpired.Value == -1 ? DateTime.MaxValue
                 : DateTime.Now.AddSeconds(skillHudExpired.Value);
 
-            float globalDescriptionHudExpired = Config.LoadedConfig.SkillDescriptionDuration;
+            float globalDescriptionHudExpired = ConfigurationStore.Settings.General.SkillDescriptionDuration;
             float? skillDescriptionHudExpired = SkillRuntime.GetMetadata(skill).DescriptionHudDuration;
 
             skillPlayer.SkillDescriptionHudExpired =
@@ -550,7 +550,7 @@ namespace src.player
                 // TeamSkills / SameSkills draw their shared hero ONCE here, before the
                 // per-player loop; excluding the previous pick avoids two identical
                 // rounds in a row, and the team filters keep a CT-only hero off the Ts.
-                if (Config.LoadedConfig.GameMode == (int)Config.GameModes.TeamSkills)
+                if (ConfigurationStore.Settings.General.GameMode == GameMode.TeamSkills)
                 {
                     List<jSkill_SkillInfo> tSkills = [.. SkillData.Skills];
                     tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == Skills.None || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
@@ -560,13 +560,13 @@ namespace src.player
                     ctSkills.RemoveAll(s => s.Skill == ctSkill.Skill || s.Skill == Skills.None || terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
                     ctSkill = ctSkills.Count == 0 ? noneSkill : ctSkills[Instance.Random.Next(ctSkills.Count)];
                 }
-                else if (Config.LoadedConfig.GameMode == (int)Config.GameModes.SameSkills)
+                else if (ConfigurationStore.Settings.General.GameMode == GameMode.SameSkills)
                 {
                     List<jSkill_SkillInfo> allSkills = [.. SkillData.Skills];
                     allSkills.RemoveAll(s => s.Skill == allSkill.Skill || s.Skill == Skills.None || !allTeamsSkills.Any(s2 => s2.Name == s.Skill.ToString()));
                     allSkill = allSkills.Count == 0 ? noneSkill : allSkills[Instance.Random.Next(allSkills.Count)];
                 }
-                else if (Config.LoadedConfig.GameMode == (int)Config.GameModes.Debug && debugSkills.Count == 0)
+                else if (ConfigurationStore.Settings.General.GameMode == GameMode.Debug && debugSkills.Count == 0)
                     debugSkills = [.. SkillData.Skills];
 
                 // Live per-hero headcount, seeded from whatever players already hold and
@@ -606,8 +606,8 @@ namespace src.player
 
                     jSkill_SkillInfo randomSkill = noneSkill;
 
-                    Config.GameModes gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
-                    if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.FullRandom || gameMode == Config.GameModes.NoRepeat)
+                    GameMode gameMode = ConfigurationStore.Settings.General.GameMode;
+                    if (gameMode == GameMode.Normal || gameMode == GameMode.FullRandom || gameMode == GameMode.NoRepeat)
                     {
                         // Prefer the pick made at the end of the previous round; re-pick only when
                         // it no longer fits (team change, missing player, max reached).
@@ -619,11 +619,11 @@ namespace src.player
                             randomSkill = PickSkillForPlayer(player, skillPlayer, pickContext, assignmentCounts, gameMode);
                         }
                     }
-                    else if (gameMode == Config.GameModes.TeamSkills)
+                    else if (gameMode == GameMode.TeamSkills)
                         randomSkill = player.Team == CsTeam.Terrorist ? tSkill : ctSkill;
-                    else if (gameMode == Config.GameModes.SameSkills)
+                    else if (gameMode == GameMode.SameSkills)
                         randomSkill = allSkill;
-                    else if (gameMode == Config.GameModes.Debug)
+                    else if (gameMode == GameMode.Debug)
                     {
                         if (debugSkills.Count == 0)
                             debugSkills = [.. SkillData.Skills];
@@ -662,7 +662,7 @@ namespace src.player
                         // are still frozen, so its EnableSkill waits out the remaining
                         // freeze time instead of firing now.
                         if (SkillRuntime.GetMetadata(randomSkill.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
-                            Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
+                            Instance?.AddTimer(ConfigurationStore.Settings.General.SkillTimeBeforeStart, () =>
                             {
                                 var playerTarget = Utilities.GetPlayerFromIndex((int)playerIndex);
                                 if (playerTarget == null || !playerTarget.IsValid) return;
@@ -687,7 +687,7 @@ namespace src.player
 
                     // Deferred to 0.6s - later than the 0.2s block above - so every player
                     // in the loop already has their hero assigned and the list is complete.
-                    if (Config.LoadedConfig.TeamMateSkillChatInfo)
+                    if (ConfigurationStore.Settings.General.TeamMateSkillChatInfo)
                     {
                         Instance?.AddTimer(.6f, () =>
                         {
@@ -732,7 +732,7 @@ namespace src.player
             {
                 var validPlayers = Utilities.GetPlayers().Where(p => p != null && p.IsValid && !p.IsHLTV && p.Team is CsTeam.CounterTerrorist or CsTeam.Terrorist).ToList();
 
-                if (Config.LoadedConfig.GameMode == (int)Config.GameModes.TeamSkills)
+                if (ConfigurationStore.Settings.General.GameMode == GameMode.TeamSkills)
                 {
                     List<jSkill_SkillInfo> tSkills = [.. SkillData.Skills];
                     tSkills.RemoveAll(s => s.Skill == tSkill.Skill || s.Skill == Skills.None || counterterroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
@@ -757,17 +757,17 @@ namespace src.player
                 jSkill_SkillInfo randomSkill = noneSkill;
                 if (Instance?.GameRules != null && Instance?.GameRules.WarmupPeriod == false)
                 {
-                    Config.GameModes gameMode = (Config.GameModes)Config.LoadedConfig.GameMode;
+                    GameMode gameMode = ConfigurationStore.Settings.General.GameMode;
                     if (staticSkills.TryGetValue(player.Index, out var staticSkill))
                         randomSkill = staticSkill;
-                    else if (gameMode == Config.GameModes.Normal || gameMode == Config.GameModes.FullRandom || gameMode == Config.GameModes.NoRepeat)
+                    else if (gameMode == GameMode.Normal || gameMode == GameMode.FullRandom || gameMode == GameMode.NoRepeat)
                     {
                         List<jSkill_SkillInfo> skillList = [.. SkillData.Skills];
                         skillList.RemoveAll(s => s?.Skill == Skills.None);
                         if (!player.IsBot)
                             skillList.RemoveAll(s => !string.IsNullOrEmpty(SkillRuntime.GetMetadata(s.Skill).RequiredPermission) && !AdminManager.PlayerHasPermissions(player, SkillRuntime.GetMetadata(s.Skill).RequiredPermission));
 
-                        if (gameMode != Config.GameModes.FullRandom)
+                        if (gameMode != GameMode.FullRandom)
                             skillList.RemoveAll(s => s?.Skill == skillPlayer?.Skill || s?.Skill == skillPlayer?.SpecialSkill);
 
                         if (validPlayers.Count(p => p.Team == player.Team) == 1)
@@ -781,7 +781,7 @@ namespace src.player
                         else
                             skillList.RemoveAll(s => terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
 
-                        if (gameMode == Config.GameModes.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
+                        if (gameMode == GameMode.NoRepeat && playersSkills.TryGetValue(player.Index, out ConcurrentBag<jSkill_SkillInfo>? skills))
                         {
                             skillList.RemoveAll(s => skills.Any(s2 => s2.Skill == s.Skill));
                             if (skillList.Count == 0) skills.Clear();
@@ -797,11 +797,11 @@ namespace src.player
 
                         randomSkill = skillList.Count == 0 ? noneSkill : ChooseSkillByRarityAndMax(skillList, assignmentCounts, gameMode);
                     }
-                    else if (gameMode == Config.GameModes.TeamSkills)
+                    else if (gameMode == GameMode.TeamSkills)
                         randomSkill = player.Team == CsTeam.Terrorist ? tSkill : ctSkill;
-                    else if (gameMode == Config.GameModes.SameSkills)
+                    else if (gameMode == GameMode.SameSkills)
                         randomSkill = allSkill;
-                    else if (gameMode == Config.GameModes.Debug)
+                    else if (gameMode == GameMode.Debug)
                     {
                         if (debugSkills.Count == 0)
                             debugSkills = [.. SkillData.Skills];
@@ -815,7 +815,7 @@ namespace src.player
                 skillPlayer.Skill = randomSkill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
 
-                if (randomSkill.Display && Config.LoadedConfig.YourSkillChatInfo)
+                if (randomSkill.Display && ConfigurationStore.Settings.General.YourSkillChatInfo)
                     SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(randomSkill.Skill)}{ChatColors.Lime}: {player.GetSkillDescription(randomSkill.Skill)}",
                         border: !Utilities.GetPlayers().Any(p => p != null && p.IsValid && p.Team == player.Team && p != player) ? "tb" : "t");
 
@@ -825,7 +825,7 @@ namespace src.player
                 Instance?.AddTimer(.2f, () =>
                 {
                     if (SkillRuntime.GetMetadata(randomSkill.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
-                        Instance?.AddTimer(Config.LoadedConfig.SkillTimeBeforeStart, () =>
+                        Instance?.AddTimer(ConfigurationStore.Settings.General.SkillTimeBeforeStart, () =>
                         {
                             if (PlayerManager.GetPlayerByIndex(player!.Index)?.Skill != randomSkill.Skill) return;
                             Instance?.InvokeEnableSkill(randomSkill.Skill, player);

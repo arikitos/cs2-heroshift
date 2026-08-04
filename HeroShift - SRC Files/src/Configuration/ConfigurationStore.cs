@@ -20,6 +20,8 @@ public static class ConfigurationStore
         Volatile.Read(ref _current)
         ?? throw new InvalidOperationException("HeroShift configuration has not been initialized.");
 
+    public static HeroShiftConfiguration Settings => Current.Configuration;
+
     public static RuntimeConfigurationSnapshot Initialize(string path, SkillRegistry registry, ILogger? logger = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);

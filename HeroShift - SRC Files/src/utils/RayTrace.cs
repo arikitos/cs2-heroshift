@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -52,7 +52,7 @@ namespace src.utils
      * (rather than just world geometry) while ignoring the invisible clip brushes
      * that block players but should not block aim.
      *
-     * Setting Config.LoadedConfig.TraceRayBeam draws the ray (and, for
+     * Setting ConfigurationStore.Settings.General.TraceRayBeam draws the ray (and, for
      * TraceHullShape, the hull's box edges) with env_beam entities. That is a debug
      * aid only. Note those debug beams are created directly here and are NOT
      * registered with EntityManager, so they are not cleaned up between rounds -
@@ -134,7 +134,7 @@ namespace src.utils
             }
             contents ??= 0;
 
-            bool drawBeam = Config.LoadedConfig.TraceRayBeam;
+            bool drawBeam = ConfigurationStore.Settings.General.TraceRayBeam;
 
             TraceOptions options = new()
             {
@@ -220,7 +220,7 @@ namespace src.utils
             ulong safeMask = mask ?? playerPawn.Collision.CollisionAttribute.InteractsWith;
             ulong safeContents = contents ?? 0;
 
-            bool drawBeam = Config.LoadedConfig.TraceRayBeam;
+            bool drawBeam = ConfigurationStore.Settings.General.TraceRayBeam;
 
             TraceResult result = default;
             TraceOptions options = new()

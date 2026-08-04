@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Commands;
 using CounterStrikeSharp.API.Modules.Commands;
@@ -60,7 +60,7 @@ namespace src
 
             SkillRegistry = BuiltInSkillCatalog.BuildRegistry();
             SkillDispatcher = new SkillDispatcher(SkillRegistry, Server.PrintToConsole);
-            Config.Initialize(SkillRegistry);
+            ConfigurationStore.Initialize(Path.Combine(ModuleDirectory, "configs", "heroshift.json"), SkillRegistry, Logger);
             Localization.Load();
             Debug.Load();
             PlayerOnTick.Load();
@@ -109,7 +109,7 @@ namespace src
                     InvokeLoadSkill(skill);
 
             Debug.WriteToDebug($"HeroShift v{Instance.ModuleVersion} ({SkillData.Skills.Count - 1}/{SkillRuntime.All.Count - 1} Skills) loaded!");
-            Debug.WriteToDebug($"GameModes: {(Config.GameModes)Config.LoadedConfig.GameMode}");
+            Debug.WriteToDebug($"GameModes: {ConfigurationStore.Settings.General.GameMode}");
             foreach (var skill in SkillData.Skills)
                 Debug.WriteToDebug($"Loaded: {skill.Skill}");
         }
@@ -191,7 +191,7 @@ namespace src
 
         internal new void AddCommand(string name, string description, CommandInfo.CommandCallback handler)
         {
-            var definition = new CommandDefinition(name, description, handler);
+            var definition = new CounterStrikeSharp.API.Core.Commands.CommandDefinition(name, description, handler);
             CommandDefinitions.Add(definition);
             CommandManager.RegisterCommand(definition);
         }
@@ -256,33 +256,33 @@ namespace src
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write("\nConfiguration: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.WriteLine(Config.LoadedConfig.ConfigName);
+            Console.WriteLine("heroshift.json");
 
             // Main config info
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write("\nGameMode: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.Write($"{(Config.GameModes)Config.LoadedConfig.GameMode} ({Config.LoadedConfig.GameMode})");
+            Console.Write($"{ConfigurationStore.Settings.General.GameMode} ({(int)ConfigurationStore.Settings.General.GameMode})");
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write(", DebugMode: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.WriteLine(Config.LoadedConfig.DebugMode);
+            Console.WriteLine(ConfigurationStore.Settings.General.DebugMode);
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write("SkillHudDuration: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.Write(Config.LoadedConfig.SkillHudDuration == -1 ? "infinity" : Config.LoadedConfig.SkillHudDuration);
+            Console.Write(ConfigurationStore.Settings.General.SkillHudDuration == -1 ? "infinity" : ConfigurationStore.Settings.General.SkillHudDuration);
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write(", SkillButton: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.Write(Config.LoadedConfig.AlternativeSkillButton ?? "(NULL)");
+            Console.Write(ConfigurationStore.Settings.General.AlternativeSkillButton ?? "(NULL)");
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write(", HtmlHudFix: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.WriteLine(Config.LoadedConfig.EnableFlashingHtmlHudFix);
+            Console.WriteLine(ConfigurationStore.Settings.General.EnableFlashingHtmlHudFix);
 
             // Dependences
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;

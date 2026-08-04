@@ -97,7 +97,7 @@ namespace src.utils
             string externalEnglish = Path.Combine(languagesFolderPath, "en.json");
             _service = new LocalizationService(
                 File.Exists(externalEnglish) ? externalEnglish : null,
-                Config.LoadedConfig.AlternativeSkillButton);
+                ConfigurationStore.Settings.General.AlternativeSkillButton);
         }
 
         // A hero's display name. Pass chance to include its rolled percentage in the name.
@@ -230,7 +230,7 @@ namespace src.utils
         // intended fallback and is why a typo shows up as visible raw text.
         public static string GetTranslation(string key, CCSPlayerController? player = null, params object[] args)
         {
-            _service ??= new LocalizationService(null, Config.LoadedConfig.AlternativeSkillButton);
+            _service ??= new LocalizationService(null, ConfigurationStore.Settings.General.AlternativeSkillButton);
             return _service.GetTranslation(key, player, args);
         }
     }

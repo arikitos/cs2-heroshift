@@ -33,6 +33,7 @@ public class ConfigurationStoreTests
 
             var registry = BuiltInSkillCatalog.BuildRegistry();
             var snapshot = ConfigurationStore.Initialize(path, registry);
+            Assert.Same(snapshot.Configuration, ConfigurationStore.Settings);
             var dash = snapshot.Skills.Get(BuiltInSkillIds.Dash);
 
             Assert.False(dash.Metadata.Active);

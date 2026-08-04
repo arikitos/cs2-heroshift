@@ -3,8 +3,7 @@ namespace src.Configuration.Models;
 /*
  * GeneralOptions - server-wide plugin behaviour that isn't HUD, chat, command
  * or voting specific. Field-for-field equivalent to the general fields of the
- * legacy src/utils/Config.SettingsModel (see that type for original semantics
- * and default values) - "ConfigName" is intentionally omitted here since it
+ * previous global settings contract; defaults are now canonical here - "ConfigName" is intentionally omitted here since it
  * was a cosmetic console label, not gameplay behaviour.
  */
 public sealed record GeneralOptions
@@ -42,7 +41,7 @@ public sealed record GeneralOptions
 }
 
 /*
- * Mirrors legacy src/utils/Config.GameModes exactly (same underlying values -
+ * Mirrors legacy src/utils/GameMode exactly (same underlying values -
  * command handlers and any persisted/serialized int must keep comparing equal).
  */
 public enum GameMode

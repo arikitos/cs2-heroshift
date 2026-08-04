@@ -10,8 +10,7 @@ namespace src.Configuration;
  * (added with the override loader) supplies server-specific overrides only
  * - it never needs to restate a default the operator hasn't changed.
  *
- * This coexists with the legacy src/utils/Config.SettingsModel during
- * migration; nothing reads from this type yet.
+ * This record is the canonical effective configuration consumed directly by runtime code.
  */
 public sealed record HeroShiftConfiguration
 {

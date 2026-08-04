@@ -2,3 +2,5 @@
 // abstraction globally imported prevents generated gameplay files from
 // depending on namespace insertion order while migration batches are applied.
 global using src.SkillsCore.Abstractions;
+global using src.Configuration;
+global using src.Configuration.Models;

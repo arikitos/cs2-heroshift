@@ -1,8 +1,7 @@
 namespace src.Configuration.Models;
 
 /*
- * ChatOptions - field-for-field equivalent of the legacy
- * src/utils/Config.ChatMessage nested class. The colour fields are CS2 chat
+ * ChatOptions - the canonical typed chat configuration contract. The colour fields are CS2 chat
  * control characters (see CounterStrikeSharp.API.Modules.Utils.ChatColors),
  * not hex strings - \x02 and \x06 are two of those control codes, matching
  * the legacy hardcoded defaults exactly.

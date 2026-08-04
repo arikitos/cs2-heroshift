@@ -238,7 +238,7 @@ namespace src.player
         // shows exactly which hero altered the damage and by how much.
         private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, bool post)
         {
-            if (Config.LoadedConfig.DebugMode != true)
+            if (ConfigurationStore.Settings.General.DebugMode != true)
             {
                 Instance.SkillDispatcher.DispatchOnTakeDamage([SkillRuntime.GetId(skill)], h, post);
                 return;
@@ -299,7 +299,7 @@ namespace src.player
         // HideHUD == int.MaxValue means "hidden permanently", so it is left alone.
         private static HookResult GetPrintToCenterHtml(UserMessage um)
         {
-            if (!Config.LoadedConfig.HideHudForOtherPlugins) return HookResult.Continue;
+            if (!ConfigurationStore.Settings.General.HideHudForOtherPlugins) return HookResult.Continue;
 
             // Sampled every 10th tick only - parsing the message debug string is far
             // too expensive to do on every HUD write from every plugin.
@@ -562,7 +562,7 @@ namespace src.player
                 var player = Utilities.GetPlayerFromSlot(playerSlot);
                 if (player == null || !player.IsValid) return;
 
-                if (player.IsBot && !Config.LoadedConfig.EnableBotSkills)
+                if (player.IsBot && !ConfigurationStore.Settings.General.EnableBotSkills)
                     return;
 
                 var existing = Instance.SkillPlayer.FirstOrDefault(p => p.PlayerIndex == player.Index);
@@ -774,7 +774,7 @@ namespace src.player
                 if (attacker == null || victim == attacker) return HookResult.Continue;
 
                 if (victim == attacker) return HookResult.Continue;
-                if (Config.LoadedConfig.KillerSkillChatInfo)
+                if (ConfigurationStore.Settings.General.KillerSkillChatInfo)
                 {
                     var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
                     if (attackerInfo != null)
@@ -806,7 +806,7 @@ namespace src.player
 
             lock (setLock)
             {
-                string? button = Config.LoadedConfig.AlternativeSkillButton;
+                string? button = ConfigurationStore.Settings.General.AlternativeSkillButton;
                 if (string.IsNullOrEmpty(button) || button.Length < 2) return;
 
                 string buttonName = $"{char.ToUpperInvariant(button[0])}{button[1..].ToLowerInvariant()}";
@@ -898,7 +898,7 @@ namespace src.player
                     extraLine = Illiterate.GetRandomText(extraLine);
                 }
 
-                var config = Config.LoadedConfig.HtmlHudCustomisation;
+                var config = ConfigurationStore.Settings.Hud;
                 var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(headerLine) || string.IsNullOrEmpty(config.HeaderLineSize) ? "l" : "ml")}'> </font>";
                 var emptySymbol2 = $"<font class='fontSize-ml'> </font>";
 

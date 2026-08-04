@@ -162,7 +162,7 @@ namespace HeroShift.src.utils
         //
         // Do not call this directly from a hero - use SkillUtils.ForceFullUpdate /
         // ForceFullUpdateToAll. Those wrappers add the parts that make it safe: they honour
-        // Config.EnableFullForceUpdate, skip bots, collapse multiple requests in the same
+        // general.EnableFullForceUpdate, skip bots, collapse multiple requests in the same
         // tick, and re-apply each player's view angles a few ticks later, because a full
         // update also resets the client's view angles.
         public void ForceFullUpdate()
