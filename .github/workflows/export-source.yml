@@ -1,11 +1,9 @@
 name: Export Source Snapshot
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-    paths:
-      - .github/workflows/export-source.yml
 
 permissions:
   contents: read
