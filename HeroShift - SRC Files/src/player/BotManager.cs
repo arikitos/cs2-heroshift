@@ -101,9 +101,8 @@ namespace src.utils
             var bot_info = PlayerManager.GetPlayerByIndex(randomBot.Index);
             if (bot_info == null) return;
 
-            // Reflection dispatch into src/player/skills/<Skill>.UseSkill(player).
-            // Heroes with no UseSkill (passive ones) simply do nothing here.
-            Instance.SkillAction(bot_info.Skill.ToString(), "UseSkill", [randomBot]);
+            // Invoke the active typed skill definition. Passive skills simply have no UseSkill hook.
+            Instance.InvokeUseSkill(bot_info.Skill, randomBot);
         }
 
         // DEBUG churn: kick one bot, add one back. The point is to keep recycling

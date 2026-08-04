@@ -900,7 +900,7 @@ namespace src.utils
 
                 list.TryAdd(uniqueKey, (p, option) =>
                 {
-                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
+                    HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [item.Item2]);
                     manager.CloseMenu(p);
                 });
             }
@@ -929,7 +929,7 @@ namespace src.utils
                 if (pool.Count > 0)
                 {
                     string randomTarget = pool[Random.Shared.Next(pool.Count)];
-                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, new[] { randomTarget }]);
+                    HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, player, [randomTarget]);
                 }
 
                 return;
@@ -981,7 +981,7 @@ namespace src.utils
 
                 menu.Add(uniqueKey, (p, option) =>
                 {
-                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
+                    HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [enemy.Item2]);
                     manager.CloseMenu(p);
                 });
             }
@@ -994,7 +994,7 @@ namespace src.utils
 
                 menu.Add($"\u202A{encodedLastElement}\u202C", (p, option) =>
                 {
-                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
+                    HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [lastElement.Value.Item2]);
                     if (lastElement.Value.Item3)
                         manager.CloseMenu(p);
                 });

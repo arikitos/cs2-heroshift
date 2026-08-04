@@ -26,15 +26,12 @@ namespace src
      *
      * HOW A SKILL GETS CALLED
      * Every built-in skill is registered in BuiltInSkillCatalog with typed hook
-     * delegates. The compatibility SkillAction entry point below resolves those
-     * delegates through SkillRegistry while call sites are migrated incrementally.
+     * delegates. SkillDispatcher routes game events, while explicit lifecycle
+     * coordinator methods preserve assignment history, curse ownership and PerfLog.
      *
-     * LOAD ORDER (Load method): config -> skill tunables -> translations ->
-     * event/tick listeners -> commands -> WASD menu -> all skills -> player sync.
-     *
-     * CONFIG FILES this reads (both in the plugin's configs/ folder):
-     *   settings.json    - global plugin behaviour (see utils/Config.cs)
-     *   skillsInfo.json  - per-hero tunables (see utils/SkillsInfo.cs)
+     * LOAD ORDER (Load method): typed heroshift.json snapshot -> embedded English /
+     * optional language override -> event/tick listeners -> commands -> WASD menu ->
+     * enabled skills -> player sync.
      */
     public partial class HeroShift : BasePlugin
     {
@@ -48,7 +45,7 @@ namespace src
         public IWasdMenuManager? MenuManager;
         internal SkillRegistry SkillRegistry { get; private set; } = null!;
         internal SkillDispatcher SkillDispatcher { get; private set; } = null!;
-        // Skills that were enabled at least once this round; used to reset only those on round change (not all 124).
+        // Skills enabled at least once this round; used to reset only those on round change, not all 142 definitions.
         public static readonly ConcurrentDictionary<string, byte> ActiveSkillsThisRound = new();
         public static readonly ConcurrentDictionary<string, byte> SkillsUsedThisMap = new();
 
@@ -191,120 +188,6 @@ namespace src
             curserEvent?.PrintToChat($" {ChatColors.Red}{curserEvent.GetTranslation("curse_limit_info", victim.PlayerName)}");
             return false;
         }
-
-        /*
-         * Temporary compatibility entry point while event call sites move to the
-         * typed dispatcher. Hook resolution is now entirely registry-based: no
-         * class-name construction, assembly scanning or MethodInfo invocation.
-         */
-        internal object? SkillAction(string skill, string methodName, object[]? param = null)
-        {
-            if (string.IsNullOrWhiteSpace(skill) ||
-                !Enum.TryParse<Skills>(skill, ignoreCase: true, out var legacySkill))
-                return null;
-
-            if (!SkillRegistry.TryGet(SkillRuntime.GetId(legacySkill), out var definition))
-                return null;
-
-            if (methodName == nameof(SkillHookSet.EnableSkill))
-            {
-                ActiveSkillsThisRound.TryAdd(skill, 0);
-                SkillsUsedThisMap.TryAdd(skill, 0);
-            }
-
-            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skill))
-            {
-                if (methodName == nameof(SkillHookSet.DisableSkill) && param?.Length > 0 && param[0] is CCSPlayerController curser && curser.IsValid)
-                    SkillUtils.ReleaseCurse(curser.Index);
-
-                if (methodName == nameof(SkillHookSet.TypeSkill) && !TryClaimCurseTarget(param))
-                    return null;
-            }
-
-            object? InvokeTyped() => methodName switch
-            {
-                nameof(SkillHookSet.LoadSkill) => Invoke(definition.Hooks.LoadSkill),
-                nameof(SkillHookSet.EnableSkill) => Invoke(definition.Hooks.EnableSkill, Arg<CCSPlayerController>(param, 0)),
-                nameof(SkillHookSet.DisableSkill) => Invoke(definition.Hooks.DisableSkill, Arg<CCSPlayerController>(param, 0)),
-                nameof(SkillHookSet.UseSkill) => Invoke(definition.Hooks.UseSkill, Arg<CCSPlayerController>(param, 0)),
-                nameof(SkillHookSet.TypeSkill) => Invoke(definition.Hooks.TypeSkill, Arg<CCSPlayerController>(param, 0), Arg<string[]>(param, 1)),
-                nameof(SkillHookSet.OnTakeDamage) => Invoke(definition.Hooks.OnTakeDamage, Arg<CounterStrikeSharp.API.Modules.Memory.DynamicFunctions.DynamicHook>(param, 0)),
-                nameof(SkillHookSet.OnTakeDamagePost) => Invoke(definition.Hooks.OnTakeDamagePost, Arg<CounterStrikeSharp.API.Modules.Memory.DynamicFunctions.DynamicHook>(param, 0)),
-                nameof(SkillHookSet.OnEntitySpawned) => Invoke(definition.Hooks.OnEntitySpawned, Arg<CEntityInstance>(param, 0)),
-                nameof(SkillHookSet.OnTick) => Invoke(definition.Hooks.OnTick),
-                nameof(SkillHookSet.CheckTransmit) => Invoke(definition.Hooks.CheckTransmit, Arg<CCheckTransmitInfoList>(param, 0)),
-                nameof(SkillHookSet.NewRound) => Invoke(definition.Hooks.NewRound),
-                nameof(SkillHookSet.RoundEnd) => Invoke(definition.Hooks.RoundEnd),
-                nameof(SkillHookSet.PlayerMakeSound) => Invoke(definition.Hooks.PlayerMakeSound, Arg<CounterStrikeSharp.API.Modules.UserMessages.UserMessage>(param, 0)),
-                nameof(SkillHookSet.PlayerBlind) => Invoke(definition.Hooks.PlayerBlind, Arg<EventPlayerBlind>(param, 0)),
-                nameof(SkillHookSet.PlayerHurt) => Invoke(definition.Hooks.PlayerHurt, Arg<EventPlayerHurt>(param, 0)),
-                nameof(SkillHookSet.PlayerHurtPre) => Invoke(definition.Hooks.PlayerHurtPre, Arg<EventPlayerHurt>(param, 0)),
-                nameof(SkillHookSet.PlayerDeath) => Invoke(definition.Hooks.PlayerDeath, Arg<EventPlayerDeath>(param, 0)),
-                nameof(SkillHookSet.PlayerJump) => Invoke(definition.Hooks.PlayerJump, Arg<EventPlayerJump>(param, 0)),
-                nameof(SkillHookSet.SwitchTeam) => Invoke(definition.Hooks.SwitchTeam, Arg<EventSwitchTeam>(param, 0), Arg<GameEventInfo>(param, 1)),
-                nameof(SkillHookSet.BotTakeover) => Invoke(definition.Hooks.BotTakeover, Arg<EventBotTakeover>(param, 0)),
-                nameof(SkillHookSet.PlayerDisconnect) => Invoke(definition.Hooks.PlayerDisconnect, Arg<uint>(param, 0)),
-                nameof(SkillHookSet.WeaponFire) => Invoke(definition.Hooks.WeaponFire, Arg<EventWeaponFire>(param, 0)),
-                nameof(SkillHookSet.WeaponEquip) => Invoke(definition.Hooks.WeaponEquip, Arg<EventItemEquip>(param, 0)),
-                nameof(SkillHookSet.WeaponPickup) => Invoke(definition.Hooks.WeaponPickup, Arg<EventItemPickup>(param, 0)),
-                nameof(SkillHookSet.WeaponReload) => Invoke(definition.Hooks.WeaponReload, Arg<EventWeaponReload>(param, 0)),
-                nameof(SkillHookSet.WeaponDrop) => Invoke(definition.Hooks.WeaponDrop, Arg<CounterStrikeSharp.API.Modules.Memory.DynamicFunctions.DynamicHook>(param, 0), Arg<CCSPlayerController>(param, 1)),
-                nameof(SkillHookSet.GrenadeThrown) => Invoke(definition.Hooks.GrenadeThrown, Arg<EventGrenadeThrown>(param, 0)),
-                nameof(SkillHookSet.BulletImpact) => Invoke(definition.Hooks.BulletImpact, Arg<EventBulletImpact>(param, 0)),
-                nameof(SkillHookSet.BombBeginplant) => Invoke(definition.Hooks.BombBeginplant, Arg<EventBombBeginplant>(param, 0)),
-                nameof(SkillHookSet.BombAbortplant) => Invoke(definition.Hooks.BombAbortplant, Arg<EventBombAbortplant>(param, 0)),
-                nameof(SkillHookSet.BombPlanted) => Invoke(definition.Hooks.BombPlanted, Arg<EventBombPlanted>(param, 0)),
-                nameof(SkillHookSet.BombBegindefuse) => Invoke(definition.Hooks.BombBegindefuse, Arg<EventBombBegindefuse>(param, 0)),
-                nameof(SkillHookSet.DecoyStarted) => Invoke(definition.Hooks.DecoyStarted, Arg<EventDecoyStarted>(param, 0)),
-                nameof(SkillHookSet.DecoyDetonate) => Invoke(definition.Hooks.DecoyDetonate, Arg<EventDecoyDetonate>(param, 0)),
-                nameof(SkillHookSet.SmokegrenadeDetonate) => Invoke(definition.Hooks.SmokegrenadeDetonate, Arg<EventSmokegrenadeDetonate>(param, 0)),
-                nameof(SkillHookSet.SmokegrenadeExpired) => Invoke(definition.Hooks.SmokegrenadeExpired, Arg<EventSmokegrenadeExpired>(param, 0)),
-                nameof(SkillHookSet.OnTriggerEnter) => Invoke(definition.Hooks.OnTriggerEnter, Arg<CBaseTrigger>(param, 0), Arg<CBaseEntity>(param, 1)),
-                nameof(SkillHookSet.OnTriggerExit) => Invoke(definition.Hooks.OnTriggerExit, Arg<CBaseTrigger>(param, 0), Arg<CBaseEntity>(param, 1)),
-                nameof(SkillHookSet.OnWeaponCanAcquire) => Invoke(definition.Hooks.OnWeaponCanAcquire, Arg<CounterStrikeSharp.API.Modules.Memory.DynamicFunctions.DynamicHook>(param, 0), Arg<CCSPlayerController>(param, 1), Arg<CEconItemView>(param, 2), Arg<CCSWeaponBaseVData>(param, 3)),
-                _ => null,
-            };
-
-            if (!PerfLog.Enabled)
-                return InvokeTyped();
-
-            long perfStart = PerfLog.Start();
-            var result = InvokeTyped();
-            PerfLog.End($"SkillAction {skill}.{methodName}", perfStart, 2.0);
-            return result;
-        }
-
-        private static T Arg<T>(object[]? args, int index) =>
-            args != null && args.Length > index && args[index] is T value
-                ? value
-                : throw new ArgumentException($"Missing or invalid skill-hook argument {index} ({typeof(T).Name}).");
-
-        private static object? Invoke(Action? action)
-        {
-            action?.Invoke();
-            return null;
-        }
-
-        private static object? Invoke<T>(Action<T>? action, T arg)
-        {
-            action?.Invoke(arg);
-            return null;
-        }
-
-        private static object? Invoke<T1, T2>(Action<T1, T2>? action, T1 arg1, T2 arg2)
-        {
-            action?.Invoke(arg1, arg2);
-            return null;
-        }
-
-        private static object? Invoke<T, TResult>(Func<T, TResult>? function, T arg) =>
-            function == null ? null : function(arg);
-
-        private static object? Invoke<T1, T2, TResult>(Func<T1, T2, TResult>? function, T1 arg1, T2 arg2) =>
-            function == null ? null : function(arg1, arg2);
-
-        private static object? Invoke<T1, T2, T3, T4, TResult>(Func<T1, T2, T3, T4, TResult>? function, T1 arg1, T2 arg2, T3 arg3, T4 arg4) =>
-            function == null ? null : function(arg1, arg2, arg3, arg4);
 
         internal new void AddCommand(string name, string description, CommandInfo.CommandCallback handler)
         {

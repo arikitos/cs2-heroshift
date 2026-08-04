@@ -181,7 +181,7 @@ namespace src.player.skills
                     if (playerEvent == null || !playerEvent.IsValid) return;
 
                     if (!player.IsBot)
-                        Instance.SkillAction(skillName.ToString(), "EnableSkill", [p]);
+                        Instance.InvokeEnableSkill(skillName, p);
 
                     playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("thief_incorrect_skill", e.PlayerName));
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -207,7 +207,7 @@ namespace src.player.skills
                 pInfo.SpecialSkill = skillName;
 
                 SkillUtils.CloseMenu(p);
-                Instance.SkillAction(enemySkill.ToString(), "EnableSkill", [p]);
+                Instance.InvokeEnableSkill(enemySkill, p);
 
                 playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("thief_player_info", e.PlayerName));
 
@@ -221,11 +221,11 @@ namespace src.player.skills
 
                         var info = PlayerManager.GetPlayerByIndex(player!.Index);
                         if (info?.Skill == enemySkill)
-                            Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
+                            Instance?.InvokeEnableSkill(enemySkill, player);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
                 else
-                    Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [p]);
+                    Instance?.InvokeEnableSkill(enemySkill, p);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
             Instance.AddTimer(.1f, () =>
@@ -239,7 +239,7 @@ namespace src.player.skills
                 var enemyEvent = PlayerManager.GetPlayerFromEvent(e);
                 if (enemyEvent == null || !enemyEvent.IsValid) return;
 
-                Instance.SkillAction(enemySkill.ToString(), "DisableSkill", [e]);
+                Instance.InvokeDisableSkill(enemySkill, e);
 
                 eInfo.SpecialSkill = enemySkill;
                 eInfo.Skill = Skills.None;

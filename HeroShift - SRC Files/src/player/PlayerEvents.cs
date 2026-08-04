@@ -31,15 +31,15 @@ namespace src.player
      *   native VirtualFunctions hook the plugin needs. Each handler then does almost
      *   no work itself: it fans the event out to the heroes that are currently in
      *   play. A hero lives in src/player/skills/<Name>.cs as a static class with
-     *   `public static` hook methods, and is reached by REFLECTION through
-     *   HeroShift.Instance.SkillAction(skillName, "HookName", args), which resolves
-     *   "src.player.skills.{Skill}" plus a public static method of that name. If a
+     *   `public static` hook methods registered as typed delegates in the built-in
+     *   SkillRegistry. Event callbacks resolve stable SkillIds and invoke those
+     *   delegates directly. If a
      *   hero does not declare the hook, nothing happens - that is normal.
      *
      * FAN-OUT FLOW (the pattern almost every handler follows)
      *   game event -> lock (setLock) -> typed SkillDispatcher hook
      *     -> for every distinct Skill currently held by a non-drawing player
-     *        -> InvokeSkill -> SkillAction(...) -> <Skill>.HookName(args)
+     *        -> SkillDispatcher -> registered <Skill>.HookName delegate
      *   The dispatch is per DISTINCT SKILL, not per player: a hero hook is called
      *   once per round even if ten players hold it, so hero code is expected to
      *   iterate the players itself (usually via PlayerManager.GetTickPlayers()).

@@ -154,7 +154,7 @@ namespace src.player.skills
 
             if (enemyInfo != null)
             {
-                Instance.SkillAction(enemyInfo.Skill.ToString(), "DisableSkill", [enemy]);
+                Instance.InvokeDisableSkill(enemyInfo.Skill, enemy);
                 enemyInfo.SpecialSkill = enemyInfo.Skill;
                 enemyInfo.Skill = Skills.None;
 

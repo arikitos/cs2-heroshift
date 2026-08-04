@@ -95,10 +95,10 @@ namespace src.player.skills
 
                         var pi = PlayerManager.GetPlayerByIndex(playerIndex);
                         if (pi == null || pi.Skill != skill.Skill) return;
-                        Instance?.SkillAction(skill.Skill.ToString(), "EnableSkill", [player]);
+                        Instance?.InvokeEnableSkill(skill.Skill, player);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 else
-                    Instance?.SkillAction(skill.Skill.ToString(), "EnableSkill", [player]);
+                    Instance?.InvokeEnableSkill(skill.Skill, player);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 

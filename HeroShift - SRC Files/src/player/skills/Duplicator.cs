@@ -171,7 +171,7 @@ namespace src.player.skills
                     if (player == null || !player.IsValid) return;
 
                     if (!player.IsBot)
-                        Instance.SkillAction(skillName.ToString(), "EnableSkill", [player]);
+                        Instance.InvokeEnableSkill(skillName, player);
 
                     playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("thief_incorrect_skill", enemyName));
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -193,10 +193,10 @@ namespace src.player.skills
 
                         var dupInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                         if (dupInfo == null || dupInfo.Skill != enemySkill) return;
-                        Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
+                        Instance?.InvokeEnableSkill(enemySkill, player);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 else
-                    Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
+                    Instance?.InvokeEnableSkill(enemySkill, player);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("duplicator_player_info", enemy.PlayerName));
         }

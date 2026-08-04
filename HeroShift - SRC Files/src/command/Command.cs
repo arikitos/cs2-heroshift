@@ -42,13 +42,13 @@ namespace src.command
      *
      * Notes for a hero/skill author:
      *   - Command_UseTypeSkill is the entry point of the "use my skill" button.
-     *     With no arguments it reflection-calls UseSkill on the player's hero;
+     *     With no arguments it invokes UseSkill on the player's typed hero definition;
      *     with arguments it calls TypeSkill and hands the split arguments over.
-     *     Both go through Instance.SkillAction(skill, "HookName", params), so a
+     *     Both go through the explicit typed lifecycle coordinator, so a
      *     hero only needs `public static void UseSkill(CCSPlayerController)` or
      *     `TypeSkill(CCSPlayerController, string[])` to be reachable here.
      *   - Whenever a player's hero changes (setskill / setstaticskill / next) the
-     *     old hero gets "DisableSkill" and the new one "EnableSkill", and
+     *     old hero is disabled before the new one is enabled, and
      *     Event.UpdateSkillHudExpired refreshes the HUD. Copy that order in any
      *     new command that reassigns a skill, or the old hero keeps its hooks.
      *   - Handlers run on the game thread. player == null means the command came
@@ -156,9 +156,9 @@ namespace src.command
             Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill}");
 
             if (commands == null || commands.Length == 0)
-                Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);
+                Instance.InvokeUseSkill(playerInfo.Skill, player);
             else
-                Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, commands]);
+                Instance.InvokeTypeSkill(playerInfo.Skill, player, commands);
         }
 
         // Assigns a hero to a target player for the current round only.
@@ -216,10 +216,10 @@ namespace src.command
             {
                 // Order matters: tear down the old hero's hooks/entities first, then
                 // swap the stored skill, then let the new hero set itself up.
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
+                Instance.InvokeDisableSkill(skillPlayer.Skill, targetPlayer);
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
-                Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
+                Instance.InvokeEnableSkill(skill.Skill, targetPlayer);
                 Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
                 if (player == null)
@@ -651,7 +651,7 @@ namespace src.command
             var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer.Index);
             if (skillPlayer != null)
             {
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
+                Instance.InvokeDisableSkill(skillPlayer.Skill, targetPlayer);
                 skillPlayer.Skill = skill.Skill;
                 skillPlayer.SpecialSkill = Skills.None;
                 Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
@@ -663,7 +663,7 @@ namespace src.command
                     Event.staticSkills.TryRemove(targetPlayer.Index, out _);
                 else
                     Event.staticSkills.TryAdd(targetPlayer.Index, skill);
-                Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
+                Instance.InvokeEnableSkill(skill.Skill, targetPlayer);
 
                 if (player == null)
                 {
@@ -688,9 +688,9 @@ namespace src.command
             }
         }
 
-        // Live-reloads config.json, skillsInfo.json and the language file, then
+        // Live-reloads heroshift.json and the selected optional language file, then
         // re-registers commands and rebuilds the active hero list by calling
-        // "LoadSkill" on every Skills value whose skillsInfo "active" flag is true.
+        // invokes LoadSkill on every Skills value whose effective metadata is active.
         // Finally it downgrades any player currently holding a hero that was just
         // deactivated, so nobody keeps a skill that is no longer loaded.
         [CommandHelper(minArgs: 0, whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
@@ -717,7 +717,7 @@ namespace src.command
                 SkillData.Skills.Clear();
                 foreach (var skill in Enum.GetValues<Skills>())
                     if (SkillRuntime.GetMetadata(skill).Active)
-                        Instance.SkillAction(skill.ToString()!, "LoadSkill");
+                        Instance.InvokeLoadSkill(skill);
 
                 // Both are lazy caches derived from the list just rebuilt: the
                 // Skills -> info lookup map and the set of disableOnFreezeTime heroes.
@@ -801,13 +801,13 @@ namespace src.command
             var skillPlayer = PlayerManager.GetPlayerByIndex(targetPlayer!.Index);
             if (skillPlayer == null) return;
 
-            Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [targetPlayer]);
+            Instance.InvokeDisableSkill(skillPlayer.Skill, targetPlayer);
             skillPlayer.Skill = skill.Skill;
             skillPlayer.SpecialSkill = Skills.None;
 
             nextSkill[targetPlayer.Index] = nextIndex;
 
-            Instance.SkillAction(skill.Skill.ToString(), "EnableSkill", [targetPlayer]);
+            Instance.InvokeEnableSkill(skill.Skill, targetPlayer);
             Event.UpdateSkillHudExpired(skillPlayer, skill.Skill);
 
             if (skill.Display)
