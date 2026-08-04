@@ -1,0 +1,73 @@
+ce();
++            if (rayTrace == null)
++                return null;
++
++            Vector safeMins = mins ?? playerPawn.Collision.Mins;
++            Vector safeMaxs = maxs ?? playerPawn.Collision.Maxs;
++
++            ulong safeMask = mask ?? playerPawn.Collision.CollisionAttribute.InteractsWith;
++            ulong safeContents = contents ?? 0;
++
++            bool drawBeam = ConfigurationStore.Settings.General.TraceRayBeam;
++
++            TraceResult result = default;
++            TraceOptions options = new()
++            {
++                InteractsWith = safeMask,
++                InteractsExclude = safeContents,
++                DrawBeam = drawBeam == true ? 1 : 0,
++            };
++
++            // The tracing player's own pawn is excluded so the ray does not immediately
++            // hit the body it starts inside. (The guard above already required the pawn
++            // to be alive, so this is effectively always the pawn.)
++            CEntityInstance? entityToIgnore = (playerPawn.LifeState == (byte)LifeState_t.LIFE_ALIVE)
++                                      ? playerPawn
++                                      : null;
++
++            try
++            {
++                rayTrace.TraceHullShape(startPos, endPos, safeMins, safeMaxs, entityToIgnore, options, out result);
++            }
++            catch (Exception)
++            {
++                return null;
++            }
++
++            if (drawBeam)
++            {
++                angle ??= new(0, playerPawn.EyeAngles.Y, 0);
++                DrawBoxEdges(startPos, endPos, angle, safeMins, safeMaxs, Color.Green);
++            }
++
++            return new CustomTraceResult(result, startPos, safeMask, safeContents, drawBeam);
++        }
++
++        // Debug visual only: draws the swept hull as a wireframe box (4 edges at the start
++        // face, 4 at the end face, 4 connecting them) using env_beam entities.
++        private void DrawBoxEdges(Vector start, Vector end, QAngle angles, Vector mins, Vector maxs, Color color)
++        {
++            AngleVectors(angles, out Vector forward, out Vector right, out Vector up);
++
++            // The hull extends half its depth beyond each endpoint along the sweep
++            // direction, so the drawn faces are pushed out to match the real swept volume.
++            float halfLength = (maxs.X - mins.X) / 2.0f;
++
++            Vector visualStart = start - (forward * halfLength);
++            Vector visualEnd = end + (forward * halfLength);
++
++            Vector GetVertex(Vector center, float rx, float ux)
++            {
++                return center + (right * rx) + (up * ux);
++            }
++
++            Vector[] s = [
++                GetVertex(visualStart, mins.Y, mins.Z),
++                GetVertex(visualStart, maxs.Y, mins.Z),
++                GetVertex(visualStart, maxs.Y, maxs.Z),
++                GetVertex(visualStart, mins.Y, maxs.Z)
++            ];
++
++            Vector[] e = [
++                GetVertex(visualEnd, mins.Y, mins.Z),
++    

@@ -1,0 +1,56 @@
+here; it is swallowed so one bad trace cannot take the server down.
++            catch (Exception ex)
++            {
++                Console.WriteLine($"[HeroShift] A memory error was caught during RayTrace: {ex.Message}");
++                return null;
++            }
++
++            return new CustomTraceResult(result, startPos, (ulong)mask, (ulong)contents, drawBeam);
++        }
++
++        // The main entry point for aim-based heroes: traces from the player's eyes along
++        // their view angles and reports the first thing hit.
++        public CustomTraceResult? EyeTrace(CCSPlayerController player)
++        {
++            if (player == null || !player.IsValid) return null;
++
++            var playerPawn = player.PlayerPawn?.Value;
++            if (playerPawn == null || !playerPawn.IsValid || playerPawn.AbsOrigin == null)
++                return null;
++
++            var playerInfo = PlayerManager.GetPlayerByIndex(player.Index);
++            if (playerInfo == null) return null;
++
++            // Range comes from the acting hero's own "maxDistance" key in
++            // typed options; 0/absent falls back to 4096 units.
++            float maxDistance = SkillRuntime.GetMaxDistance(playerInfo.Skill);
++            if (maxDistance == 0) maxDistance = 4096f;
++
++            // AbsOrigin sits at the pawn's feet, so ViewOffset.Z must be added to get the
++            // eye position - tracing from AbsOrigin would start inside the floor.
++            Vector startPos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + playerPawn.ViewOffset.Z);
++            // EyeAngles converted to a unit direction, scaled to the range.
++            Vector endPos = startPos + SkillUtils.GetForwardVector(playerPawn.EyeAngles) * maxDistance;
++
++            return TraceShape(player, startPos, endPos);
++        }
++
++        // Hull trace with a caller-chosen box. Defaults to the player's own collision
++        // Mins/Maxs, which makes it the "would a player fit / could a player walk this
++        // path?" test used for teleport destination validation. Unlike TraceShape it does
++        // not add Hitboxes to the default mask, so with default arguments it collides
++        // with world geometry the way a player body does.
++        public CustomTraceResult? TraceHullShape(Vector startPos, Vector endPos, CCSPlayerController player, Vector? mins = null, Vector? maxs = null, ulong? mask = null, ulong? contents = null, QAngle? angle = null)
++        {
++            if (player == null || !player.IsValid) return null;
++
++            var playerPawn = player.PlayerPawn?.Value;
++            if (playerPawn == null ||
++                !playerPawn.IsValid ||
++                playerPawn.Handle == IntPtr.Zero ||
++                playerPawn.Collision == null ||
++                playerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE ||
++                playerPawn.CBodyComponent?.SceneNode == null)
++                return null;
++
++            var rayTrace = GetInterfa

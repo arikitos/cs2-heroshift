@@ -1,0 +1,5 @@
+ontrollsLine = 
++            string controllsLine =
+                 $"{emptySymbol}<font class='fontSize-{config.WsadMenuControllsLineSize}' color='{config.WsadMenuControllsLineColor1}'>{player.GetTranslation($"menu_controlls_scroll")}</font>"
+                 + $"<font class='fontSize-{config.WsadMenuControllsLineSize}' color='{config.WsadMenuControllsLineColor2}'>{player.GetTranslation($"menu_controlls_padding")}</font>"
+                 + $"<font class='fontSize-{config.WsadMenuControllsLine

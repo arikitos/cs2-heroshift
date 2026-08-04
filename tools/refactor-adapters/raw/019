@@ -1,0 +1,13 @@
+vokeTypeSkill(playerInfo.Skill, p, [lastElement.Value.Item2]);
+                     if (lastElement.Value.Item3)
+-                        manager.CloseMenu(p);
++                        menuService.CloseMenu(p);
+                 });
+             }
+ 
+-            manager.OpenMainMenu(player, menu);
++            menuService.OpenMainMenu(player, menu);
+         }
+ 
+         public static void SetTeamScores(short ctScore, short tScore, RoundEndReason roundEndReason)
+@@ -1157,4 +1147,4 @@ namespace sr

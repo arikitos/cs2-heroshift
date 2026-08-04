@@ -1,0 +1,81 @@
+ctor end, Color color)
+-        {
+-            var beam = Utilities.CreateEntityByName<CBeam>("env_beam");
+-            if (beam == null || !beam.IsValid) return;
+-
+-            beam.Render = color;
+-            beam.Width = 1.3f;
+-
+-            beam.Teleport(start, new QAngle(0, 0, 0), new Vector(0, 0, 0));
+-            beam.EndPos.X = end.X;
+-            beam.EndPos.Y = end.Y;
+-            beam.EndPos.Z = end.Z;
+-
+-            beam.DispatchSpawn();
+-        }
++namespace src.utils;
+ 
++/// <summary>
++/// Pure helpers for interpreting an immutable trace result. Native tracing is
++/// owned by ITraceService/RayTraceService.
++/// </summary>
++public static class RayTraceResultExtensions
++{
+         // Units from the trace start to where it stopped - i.e. distance to the thing hit,
+         // or the full ray length when nothing was hit.
+         public static float Distance(this CustomTraceResult result)
+@@ -487,5 +162,4 @@ namespace src.utils
+             StartsWith,
+             EndsWith
+         }
+-    }
+-}
+\ No newline at end of file
++}
+diff --git a/HeroShift - SRC Files/src/utils/SkillUtils.cs b/HeroShift - SRC Files/src/utils/SkillUtils.cs
+index 0b5a40220dbdb4c19188537ddb8f4107d538c8e8..4799c3cc6385f5e55ead5bf4db727c4b8bc4c23f 100644
+--- a/HeroShift - SRC Files/src/utils/SkillUtils.cs	
++++ b/HeroShift - SRC Files/src/utils/SkillUtils.cs	
+@@ -14,8 +14,8 @@ using System.Collections.Concurrent;
+ using System.Drawing;
+ using System.Globalization;
+ using System.Runtime.InteropServices;
+-using WASDMenuAPI.Classes;
+ using WASDSharedAPI;
++using src.Infrastructure.Menu;
+ 
+ namespace src.utils
+ {
+@@ -157,7 +157,7 @@ namespace src.utils
+ 
+             var exists = player.PlayerPawn.Value.WeaponServices.MyWeapons
+                 .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && w.Value.DesignerName == itemString);
+-            
++
+             if (exists == null || !existValidator)
+                 for (int i = 0; i < count; i++)
+                     player.GiveNamedItem(item);
+@@ -299,7 +299,7 @@ namespace src.utils
+ 
+             skeleton.Scale = scale;
+             playerPawn.AcceptInput("SetScale", null, null, scale.ToString(CultureInfo.InvariantCulture));
+-            
++
+             Server.NextWorldUpdate(() => {
+                 if (playerPawn == null || !playerPawn.IsValid) return;
+                 Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
+@@ -837,32 +837,24 @@ namespace src.utils
+             return designerName;
+         }
+ 
+-        private static IWasdMenuManager? GetMenuManager()
+-        {
+-            if (HeroShift.Instance.MenuManager == null)
+-                HeroShift.Instance.MenuManager = new WasdManager();
+-            return HeroShift.Instance.MenuManager;
+-        }
++        private static IGameMenuService GetMenuService() => HeroShift.Instance.MenuService;
+ 
+         public static void CloseMenu(CCSPlayerController? player)
+         {
+-            var manager = GetMe

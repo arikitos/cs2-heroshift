@@ -1,0 +1,14 @@
+       {
+                 string encodedEnemyName = isIlliterate
+@@ -982,7 +972,7 @@ namespace src.utils
+                 menu.Add(uniqueKey, (p, option) =>
+                 {
+                     HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [enemy.Item2]);
+-                    manager.CloseMenu(p);
++                    menuService.CloseMenu(p);
+                 });
+             }
+ 
+@@ -996,11 +986,11 @@ namespace src.utils
+                 {
+                     HeroShift.Instance.In

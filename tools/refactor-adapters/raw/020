@@ -1,0 +1,14 @@
+c.utils
+         public short unknown;
+         public int m_phase;
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/HeroShift - SRC Files/tests/HeroShift.Tests/RuntimeAdapterTests.cs b/HeroShift - SRC Files/tests/HeroShift.Tests/RuntimeAdapterTests.cs
+new file mode 100644
+index 0000000000000000000000000000000000000000..68fa1dac8cc41434934141430ffeadc8842c7f2f
+--- /dev/null
++++ b/HeroShift - SRC Files/tests/HeroShift.Tests/RuntimeAdapterTests.cs	
+@@ -0,0 +1,74 @@
++using CounterStrikeSharp.A

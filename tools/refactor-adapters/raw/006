@@ -1,0 +1,60 @@
+er/skills/TeamTeleport.cs	
+@@ -196,7 +196,7 @@ namespace src.player.skills
+             var victimPawn = victim.PlayerPawn.Value;
+             if (victimPawn == null || !victimPawn.IsValid) return false;
+ 
+-            var result = RayTrace.TraceHullShape(
++            var result = HeroShift.Instance.TraceService.TraceHullShape(
+                     startPos,
+                     endPos,
+                     victim,
+diff --git a/HeroShift - SRC Files/src/player/skills/Tripwire.cs b/HeroShift - SRC Files/src/player/skills/Tripwire.cs
+index 27fe51b9c11272ae0b34c9a2df36c7991098ea88..2789d9475a79b7feffcb9c219b7faa39771a56de 100644
+--- a/HeroShift - SRC Files/src/player/skills/Tripwire.cs	
++++ b/HeroShift - SRC Files/src/player/skills/Tripwire.cs	
+@@ -204,7 +204,7 @@ namespace src.player.skills
+         {
+             var pawn = player.PlayerPawn?.Value;
+             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return false;
+-            if (!RayTrace.IsAvailable) return false;
++            if (!HeroShift.Instance.TraceService.IsAvailable) return false;
+ 
+             float height = Options.WireHeight;
+             float maxDistance = Options.MaxWallDistance;
+@@ -217,8 +217,8 @@ namespace src.player.skills
+ 
+             ulong wallMask = (ulong)InteractionLayers.MASK_WORLD_ONLY;
+ 
+-            var rightHit = RayTrace.TraceShape(player, origin, origin + rightDir * maxDistance, wallMask, 0);
+-            var leftHit = RayTrace.TraceShape(player, origin, origin + leftDir * maxDistance, wallMask, 0);
++            var rightHit = HeroShift.Instance.TraceService.TraceShape(player, origin, origin + rightDir * maxDistance, wallMask, 0);
++            var leftHit = HeroShift.Instance.TraceService.TraceShape(player, origin, origin + leftDir * maxDistance, wallMask, 0);
+ 
+             if (rightHit == null || leftHit == null) return false;
+             if (!rightHit.Value.DidHit || !leftHit.Value.DidHit) return false;
+diff --git a/HeroShift - SRC Files/src/utils/RayTrace.cs b/HeroShift - SRC Files/src/utils/RayTrace.cs
+index 42fac645ba483c350e00e283d87b8d45165e2d1c..ee78ff1f1711ecfb15e819c0dd99c88318724e93 100644
+--- a/HeroShift - SRC Files/src/utils/RayTrace.cs	
++++ b/HeroShift - SRC Files/src/utils/RayTrace.cs	
+@@ -1,340 +1,15 @@
+-using CounterStrikeSharp.API;
+ using CounterStrikeSharp.API.Core;
+-using CounterStrikeSharp.API.Core.Capabilities;
+-using CounterStrikeSharp.API.Modules.Utils;
+ using HeroShift.src.utils;
+-using RayTraceAPI;
+-using System.Drawing;
+ using System.Numerics;
+-using TraceOptions = RayTraceAPI.TraceOptions;
+-using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
+ 
+-using src.SkillsCore;
+-namespace src.utils
+-{
+-    /*
+-     * RayTrace - "what is this player looking at / what is between these two
+-     * points?" This is what every aim-based hero is built on (aimbot, demon eye,
+-     * teleport-to-crosshair, tripwire and so on).
+-     *
+-     * IMPORTANT: tracing is NOT built into CounterStrikeSharp. It is provided by an
+-

@@ -1,0 +1,52 @@
+es/src/player/skills/LongZeus.cs b/HeroShift - SRC Files/src/player/skills/LongZeus.cs
+index 442599298350eb00ccf6023db65019ca970f0130..b0fcd88a990f3ceee5a73c52bf99da09a16e9412 100644
+--- a/HeroShift - SRC Files/src/player/skills/LongZeus.cs	
++++ b/HeroShift - SRC Files/src/player/skills/LongZeus.cs	
+@@ -61,7 +61,7 @@ namespace src.player.skills
+             var activeWeapon = pawn.WeaponServices.ActiveWeapon.Value;
+             if (activeWeapon == null || !activeWeapon.IsValid || activeWeapon.DesignerName != "weapon_taser") return;
+ 
+-            var result = RayTrace.EyeTrace(player);
++            var result = HeroShift.Instance.TraceService.EyeTrace(player);
+             if (result == null || !result.HasValue)
+                 return;
+ 
+diff --git a/HeroShift - SRC Files/src/player/skills/Noclip.cs b/HeroShift - SRC Files/src/player/skills/Noclip.cs
+index f5d588746bf019a1aad8617c160efc01a4c32106..976b6884217b70e8ed3173d94edcf8df0dd765ff 100644
+--- a/HeroShift - SRC Files/src/player/skills/Noclip.cs	
++++ b/HeroShift - SRC Files/src/player/skills/Noclip.cs	
+@@ -226,7 +226,7 @@ namespace src.player.skills
+                 Vector start = new(targetPos.X, targetPos.Y, targetPos.Z + 70);
+                 Vector end = new(targetPos.X, targetPos.Y, targetPos.Z - 1000);
+ 
+-                var groundResult = RayTrace.TraceShape(player, start, end, mask, contents);
++                var groundResult = HeroShift.Instance.TraceService.TraceShape(player, start, end, mask, contents);
+                 if (!groundResult.HasValue || !groundResult.Value.DidHit) continue;
+ 
+                 Vector newPos =
+@@ -237,7 +237,7 @@ namespace src.player.skills
+                 hasGround = true;
+                 stuckVector = newPos;
+ 
+-                var result = RayTrace.TraceHullShape(
++                var result = HeroShift.Instance.TraceService.TraceHullShape(
+                     targetPos,
+                     targetPos,
+                     player
+diff --git a/HeroShift - SRC Files/src/player/skills/Shade.cs b/HeroShift - SRC Files/src/player/skills/Shade.cs
+index 0237a36a0189f92f0162dd6634c443e6f4cf3df5..9cbe76a7675bdb40ef4346c14a3328cacba76f3a 100644
+--- a/HeroShift - SRC Files/src/player/skills/Shade.cs	
++++ b/HeroShift - SRC Files/src/player/skills/Shade.cs	
+@@ -122,7 +122,7 @@ namespace src.player.skills
+             var victimPawn = victim.PlayerPawn.Value;
+             if (victimPawn == null || !victimPawn.IsValid) return false;
+ 
+-            var result = RayTrace.TraceHullShape(
++            var result = HeroShift.Instance.TraceService.TraceHullShape(
+                     startPos,
+                     endPos,
+                     victim,
+diff --git a/HeroShift - SRC Files/src/player/skills/TeamTeleport.cs b/HeroShift - SRC Files/src/player/skills/TeamTeleport.cs
+index a3abadfc53eb471b47ae5e4083439a91b66af3dd..5821b176a244d4f333c09e423b1d59ed65ee34d2 100644
+--- a/HeroShift - SRC Files/src/player/skills/TeamTeleport.cs	
++++ b/HeroShift - SRC Files/src/play
