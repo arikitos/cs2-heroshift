@@ -42,7 +42,7 @@ jobs:
             <ItemGroup>\
               <Reference Include="RayTraceApi">\
                 <HintPath>..\\..\\libs\\RayTraceApi.dll</HintPath>\
-                <Private>false</Private>\
+                <Private>true</Private>\
               </Reference>\
             </ItemGroup>\
           ' "$test_project"
@@ -73,6 +73,7 @@ jobs:
           grep -Fq 'TraceAdapterLogsMissingCapabilityOnlyOnce' "$tests"
           grep -Fq '<Reference Include="RayTraceApi">' "$test_project"
           grep -Fq '<HintPath>..\..\libs\RayTraceApi.dll</HintPath>' "$test_project"
+          grep -Fq '<Private>true</Private>' "$test_project"
 
           direct_menu=$(grep -RIl --include='*.cs' 'new WasdManager' "$source_root" | grep -v '/Infrastructure/Menu/WasdGameMenuService.cs' || true)
           test -z "$direct_menu" || { printf '%s\n' "$direct_menu"; exit 1; }
@@ -112,7 +113,7 @@ jobs:
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.email '41898238+github-actions[bot]@users.noreply.github.com'
           git add -A
           git diff --cached --check
           git commit -m 'refactor: isolate runtime dependency adapters'
