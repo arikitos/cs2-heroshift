@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Remove the `SkillsInfo` compatibility facade and all 142 nested `SkillConfig` duplicates; skill selection now reads the immutable effective skill snapshot directly.
+
 - Remove the final generic `SkillAction` compatibility dispatcher and migrate commands, bots, menu targeting and skill-copy/deactivation flows to explicit typed lifecycle coordinator methods.
 
 - Move skill load/enable/disable/use/type/reset/round-end lifecycle into explicit typed coordinator methods that preserve PerfLog, active/map history and curse ownership side effects; migrate RoundEvents and remove the generic event string fan-out helpers.
@@ -37,6 +39,8 @@ All notable changes to this project are documented in this file.
 - Migrated the passive skills batch to canonical typed skill definitions and options while retaining the legacy runtime dispatcher until the final cutover.
 
 ### Removed
+
+- Remove obsolete split `config.json` / `skillsInfo.json` server resources and duplicate external English copies; `heroshift.json` plus embedded English are the packaged defaults, while an operator-provided language file remains an optional override.
 
 - Stop reading `config.json` and `skillsInfo.json` at runtime; the files remain only until the dedicated legacy-cleanup checkpoint removes obsolete artifacts and nested compatibility models.
 

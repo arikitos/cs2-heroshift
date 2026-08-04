@@ -1,0 +1,117 @@
+name: Refactor SkillsInfo Cleanup
+
+on:
+  pull_request:
+    branches: [main]
+    types: [edited]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  cleanup-skillsinfo:
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'refactor' &&
+      github.event.pull_request.user.login == 'arikitos' &&
+      contains(github.event.pull_request.body || '', '<!-- cleanup:skillsinfo -->')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout refactor
+        uses: actions/checkout@v4
+        with:
+          ref: refactor
+          fetch-depth: 0
+
+      - name: Apply legacy skill configuration cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload='/tmp/skillsinfo.patch.gz.b64'
+          cat tools/refactor-cleanup/skillsinfo.patch.gz.b64.* > "$payload"
+          printf '%s  %s\n' '30e24d5f6f5cdd9b70fe9b6ea9dc92cc4b59899247c8dab5b60bc4b06085bfc6' "$payload" | sha256sum --check --status
+          base64 --decode "$payload" | gzip --decompress > /tmp/skillsinfo-cleanup.patch
+          git apply --index /tmp/skillsinfo-cleanup.patch
+          git rm tools/refactor-cleanup/skillsinfo.patch.gz.b64.* '.github/workflows/refactor-cleanup.yml'
+          git diff --cached --check
+
+      - name: Validate cleanup invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_root='HeroShift - SRC Files/src'
+          catalog="$source_root/Skills/BuiltInSkillCatalog.cs"
+
+          if grep -RIn --include='*.cs' -E '\bSkillsInfo\b|public class SkillConfig\b' "$source_root"; then
+            echo '::error::Legacy SkillsInfo or nested SkillConfig source remains'
+            exit 1
+          fi
+
+          registrations=$(grep -c 'registry.Register(' "$catalog")
+          test "$registrations" -eq 142 || {
+            echo "::error file=$catalog::Expected 142 registrations, found $registrations"
+            exit 1
+          }
+
+          test -f "$source_root/Localization/Resources/en.json"
+          test -f 'HeroShift - Server Files/plugins/HeroShift/configs/heroshift.json'
+          test ! -e "$source_root/utils/SkillsInfo.cs"
+          test ! -e "$source_root/Skills/LegacySkillConfigurationBridge.cs"
+          test ! -e "$source_root/lang/en.json"
+          test ! -e 'HeroShift - Server Files/plugins/HeroShift/configs/config.json'
+          test ! -e 'HeroShift - Server Files/plugins/HeroShift/configs/skillsInfo.json'
+          test ! -e 'HeroShift - Server Files/plugins/HeroShift/languages/en.json'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore "HeroShift - SRC Files/HeroShift.sln"
+
+      - name: Test
+        run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Build
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Validate package after build
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f 'HeroShift - Server Files/plugins/HeroShift/HeroShift.dll'
+          test -f 'HeroShift - Server Files/plugins/HeroShift/WASDMenuAPI.dll'
+          test -f 'HeroShift - Server Files/plugins/HeroShift/Newtonsoft.Json.dll'
+          test -f 'HeroShift - Server Files/gamedata/HeroShift.gamedata.json'
+          test -f 'HeroShift - Server Files/plugins/HeroShift/configs/heroshift.json'
+          test ! -e 'HeroShift - Server Files/plugins/HeroShift/configs/config.json'
+          test ! -e 'HeroShift - Server Files/plugins/HeroShift/configs/skillsInfo.json'
+
+      - name: Commit cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'refactor: remove legacy skill configuration'
+          git push origin HEAD:refactor
+
+      - name: Clear cleanup request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const cleaned = body.replace('<!-- cleanup:skillsinfo -->', '<!-- cleanup:skillsinfo-complete -->');
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              body: cleaned,
+            });
