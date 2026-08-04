@@ -53,6 +53,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Stage an owner-gated final lifecycle cleanup that removes `SkillAction` only after zero-callsite checks, tests and Release build pass.
 - Add typed dispatcher APIs for skill lifecycle, disconnect, entity, team, bomb, decoy, smoke and trigger hooks before migrating live event call sites.
 - Staged an owner-gated typed-dispatch bridge that must pass invariants, tests, and Release build before replacing reflection-based skill invocation.
 - Staged the reviewed compressed runtime-configuration patch for the owner-gated cutover workflow; payload files are removed automatically by the validated cutover commit.
@@ -94,7 +95,7 @@ All notable changes to this project are documented in this file.
   characterizes the exact legacy fan-out and short-circuit rules for `PlayerHurtPre` (victim's
   skill asked first, attacker's only if the victim didn't suppress and holds a different
   skill), `OnWeaponCanAcquire` (every distinct active skill asked, first `true` wins — not
-  just the acquiring player's own skill), and `WeaponDrop` (declared and implemented by
+  just the acquiring player's own skill), and `WeaponDrop` (declared and implemed by
   `Iana`, but never dispatched anywhere in the legacy codebase — a pre-existing dead hook,
   preserved as-is rather than "fixed"), plus the `OnTick` skill-order and
   `OnTakeDamage`/`OnTakeDamagePost` late-damage-skill ordering rules. `SkillDispatcherTests`

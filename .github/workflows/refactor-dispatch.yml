@@ -1,4 +1,4 @@
-name: Refactor Legacy Scan
+name: Refactor Lifecycle Compatibility Cleanup
 
 on:
   pull_request:
@@ -6,15 +6,16 @@ on:
     types: [edited]
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
-  legacy-scan:
+  remove-compatibility:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.head.ref == 'refactor' &&
       github.event.pull_request.user.login == 'arikitos' &&
-      contains(github.event.pull_request.body || '', '<!-- dispatch:legacy-scan -->')
+      contains(github.event.pull_request.body || '', '<!-- dispatch:remove-compat -->')
     runs-on: ubuntu-latest
 
     steps:
@@ -24,28 +25,76 @@ jobs:
           ref: refactor
           fetch-depth: 0
 
-      - name: List remaining legacy dispatch and configuration references
+      - name: Remove final lifecycle compatibility dispatch
         shell: bash
         run: |
+          python3 tools/refactor-dispatch/apply_remaining_lifecycle.py
+          rm tools/refactor-dispatch/apply_remaining_lifecycle.py
+          git diff --check
+
+      - name: Validate lifecycle cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
           source_root='HeroShift - SRC Files/src'
 
-          echo '::group::SkillAction references'
-          grep -RIn --include='*.cs' 'SkillAction(' "$source_root" || true
-          echo '::endgroup::'
+          if grep -RIn --include='*.cs' 'SkillAction(' "$source_root"; then
+            echo '::error::SkillAction call sites remain'
+            exit 1
+          fi
 
-          echo '::group::String hook-name references'
-          grep -RIn --include='*.cs' -E '"(LoadSkill|EnableSkill|DisableSkill|UseSkill|TypeSkill|NewRound|RoundEnd)"' "$source_root" || true
-          echo '::endgroup::'
+          if grep -RIn --include='*.cs' -E '"(LoadSkill|EnableSkill|DisableSkill|UseSkill|TypeSkill|NewRound|RoundEnd)"' "$source_root"; then
+            echo '::error::String lifecycle hook names remain'
+            exit 1
+          fi
 
-          echo '::group::SkillsInfo runtime references'
-          grep -RIn --include='*.cs' 'SkillsInfo' "$source_root" || true
-          echo '::endgroup::'
+          hero='HeroShift - SRC Files/src/HeroShift.cs'
+          if grep -Fq 'private static T Arg' "$hero"; then
+            echo '::error file=HeroShift - SRC Files/src/HeroShift.cs::Argument compatibility helpers remain'
+            exit 1
+          fi
+          if grep -Fq 'Temporary compatibility entry point' "$hero"; then
+            echo '::error file=HeroShift - SRC Files/src/HeroShift.cs::Compatibility dispatcher documentation remains'
+            exit 1
+          fi
 
-          echo '::group::Nested SkillConfig declarations'
-          grep -RIn --include='*.cs' 'class SkillConfig' "$source_root" || true
-          echo '::endgroup::'
+          grep -Fq 'Instance.InvokeUseSkill(playerInfo.Skill, player)' 'HeroShift - SRC Files/src/command/Command.cs'
+          grep -Fq 'Instance.InvokeDisableSkill(enemySkill, e)' 'HeroShift - SRC Files/src/player/skills/Thief.cs'
+          grep -Fq 'HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [item.Item2])' 'HeroShift - SRC Files/src/utils/SkillUtils.cs'
 
-          echo '::group::Legacy JSON references'
-          grep -RIn -E 'config\.json|skillsInfo\.json|languages/en\.json|src/lang/en\.json' . \
-            --exclude-dir=.git --exclude='*.patch' --exclude='*.b64' || true
-          echo '::endgroup::'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore "HeroShift - SRC Files/HeroShift.sln"
+
+      - name: Test
+        run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Build
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Commit lifecycle cleanup
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'refactor: remove skill action compatibility'
+          git push origin HEAD:refactor
+
+      - name: Clear lifecycle cleanup request
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const cleaned = body.replace('<!-- dispatch:remove-compat -->', '<!-- dispatch:remove-compat-complete -->');
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              body: cleaned,
+            });
