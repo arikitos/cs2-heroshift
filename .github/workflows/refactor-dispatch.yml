@@ -1,4 +1,4 @@
-name: Refactor Tick Routing
+name: Refactor Round Lifecycle
 
 on:
   pull_request:
@@ -10,12 +10,12 @@ permissions:
   pull-requests: write
 
 jobs:
-  tick-routing:
+  round-lifecycle:
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.head.ref == 'refactor' &&
       github.event.pull_request.user.login == 'arikitos' &&
-      contains(github.event.pull_request.body || '', '<!-- dispatch:tick-routing -->')
+      contains(github.event.pull_request.body || '', '<!-- dispatch:round-lifecycle -->')
     runs-on: ubuntu-latest
 
     steps:
@@ -25,26 +25,29 @@ jobs:
           ref: refactor
           fetch-depth: 0
 
-      - name: Route tick loop through typed dispatcher
+      - name: Migrate round lifecycle to typed coordinator
         shell: bash
         run: |
-          python3 tools/refactor-dispatch/apply_tick_routing.py
-          rm tools/refactor-dispatch/apply_tick_routing.py
+          python3 tools/refactor-dispatch/apply_round_lifecycle.py
+          rm tools/refactor-dispatch/apply_round_lifecycle.py
           git diff --check
 
-      - name: Validate tick routing
+      - name: Validate round lifecycle
         shell: bash
         run: |
-          dispatcher='HeroShift - SRC Files/src/Skills/SkillDispatcher.cs'
+          hero='HeroShift - SRC Files/src/HeroShift.cs'
+          rounds='HeroShift - SRC Files/src/player/RoundEvents.cs'
           player='HeroShift - SRC Files/src/player/PlayerEvents.cs'
-          tests='HeroShift - SRC Files/tests/HeroShift.Tests/SkillDispatcherTests.cs'
-          grep -Fq 'public void InvokeTickUnchecked(SkillId skillId)' "$dispatcher"
-          grep -Fq 'InvokeTickUnchecked(SkillRuntime.GetId(skill))' "$player"
-          grep -Fq 'tickFailuresLogged.Add(skill)' "$player"
-          grep -Fq '_activeSkillsList.Sort(_tickOrderCmp)' "$player"
-          grep -Fq '_freezeDisabledSkills.Contains(skill)' "$player"
-          grep -Fq 'InvokeTickUnchecked_PropagatesHookFailureToCaller' "$tests"
-          if grep -Fq '_skillNames' "$player"; then exit 1; fi
+          grep -Fq 'internal void InvokeEnableSkill(Skills skill, CCSPlayerController player)' "$hero"
+          grep -Fq 'internal void InvokeDisableSkill(Skills skill, CCSPlayerController player)' "$hero"
+          grep -Fq 'internal bool InvokeTypeSkill(Skills skill, CCSPlayerController player, string[] arguments)' "$hero"
+          grep -Fq 'ActiveSkillsThisRound.TryAdd(skillName, 0)' "$hero"
+          grep -Fq 'SkillUtils.ReleaseCurse(player.Index)' "$hero"
+          grep -Fq 'Instance.InvokeNewRoundSkill(skill)' "$rounds"
+          grep -Fq 'Instance.SkillDispatcher.DispatchRoundEnd(GetActiveSkillIds())' "$rounds"
+          if grep -Fq 'SkillAction(' "$rounds"; then exit 1; fi
+          if grep -Fq 'DispatchToActiveSkills(' "$player"; then exit 1; fi
+          if grep -Fq 'private static object? InvokeSkill' "$player"; then exit 1; fi
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -60,22 +63,22 @@ jobs:
       - name: Build
         run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
 
-      - name: Commit tick routing
+      - name: Commit round lifecycle
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'refactor: route tick hooks through typed dispatcher'
+          git commit -m 'refactor: move round lifecycle to typed coordinator'
           git push origin HEAD:refactor
 
-      - name: Clear tick routing request
+      - name: Clear round lifecycle request
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const body = context.payload.pull_request.body || '';
-            const cleaned = body.replace('<!-- dispatch:tick-routing -->', '<!-- dispatch:tick-routing-complete -->');
+            const cleaned = body.replace('<!-- dispatch:round-lifecycle -->', '<!-- dispatch:round-lifecycle-complete -->');
             await github.rest.pulls.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
