@@ -239,7 +239,6 @@ namespace src.player
         // value everyone else already finished modifying.
         private static void DispatchOnTakeDamage(DynamicHook h, bool post = false)
         {
-            object[] args = [h];
             var seen = new HashSet<Skills>();
             List<Skills>? deferred = null;
 
@@ -253,29 +252,29 @@ namespace src.player
                     continue;
                 }
 
-                InvokeOnTakeDamage(p.Skill, h, args, post);
+                InvokeOnTakeDamage(p.Skill, h, post);
             }
 
             if (deferred == null) return;
             foreach (var skill in deferred)
-                InvokeOnTakeDamage(skill, h, args, post);
+                InvokeOnTakeDamage(skill, h, post);
         }
 
         // Outside DebugMode this is just InvokeSkill. In DebugMode it snapshots
         // CTakeDamageInfo.Damage (hook param 1) before and after the call so the log
         // shows exactly which hero altered the damage and by how much.
-        private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, object[] args, bool post)
+        private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, bool post)
         {
             if (Config.LoadedConfig.DebugMode != true)
             {
-                InvokeSkill(skill, post ? "OnTakeDamagePost" : "OnTakeDamage", args);
+                Instance.SkillDispatcher.DispatchOnTakeDamage([SkillRuntime.GetId(skill)], h, post);
                 return;
             }
 
             var info = h.GetParam<CTakeDamageInfo>(1);
             float before = info == null ? 0f : info.Damage;
 
-            InvokeSkill(skill, post ? "OnTakeDamagePost" : "OnTakeDamage", args);
+            Instance.SkillDispatcher.DispatchOnTakeDamage([SkillRuntime.GetId(skill)], h, post);
 
             float after = info == null ? 0f : info.Damage;
             if (Math.Abs(before - after) > 0.01f)
