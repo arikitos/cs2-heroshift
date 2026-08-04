@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- Remove the one-time v1.0.0 replacement workflow after publishing the verified production artifact.
+
 ## [1.0.0] - 2026-08-04
 
 ### Added
