@@ -48,6 +48,38 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
 
+          skills_info = Path('HeroShift - SRC Files/src/utils/SkillsInfo.cs')
+          text = skills_info.read_text(encoding='utf-8')
+          if 'using src.player;' not in text:
+              text = text.replace('using src.SkillsCore;\n', 'using src.SkillsCore;\nusing src.player;\n', 1)
+          skills_info.write_text(text, encoding='utf-8')
+
+          option_set = Path('HeroShift - SRC Files/src/Skills/Abstractions/SkillOptionSet.cs')
+          text = option_set.read_text(encoding='utf-8')
+          if 'interface IMaxDistanceOptions' not in text:
+              text = text.replace(
+                  'public interface ISkillOptions\n{\n}\n',
+                  'public interface ISkillOptions\n{\n}\n\npublic interface IMaxDistanceOptions : ISkillOptions\n{\n    float MaxDistance { get; }\n}\n',
+                  1)
+          option_set.write_text(text, encoding='utf-8')
+
+          skill_runtime = Path('HeroShift - SRC Files/src/Skills/SkillRuntime.cs')
+          text = skill_runtime.read_text(encoding='utf-8')
+          if 'GetMaxDistance' not in text:
+              text = text.replace(
+                  '    public static SkillId GetId(Skills skill) => Current.Skills.Get(skill).Id;\n',
+                  '    public static SkillId GetId(Skills skill) => Current.Skills.Get(skill).Id;\n\n'
+                  '    public static float GetMaxDistance(Skills skill) =>\n'
+                  '        Current.Skills.Get(skill).Options is IMaxDistanceOptions options\n'
+                  '            ? options.MaxDistance\n'
+                  '            : 0f;\n',
+                  1)
+          skill_runtime.write_text(text, encoding='utf-8')
+          PY
+
+          python3 - <<'PY'
+          from pathlib import Path
+
           path = Path('CHANGELOG.md')
           text = path.read_text(encoding='utf-8')
 
