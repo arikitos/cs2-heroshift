@@ -6,6 +6,8 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Route entity, objective, grenade, trigger, weapon-acquisition and transmit callbacks through the typed dispatcher while preserving active-skill ordering and Fortnite wall damage handling.
+
 - Replace assembly scanning and `MethodInfo.Invoke` in the compatibility skill dispatcher with explicit typed delegates resolved from `SkillRegistry`.
 
 - Cut runtime configuration over to atomic `heroshift.json` snapshots with canonical typed global defaults, per-skill metadata/options binding, explicit legacy-ID mapping, and embedded-English localization fallback.

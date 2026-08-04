@@ -202,6 +202,25 @@ namespace src.player
             }
         }
 
+        // Builds the distinct active typed IDs in player-list order. This is the
+        // typed equivalent of the legacy DispatchToActiveSkills `seen` loop and
+        // deliberately skips players whose draw animation has not resolved yet.
+        private static IReadOnlyList<SkillId> GetActiveSkillIds()
+        {
+            var ids = new List<SkillId>();
+            var seen = new HashSet<SkillId>();
+
+            foreach (var player in Instance.SkillPlayer)
+            {
+                if (player.IsDrawing) continue;
+
+                var id = SkillRuntime.GetId(player.Skill);
+                if (seen.Add(id)) ids.Add(id);
+            }
+
+            return ids;
+        }
+
         // Core fan-out: calls methodName once per DISTINCT hero currently in play.
         // `seen` collapses duplicates (ten players on one hero = one call), and
         // IsDrawing players are skipped because their hero is not decided yet.
