@@ -5,6 +5,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   UseSkill: exchanges your origin with the chosen player's.
      *   OnTick: enforces cooldown and the initial delay after round start.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown          = 30f
      *                         -> seconds before the skill can be used again
      *   cooldownBeforeUse = 10f
@@ -39,12 +41,13 @@ namespace src.player.skills
     public class SwapPosition : ISkill
     {
         private const Skills skillName = Skills.SwapPosition;
+        private static SwapPositionOptions Options => SkillConfigurationResolver.Get<SwapPositionOptions>(BuiltInSkillIds.SwapPosition);
         private static readonly ConcurrentDictionary<uint, ZamianaMiejsc_PlayerInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -77,12 +80,12 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            var cooldownBeforeUse = SkillsInfo.GetValue<float>(skillName, "cooldownBeforeUse");
+            var cooldownBeforeUse = Options.CooldownBeforeUse;
             SkillPlayerInfo.TryAdd(player.Index, new ZamianaMiejsc_PlayerInfo
             {
                 SteamID = player.Index,
                 CanUse = false,
-                Cooldown = cooldownBeforeUse <= 0 ? DateTime.MinValue : Event.GetFreezeTimeEnd().AddSeconds(cooldownBeforeUse - SkillsInfo.GetValue<float>(skillName, "cooldown")),
+                Cooldown = cooldownBeforeUse <= 0 ? DateTime.MinValue : Event.GetFreezeTimeEnd().AddSeconds(cooldownBeforeUse - Options.Cooldown),
                 LastClick = DateTime.MinValue,
                 FindedEnemy = false,
             });
@@ -102,7 +105,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -183,12 +186,6 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
             public DateTime LastClick { get; set; }
             public bool FindedEnemy { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1466F5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f, float cooldownBeforeUse = 10f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float CooldownBeforeUse { get; set; } = cooldownBeforeUse;
         }
     }
 }

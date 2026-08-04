@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   DecoyStarted/DecoyDetonate: registers the active decoy position.
      *   OnTick: slows every player within triggerRadius of it.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   triggerRadius      = 180
      *                          -> radius around the decoy that slows players
      *                             (game units)
@@ -42,12 +44,13 @@ namespace src.player.skills
     public class FrozenDecoy : ISkill
     {
         private const Skills skillName = Skills.FrozenDecoy;
+        private static FrozenDecoyOptions Options => SkillConfigurationResolver.Get<FrozenDecoyOptions>(BuiltInSkillIds.FrozenDecoy);
         private static readonly ConcurrentDictionary<Vector, byte> decoys = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -86,7 +89,7 @@ namespace src.player.skills
                     var eventPlayer = PlayerManager.GetPlayerEvent(player);
                     if (eventPlayer == null || !eventPlayer.IsValid) continue;
 
-                    var decoyRadius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
+                    var decoyRadius = Options.TriggerRadius;
 
                     var pawn = eventPlayer.PlayerPawn.Value;
                     if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) continue;
@@ -95,7 +98,7 @@ namespace src.player.skills
                     if (distance <= decoyRadius)
                     {
                         double modifier = Math.Clamp(distance / decoyRadius, 0f, 1f);
-                        pawn.VelocityModifier = (float)Math.Pow(modifier, SkillsInfo.GetValue<int>(skillName, "slownessMultiplier"));
+                        pawn.VelocityModifier = (float)Math.Pow(modifier, Options.SlownessMultiplier);
                     }
                 }
         }
@@ -145,7 +148,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
@@ -158,13 +161,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#00eaff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float triggerRadius = 180, int slownessMultiplier = 5, int grenadeLimit = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float TriggerRadius { get; set; } = triggerRadius;
-            public int SlownessMultiplier { get; set; } = slownessMultiplier;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

@@ -9,6 +9,8 @@ using System.Collections.Concurrent;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -19,8 +21,8 @@ namespace src.player.skills
      *   OnTakeDamage/PlayerHurt: damage is ignored/redirected while active.
      *   OnWeaponCanAcquire/WeaponDrop: restricts weapon handling during the form.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown = 30
      *                -> seconds before the skill can be used again
      *   duration = 10
@@ -43,13 +45,14 @@ namespace src.player.skills
     public class Iana : ISkill
     {
         private const Skills skillName = Skills.Iana;
+        private static IanaOptions Options => SkillConfigurationResolver.Get<IanaOptions>(BuiltInSkillIds.Iana);
         private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = [];
         private static readonly ConcurrentDictionary<uint, byte> consumedClones = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -169,7 +172,7 @@ namespace src.player.skills
             SkillUtils.SetPlayerCollisions(player, true);
 
             BlockWeapon(player, false);
-            playerSkill.NextUse = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
+            playerSkill.NextUse = Server.TickCount + Options.Cooldown * 64;
             playerSkill.UseTime = 0;
         }
 
@@ -239,7 +242,7 @@ namespace src.player.skills
 
                 consumedClones.TryRemove(clone.Index, out _);
 
-                HeroShift.Instance.AddTimer(SkillsInfo.GetValue<float>(skillName, "Duration"), () =>
+                HeroShift.Instance.AddTimer(Options.Duration, () =>
                 {
                     if (playerSkill.CloneProp != null)
                         KillClone(playerSkill);
@@ -282,7 +285,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
 
             Vector start = new(playerPawn!.AbsOrigin!.X, playerPawn!.AbsOrigin!.Y, endPos.Z);
-            var result = RayTrace.TraceHullShape(start, endPos, player);
+            var result = HeroShift.Instance.TraceService.TraceHullShape(start, endPos, player);
 
             if (!result.HasValue)
                 return false;
@@ -439,7 +442,7 @@ namespace src.player.skills
             cooldown = (int)Math.Ceiling(Math.Max(time1, 0));
 
             float duration = 0;
-            float time2 = SkillsInfo.GetValue<float>(skillName, "Duration") - (Server.TickCount - playerSkill.UseTime) / 64;
+            float time2 = Options.Duration - (Server.TickCount - playerSkill.UseTime) / 64;
             duration = (int)Math.Ceiling(Math.Max(time2, 0));
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
@@ -493,12 +496,6 @@ namespace src.player.skills
             public int InfoTime { get; set; }
             public int LastHit { get; set; }
             public List<ulong> Weapons { get; set; } = [];
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d0d930", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30, float duration = 10) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float Duration { get; set; } = duration;
         }
     }
 }

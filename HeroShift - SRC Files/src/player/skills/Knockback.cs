@@ -2,6 +2,8 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -10,8 +12,8 @@ namespace src.player.skills
      * LOGIC
      *   WeaponFire: applies knockbackUnits of push to the player you hit.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   knockbackUnits = 120f
      *                      -> push strength applied to the target per hit
      *   maxSpeed       = 1200f
@@ -35,9 +37,10 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Knockback;
 
+        private static KnockbackOptions Options => SkillConfigurationResolver.Get<KnockbackOptions>(BuiltInSkillIds.Knockback);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void WeaponFire(EventWeaponFire @event)
@@ -53,7 +56,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.Health <= 0) return;
             if ((pawn.Flags & (uint)PlayerFlags.FL_ONGROUND) != 0) return;
 
-            float force = SkillsInfo.GetValue<float>(skillName, "knockbackUnits");
+            float force = Options.KnockbackUnits;
             if (force <= 0) return;
 
             Vector push = SkillUtils.GetForwardVector(pawn.EyeAngles) * -force;
@@ -62,7 +65,7 @@ namespace src.player.skills
             pawn.AbsVelocity.Y += push.Y;
             pawn.AbsVelocity.Z += push.Z;
 
-            float maxSpeed = SkillsInfo.GetValue<float>(skillName, "maxSpeed");
+            float maxSpeed = Options.MaxSpeed;
             if (maxSpeed <= 0) return;
 
             float speed = pawn.AbsVelocity.Length();
@@ -72,12 +75,6 @@ namespace src.player.skills
             pawn.AbsVelocity.X *= scale;
             pawn.AbsVelocity.Y *= scale;
             pawn.AbsVelocity.Z *= scale;
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff8c42", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float knockbackUnits = 120f, float maxSpeed = 1200f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float KnockbackUnits { get; set; } = knockbackUnits;
-            public float MaxSpeed { get; set; } = maxSpeed;
         }
     }
 }

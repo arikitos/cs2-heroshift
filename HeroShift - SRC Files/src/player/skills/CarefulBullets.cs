@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -16,8 +18,8 @@ namespace src.player.skills
      *   BulletImpact: detects a shot that hit nothing (a miss).
      *   OnTakeDamage/TypeSkill: applies damageAfterMiss to the cursed player.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   damageAfterMiss = 5
      *                       -> health lost by the cursed player for each missed
      *                          bullet
@@ -39,6 +41,7 @@ namespace src.player.skills
     public class CarefulBullets : ISkill
     {
         private const Skills skillName = Skills.CarefulBullets;
+        private static CarefulBulletsOptions Options => SkillConfigurationResolver.Get<CarefulBulletsOptions>(BuiltInSkillIds.CarefulBullets);
         private static readonly ConcurrentDictionary<uint, byte> targetPlayers = [];
         private static readonly ConcurrentDictionary<uint, bool> lastShot = [];
         private static readonly ConcurrentDictionary<uint, int> hitPlayer = [];
@@ -48,7 +51,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -182,7 +185,7 @@ namespace src.player.skills
                         {
                             eventPlayer.ExecuteClientCommand($"play player/player_damagebody_0{Instance.Random.Next(4, 8)}");
 
-                            SkillUtils.TakeHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "damageAfterMiss"), GetSkillOwner(playerIndex), KillfeedIcons.Fist);
+                            SkillUtils.TakeHealth(playerPawn, Options.DamageAfterMiss, GetSkillOwner(playerIndex), KillfeedIcons.Fist);
                         }
                         lastShot.TryRemove(playerIndex, out _);
                     });
@@ -259,11 +262,6 @@ namespace src.player.skills
             targetToPlayer.TryRemove(player.Index, out _);
 
             SkillUtils.CloseMenu(player);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#db6c35", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int damageAfterMiss = 5) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int DamageAfterMiss { get; set; } = damageAfterMiss;
         }
     }
 }

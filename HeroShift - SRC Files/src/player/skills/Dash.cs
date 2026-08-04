@@ -1,6 +1,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
+using src.SkillsCore.BuiltIn;
 using src.utils;
 using System.Collections.Concurrent;
 
@@ -13,8 +16,8 @@ namespace src.player.skills
      *   OnTick: detects the dash input and applies the impulse. anyDirection
      *     controls whether you can dash sideways/backwards or only forward.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   jumpVelocity = 150f
      *                    -> upward velocity added to the dash
      *   pushVelocity = 600f
@@ -41,12 +44,13 @@ namespace src.player.skills
     public class Dash : ISkill
     {
         private const Skills skillName = Skills.Dash;
+        private static DashOptions Options => SkillConfigurationResolver.Get<DashOptions>(BuiltInSkillIds.Dash);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -81,7 +85,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -149,7 +153,8 @@ namespace src.player.skills
                     float moveY = 0;
 
                     PlayerButtons playerButtons = player.Buttons;
-                    if (SkillsInfo.GetValue<bool>(skillName, "anyDirection"))
+                    var dashOptions = Options;
+                    if (dashOptions.AnyDirection)
                     {
                         if (playerButtons.HasFlag(PlayerButtons.Forward))
                             moveY += 1;
@@ -169,8 +174,8 @@ namespace src.player.skills
                     float moveAngle = MathF.Atan2(moveX, moveY) * (180f / MathF.PI);
                     QAngle dashAngles = new(0, eventPlayerPawn.EyeAngles.Y + moveAngle, 0);
 
-                    Vector newVelocity = SkillUtils.GetForwardVector(dashAngles) * SkillsInfo.GetValue<float>(skillName, "pushVelocity");
-                    newVelocity.Z = eventPlayerPawn.AbsVelocity.Z + SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
+                    Vector newVelocity = SkillUtils.GetForwardVector(dashAngles) * dashOptions.PushVelocity;
+                    newVelocity.Z = eventPlayerPawn.AbsVelocity.Z + dashOptions.JumpVelocity;
 
                     eventPlayerPawn.AbsVelocity.X = newVelocity.X;
                     eventPlayerPawn.AbsVelocity.Y = newVelocity.Y;
@@ -194,14 +199,6 @@ namespace src.player.skills
             public int Jumps { get; set; }
             public bool WasOnGround { get; set; }
             public int JumpReleasedTicks { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42bbfc", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float jumpVelocity = 150f, float pushVelocity = 600f, bool anyDirection = true, float cooldown = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float JumpVelocity { get; set; } = jumpVelocity;
-            public float PushVelocity { get; set; } = pushVelocity;
-            public bool AnyDirection { get; set; } = anyDirection;
-            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

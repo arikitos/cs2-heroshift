@@ -5,6 +5,8 @@ using HeroShift.src.utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   OnTick: every secondCooldown, traces where you are aiming and damages
      *     that enemy.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   secondCooldown = 1f
      *                      -> seconds between each damage tick while you stare at
      *                         a target
@@ -39,19 +41,20 @@ namespace src.player.skills
     public class DemonEye : ISkill
     {
         private const Skills skillName = Skills.DemonEye;
+        private static DemonEyeOptions Options => SkillConfigurationResolver.Get<DemonEyeOptions>(BuiltInSkillIds.DemonEye);
         private static readonly Skills[] hidingSkills = [Skills.Ghost, Skills.Ninja, Skills.C4Camouflage];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void OnTick()
         {
-            int tickCooldown = (int)(64 * SkillsInfo.GetValue<float>(skillName, "SecondCooldown"));
+            int tickCooldown = (int)(64 * Options.SecondCooldown);
             if (Server.TickCount % tickCooldown != 0) return;
 
-            int damage = SkillsInfo.GetValue<int>(skillName, "damage");
+            int damage = Options.Damage;
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -98,12 +101,6 @@ namespace src.player.skills
                     enemyEvent.EmitSound("Player.DamageBody.Onlooker");
                 }
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c91243", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float secondCooldown = 1f, int damage = 5) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float SecondCooldown { get; set; } = secondCooldown;
-            public int Damage { get; set; } = damage;
         }
     }
 }

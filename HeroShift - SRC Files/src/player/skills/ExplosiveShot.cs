@@ -5,6 +5,8 @@ using src.utils;
 using static src.HeroShift;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -16,8 +18,8 @@ namespace src.player.skills
      *   BulletImpact: on a successful roll, creates a small blast at the impact
      *     point.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   damage       = 25f
      *                    -> explosion damage at the impact point
      *   damageRadius = 210f
@@ -46,12 +48,13 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.ExplosiveShot;
 
+        private static ExplosiveShotOptions Options => SkillConfigurationResolver.Get<ExplosiveShotOptions>(BuiltInSkillIds.ExplosiveShot);
         private static readonly QAngle angle = new(5, 10, -4);
         private static int lastTick = 0;
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -59,7 +62,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
+            float newChance = (float)Instance.Random.NextDouble() * (Options.ChanceTo - Options.ChanceFrom) + Options.ChanceFrom;
             playerInfo.SkillChance = newChance;
 
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newChance)}",
@@ -87,8 +90,8 @@ namespace src.player.skills
 
                 heProjectile.TicksAtZeroVelocity = 100;
                 heProjectile.TeamNum = (byte)CsTeam.None;
-                heProjectile.Damage = SkillsInfo.GetValue<float>(skillName, "damage");
-                heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "damageRadius");
+                heProjectile.Damage = Options.Damage;
+                heProjectile.DmgRadius = Options.DamageRadius;
                 heProjectile.DetonateTime = 0;
             });
         }
@@ -109,14 +112,6 @@ namespace src.player.skills
 
             if (Instance.Random.NextDouble() <= playerInfo.SkillChance)
                 SpawnExplosion(pos);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9c0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float damage = 25f, float damageRadius = 210f, float chanceFrom = .15f, float chanceTo = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Damage { get; set; } = damage;
-            public float DamageRadius { get; set; } = damageRadius;
-            public float ChanceFrom { get; set; } = chanceFrom;
-            public float ChanceTo { get; set; } = chanceTo;
         }
     }
 }

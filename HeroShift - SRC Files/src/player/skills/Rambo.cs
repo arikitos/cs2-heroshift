@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *     maxExtraHealth.
      *   DisableSkill/ResetHealth: restores normal health.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   minExtraHealth = 50
      *                      -> fewest bonus HP that can be rolled
      *   maxExtraHealth = 501
@@ -39,14 +41,15 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Rambo;
 
+        private static RamboOptions Options => SkillConfigurationResolver.Get<RamboOptions>(BuiltInSkillIds.Rambo);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            int healthBonus = Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "minExtraHealth"), SkillsInfo.GetValue<int>(skillName, "maxExtraHealth"));
+            int healthBonus = Instance.Random.Next(Options.MinExtraHealth, Options.MaxExtraHealth);
             AddHealth(player, healthBonus);
         }
 
@@ -77,12 +80,6 @@ namespace src.player.skills
 
             pawn.Health = Math.Min(pawn.Health, 100);
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#009905", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int minExtraHealth = 50, int maxExtraHealth = 501) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int MinExtraHealth { get; set; } = minExtraHealth;
-            public int MaxExtraHealth { get; set; } = maxExtraHealth;
         }
     }
 }

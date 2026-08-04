@@ -6,6 +6,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   UseSkill: moves the camera up by 'distance' units.
      *   OnTick: keeps the camera in place and returns it when the skill ends.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   distance = 1000f
      *                -> how far above you the camera is placed (game units)
      *
@@ -37,12 +39,13 @@ namespace src.player.skills
     public class FalconEye : ISkill
     {
         private const Skills skillName = Skills.FalconEye;
+        private static FalconEyeOptions Options => SkillConfigurationResolver.Get<FalconEyeOptions>(BuiltInSkillIds.FalconEye);
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint)> cameras = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
             Instance.AddToManifest(cameraViewModel);
         }
 
@@ -98,7 +101,7 @@ namespace src.player.skills
                         continue;
                     }
 
-                    Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + SkillsInfo.GetValue<float>(skillName, "distance"));
+                    Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + Options.Distance);
                     QAngle angle = new(90, 0, -pawn.V_angle.Y);
 
                     var camera = Utilities.GetEntityFromIndex<CDynamicProp>((int)cameraInfo.Item2);
@@ -145,7 +148,7 @@ namespace src.player.skills
 
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return 0;
-            Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + SkillsInfo.GetValue<float>(skillName, "distance"));
+            Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + Options.Distance);
 
             Server.NextFrame(() =>
             {
@@ -182,11 +185,6 @@ namespace src.player.skills
                     Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                     Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
                 }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d1f542", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float distance = 1000f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Distance { get; set; } = distance;
         }
     }
 }

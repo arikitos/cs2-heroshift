@@ -6,6 +6,8 @@ using HeroShift.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -20,8 +22,8 @@ namespace src.player.skills
      *     registered smoke takes smokeDamage - the thrower is credited for the
      *     kill.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   smokeDamage  = 2
      *                    -> damage per tick to players inside the smoke
      *   smokeRadius  = 180
@@ -49,12 +51,13 @@ namespace src.player.skills
     public class ToxicSmoke : ISkill
     {
         private const Skills skillName = Skills.ToxicSmoke;
+        private static ToxicSmokeOptions Options => SkillConfigurationResolver.Get<ToxicSmokeOptions>(BuiltInSkillIds.ToxicSmoke);
         private static readonly ConcurrentDictionary<Vector, uint> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -114,11 +117,11 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int tick = Math.Max(1, SkillsInfo.GetValue<int>(skillName, "tickCooldown"));
+            int tick = Math.Max(1, Options.TickCooldown);
             if (Server.TickCount % tick != 0) return;
 
-            float smokeRadius = SkillsInfo.GetValue<float>(skillName, "smokeRadius");
-            int smokeDamage = SkillsInfo.GetValue<int>(skillName, "smokeDamage");
+            float smokeRadius = Options.SmokeRadius;
+            int smokeDamage = Options.SmokeDamage;
 
             foreach (var smoke in smokes)
             {
@@ -185,7 +188,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
@@ -198,14 +201,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeDamage = 2, float smokeRadius = 180, int tickCooldown = 17, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int SmokeDamage { get; set; } = smokeDamage;
-            public float SmokeRadius { get; set; } = smokeRadius;
-            public int TickCooldown { get; set; } = tickCooldown;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

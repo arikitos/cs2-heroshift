@@ -5,6 +5,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   BombPlanted/OnTick: if you are within maxDefusingRange, a defuse
      *     progresses over defusingTime seconds without touching the C4.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maxDefusingRange = 80f
      *                        -> how far from the C4 you can start defusing (game
      *                           units)
@@ -39,6 +41,7 @@ namespace src.player.skills
     public class PsychicDefusing : ISkill
     {
         private const Skills skillName = Skills.PsychicDefusing;
+        private static PsychicDefusingOptions Options => SkillConfigurationResolver.Get<PsychicDefusingOptions>(BuiltInSkillIds.PsychicDefusing);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static Vector? bombLocation = null;
         private static readonly float tickRate = 64f;
@@ -46,7 +49,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -89,10 +92,10 @@ namespace src.player.skills
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
 
-                if (pawn.AbsOrigin == null || SkillUtils.GetDistance(pawn.AbsOrigin, bombLocation) > SkillsInfo.GetValue<float>(skillName, "maxDefusingRange"))
+                if (pawn.AbsOrigin == null || SkillUtils.GetDistance(pawn.AbsOrigin, bombLocation) > Options.MaxDefusingRange)
                 {
                     info.Defusing = false;
-                    info.DefusingTime = SkillsInfo.GetValue<float>(skillName, "defusingTime");
+                    info.DefusingTime = Options.DefusingTime;
                     SkillUtils.ResetPrintHTML(player);
                     continue;
                 }
@@ -127,7 +130,7 @@ namespace src.player.skills
             {
                 SteamID = player.Index,
                 Defusing = false,
-                DefusingTime = SkillsInfo.GetValue<float>(skillName, "defusingTime"),
+                DefusingTime = Options.DefusingTime,
             });
         }
 
@@ -155,12 +158,6 @@ namespace src.player.skills
             public ulong SteamID { get; set; }
             public bool Defusing { get; set; }
             public float DefusingTime { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#507529", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxDefusingRange = 80f, float defusingTime = 10f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MaxDefusingRange { get; set; } = maxDefusingRange;
-            public float DefusingTime { get; set; } = defusingTime;
         }
     }
 }

@@ -7,6 +7,8 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -17,8 +19,8 @@ namespace src.player.skills
      *   OnTick: an enemy within triggerRadius trips it and is shown on radar for
      *     radarDuration seconds.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   radarDuration   = 5f
      *                       -> seconds the tripped enemy stays visible on radar
      *   triggerRadius   = 24f
@@ -51,6 +53,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Tripwire;
 
+        private static TripwireOptions Options => SkillConfigurationResolver.Get<TripwireOptions>(BuiltInSkillIds.Tripwire);
         private static readonly ConcurrentDictionary<uint, WireInfo> wires = [];
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<(uint Owner, uint Target), (int Slot, int ExpiryTick)> revealed = [];
@@ -63,7 +66,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -182,7 +185,7 @@ namespace src.player.skills
 
         private static void UpdateHUD(CCSPlayerController player, PlayerSkillInfo skillInfo)
         {
-            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
             float cooldown = Math.Max(time, 0);
 
             if (cooldown == 0 && !skillInfo.CanUse)
@@ -201,10 +204,10 @@ namespace src.player.skills
         {
             var pawn = player.PlayerPawn?.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return false;
-            if (!RayTrace.IsAvailable) return false;
+            if (!HeroShift.Instance.TraceService.IsAvailable) return false;
 
-            float height = SkillsInfo.GetValue<float>(skillName, "wireHeight");
-            float maxDistance = SkillsInfo.GetValue<float>(skillName, "maxWallDistance");
+            float height = Options.WireHeight;
+            float maxDistance = Options.MaxWallDistance;
 
             Vector origin = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + height);
             float yaw = pawn.EyeAngles.Y;
@@ -214,8 +217,8 @@ namespace src.player.skills
 
             ulong wallMask = (ulong)InteractionLayers.MASK_WORLD_ONLY;
 
-            var rightHit = RayTrace.TraceShape(player, origin, origin + rightDir * maxDistance, wallMask, 0);
-            var leftHit = RayTrace.TraceShape(player, origin, origin + leftDir * maxDistance, wallMask, 0);
+            var rightHit = HeroShift.Instance.TraceService.TraceShape(player, origin, origin + rightDir * maxDistance, wallMask, 0);
+            var leftHit = HeroShift.Instance.TraceService.TraceShape(player, origin, origin + leftDir * maxDistance, wallMask, 0);
 
             if (rightHit == null || leftHit == null) return false;
             if (!rightHit.Value.DidHit || !leftHit.Value.DidHit) return false;
@@ -231,7 +234,7 @@ namespace src.player.skills
             var beam = EntityManager.CreateTrackedBeam(player.Index, start, end, wireColor);
             if (beam == null || !beam.IsValid) return false;
 
-            beam.Width = SkillsInfo.GetValue<float>(skillName, "wireWidth");
+            beam.Width = Options.WireWidth;
 
             wires[beam.Index] = new WireInfo
             {
@@ -275,9 +278,9 @@ namespace src.player.skills
 
             if (wires.IsEmpty || tick % 4 != 0) return;
 
-            float radius = SkillsInfo.GetValue<float>(skillName, "triggerRadius");
-            int revealTicks = (int)(SkillsInfo.GetValue<float>(skillName, "radarDuration") * 64);
-            float bodyHeight = SkillsInfo.GetValue<float>(skillName, "wireHeight");
+            float radius = Options.TriggerRadius;
+            int revealTicks = (int)(Options.RadarDuration * 64);
+            float bodyHeight = Options.WireHeight;
 
             foreach (var wire in wires.Values)
             {
@@ -350,16 +353,6 @@ namespace src.player.skills
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
             public DateTime LastAttempt { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff3b3b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, float radarDuration = 5f, float triggerRadius = 24f, float wireHeight = 30f, float wireWidth = 0.7f, float maxWallDistance = 400f, float cooldown = 20f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float RadarDuration { get; set; } = radarDuration;
-            public float TriggerRadius { get; set; } = triggerRadius;
-            public float WireHeight { get; set; } = wireHeight;
-            public float WireWidth { get; set; } = wireWidth;
-            public float MaxWallDistance { get; set; } = maxWallDistance;
-            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

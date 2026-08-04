@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -16,8 +18,8 @@ namespace src.player.skills
      *   UseSkill: toggles the light on/off.
      *   OnTick: keeps the light entity attached to you.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown      = 2f
      *   colorR        = 255
      *   colorG        = 255
@@ -45,6 +47,7 @@ namespace src.player.skills
     public class Flashlight : ISkill
     {
         private const Skills skillName = Skills.Flashlight;
+        private static FlashlightOptions Options => SkillConfigurationResolver.Get<FlashlightOptions>(BuiltInSkillIds.Flashlight);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
 
         public class PlayerSkillInfo
@@ -58,7 +61,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -201,11 +204,11 @@ namespace src.player.skills
 
             EntityManager.RegisterEntity(light.Index, player.Index, "light_barn");
 
-            int colorR = SkillsInfo.GetValue<int>(skillName, "colorR");
-            int colorG = SkillsInfo.GetValue<int>(skillName, "colorG");
-            int colorB = SkillsInfo.GetValue<int>(skillName, "colorB");
-            float brightness = SkillsInfo.GetValue<float>(skillName, "brightness");
-            float range = SkillsInfo.GetValue<float>(skillName, "range");
+            int colorR = Options.ColorR;
+            int colorG = Options.ColorG;
+            int colorB = Options.ColorB;
+            float brightness = Options.Brightness;
+            float range = Options.Range;
 
             light.Enabled = true;
             light.Color = Color.FromArgb(255, Math.Clamp(colorR, 0, 255), Math.Clamp(colorG, 0, 255), Math.Clamp(colorB, 0, 255));
@@ -270,11 +273,11 @@ namespace src.player.skills
             if (light == null || !light.IsValid || light.AbsOrigin == null)
                 return;
 
-            float blindDuration = SkillsInfo.GetValue<float>(skillName, "blindDuration");
-            float blindAlpha = SkillsInfo.GetValue<float>(skillName, "blindAlpha");
+            float blindDuration = Options.BlindDuration;
+            float blindAlpha = Options.BlindAlpha;
 
-            float blindAngle = SkillsInfo.GetValue<float>(skillName, "blindAngle");
-            float range = SkillsInfo.GetValue<float>(skillName, "range");
+            float blindAngle = Options.BlindAngle;
+            float range = Options.Range;
             float rangeSq = range * range;
 
             Vector eyePos = new(
@@ -439,7 +442,7 @@ namespace src.player.skills
         {
             float cooldown = 0;
 
-            float time = (float)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float time = (float)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
             cooldown = Math.Max(time, 0);
 
             if (cooldown == 0 && !skillInfo.CanUse)
@@ -460,40 +463,6 @@ namespace src.player.skills
         {
             foreach (var key in SkillPlayerInfo.Keys)
                 RemovePlayerLight(key);
-        }
-
-        public class SkillConfig(
-            Skills skill = skillName,
-            bool active = true,
-            string color = "#a3000b",
-            CsTeam onlyTeam = CsTeam.None,
-            bool disableOnFreezeTime = true,
-            bool needsTeammates = false,
-            string requiredPermission = "",
-            float? hudDuration = null,
-            float? descriptionHudDuration = null,
-            int maxPerServer = 2,
-            Rarity rarity = Rarity.Legendary,
-            float cooldown = 2f,
-            int colorR = 255,
-            int colorG = 255,
-            int colorB = 255,
-            float brightness = 1.5f,
-            float range = 1200.0f,
-            float blindDuration = 5f,
-            float blindAngle = 10.0f,
-            float blindAlpha = 200
-        ) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public int ColorR { get; set; } = colorR;
-            public int ColorG { get; set; } = colorG;
-            public int ColorB { get; set; } = colorB;
-            public float Brightness { get; set; } = brightness;
-            public float Range { get; set; } = range;
-            public float BlindDuration { get; set; } = blindDuration;
-            public float BlindAlpha { get; set; } = blindAlpha;
-            public float BlindAngle { get; set; } = blindAngle;
         }
     }
 }

@@ -5,6 +5,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   UseSkill: consumes a healthshot and restores healthToAdd.
      *   OnTick: enforces the cooldown between uses.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   healthToAdd     = 50
      *                       -> health restored per use
      *   healthShotLimit = 3
@@ -40,12 +42,13 @@ namespace src.player.skills
     public class Medic : ISkill
     {
         private const Skills skillName = Skills.Medic;
+        private static MedicOptions Options => SkillConfigurationResolver.Get<MedicOptions>(BuiltInSkillIds.Medic);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -73,7 +76,7 @@ namespace src.player.skills
                 SteamID = player.Index,
                 CanUse = true,
                 Cooldown = DateTime.MinValue,
-                Count = SkillsInfo.GetValue<int>(skillName, "healthShotLimit"),
+                Count = Options.HealthShotLimit,
             });
         }
 
@@ -88,7 +91,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -103,7 +106,7 @@ namespace src.player.skills
 
             string remainingLine = cooldown != 0
                 ? $"{player.GetTranslation("hud_info", $"<font color='#FF0000'>{cooldown}</font>")}"
-                : $"<font color='#{(skillInfo == null || skillInfo.Count == 0 ? "FF0000" : "00FF00")}'>{(skillInfo == null ? 0 : skillInfo.Count)}/{SkillsInfo.GetValue<int>(skillName, "healthShotLimit")}</font>";
+                : $"<font color='#{(skillInfo == null || skillInfo.Count == 0 ? "FF0000" : "00FF00")}'>{(skillInfo == null ? 0 : skillInfo.Count)}/{Options.HealthShotLimit}</font>";
 
             playerInfo.PrintHTML = remainingLine;
         }
@@ -121,7 +124,7 @@ namespace src.player.skills
                     skillInfo.CanUse = false;
                     skillInfo.Cooldown = DateTime.Now;
                     skillInfo.Count -= 1;
-                    SkillUtils.AddHealth(playerPawn, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
+                    SkillUtils.AddHealth(playerPawn, Options.HealthToAdd);
                     player.EmitSound("Healthshot.Success");
                 }
             }
@@ -133,13 +136,6 @@ namespace src.player.skills
             public bool CanUse { get; set; }
             public int Count { get; set; }
             public DateTime Cooldown { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#10c212", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int healthToAdd = 50, int healthShotLimit = 3, float cooldown = 1f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int HealthToAdd { get; set; } = healthToAdd;
-            public int HealthShotLimit { get; set; } = healthShotLimit;
-            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

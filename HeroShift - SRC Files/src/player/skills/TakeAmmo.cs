@@ -6,6 +6,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -16,8 +18,8 @@ namespace src.player.skills
      *   OnTick/WeaponEquip: enforces the cooldown and keeps the ammo state
      *     correct.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown = 30f
      *                -> seconds before the skill can be used again
      *
@@ -38,13 +40,14 @@ namespace src.player.skills
     public class TakeAmmo : ISkill
     {
         private const Skills skillName = Skills.TakeAmmo;
+        private static TakeAmmoOptions Options => SkillConfigurationResolver.Get<TakeAmmoOptions>(BuiltInSkillIds.TakeAmmo);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
         private static readonly ConcurrentDictionary<string, (int, string)> OriginalWeaponMaxAmmo = new();
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -120,7 +123,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -317,11 +320,6 @@ namespace src.player.skills
             public required int Clip1 { get; set; }
             public required int Clip2 { get; set; }
             public required int Reserve { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5eb8b0", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

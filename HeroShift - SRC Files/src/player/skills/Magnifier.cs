@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -13,8 +15,8 @@ namespace src.player.skills
      *   TypeSkill: pick the victim.
      *   OnTick: forces the cursed player's FOV to customFOV.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   customFOV = 50
      *                 -> field of view forced on the cursed player (lower = more
      *                    zoomed in)
@@ -36,12 +38,13 @@ namespace src.player.skills
     public class Magnifier : ISkill
     {
         private const Skills skillName = Skills.Magnifier;
+        private static MagnifierOptions Options => SkillConfigurationResolver.Get<MagnifierOptions>(BuiltInSkillIds.Magnifier);
         private static readonly ConcurrentDictionary<uint, uint> playersFOV = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -124,7 +127,7 @@ namespace src.player.skills
             var enemyEvent = PlayerManager.GetPlayerFromEvent(enemy);
             if (enemyEvent == null || !enemyEvent.IsValid) return;
 
-            enemyEvent.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            enemyEvent.DesiredFOV = Options.CustomFOV;
             Utilities.SetStateChanged(enemyEvent, "CBasePlayerController", "m_iDesiredFOV");
             playerInfo.SkillUsed = true;
 
@@ -142,7 +145,7 @@ namespace src.player.skills
 
             if (!playersFOV.ContainsKey(bot.Index)) return;
 
-            player.DesiredFOV = SkillsInfo.GetValue<uint>(skillName, "customFOV");
+            player.DesiredFOV = Options.CustomFOV;
             Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
         }
 
@@ -197,11 +200,6 @@ namespace src.player.skills
             player.DesiredFOV = 0;
             Utilities.SetStateChanged(player, "CBasePlayerController", "m_iDesiredFOV");
             SkillUtils.ResetPrintHTML(player);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#9ba882", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, uint customFOV = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public uint CustomFOV { get; set; } = customFOV;
         }
     }
 }

@@ -12,6 +12,8 @@ using System.Numerics;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -21,8 +23,8 @@ namespace src.player.skills
      *   UseSkill: spawns the watcher entity at your aim position.
      *   OnTick: checks for enemies in range and reveals them.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown = 30
      *                -> seconds before the skill can be used again
      *
@@ -43,6 +45,7 @@ namespace src.player.skills
     public class Cypher : ISkill
     {
         private const Skills skillName = Skills.Cypher;
+        private static CypherOptions Options => SkillConfigurationResolver.Get<CypherOptions>(BuiltInSkillIds.Cypher);
         private static readonly ConcurrentDictionary<uint, PlayerSkill> playersInfo = new();
         private static readonly object setLock = new();
 
@@ -51,7 +54,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
             HeroShift.Instance.AddToManifest(cameraPropModel);
             HeroShift.Instance.AddToManifest(cameraViewModel);
         }
@@ -120,7 +123,7 @@ namespace src.player.skills
             }
 
             playerSkill.CameraActive = false;
-            playerSkill.NextCamera = Server.TickCount + SkillsInfo.GetValue<float>(skillName, "Cooldown") * 64;
+            playerSkill.NextCamera = Server.TickCount + Options.Cooldown * 64;
         }
 
         public static void OnTick()
@@ -368,7 +371,7 @@ namespace src.player.skills
             Vector endPos = eyePos + SkillUtils.GetForwardVector(playerPawn.V_angle) * 4096f;
 
             ulong mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Window | InteractionLayers.PassBullets);
-            var result = RayTrace.TraceShape(player, eyePos, endPos, mask);
+            var result = HeroShift.Instance.TraceService.TraceShape(player, eyePos, endPos, mask);
 
             if (result.HasValue && result.Value.HitWorld(out _))
             {
@@ -397,7 +400,7 @@ namespace src.player.skills
             cameraVector += SkillUtils.GetForwardVector(new QAngle(0, playerPawn.V_angle.Y + 180, 0)) * 5;
 
             ulong mask = (ulong)(InteractionLayers.Solid | InteractionLayers.Window | InteractionLayers.PassBullets);
-            var result = RayTrace.TraceShape(player, cameraVector, endPos, mask);
+            var result = HeroShift.Instance.TraceService.TraceShape(player, cameraVector, endPos, mask);
 
             if (result.HasValue && result.Value.HitWorld(out _))
                 return true;
@@ -437,11 +440,6 @@ namespace src.player.skills
             public float NoSpace { get; set; }
             public required QAngle LastPlayerAngle { get; set; }
             public required QAngle LastCameraAngle { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#34ebd5", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

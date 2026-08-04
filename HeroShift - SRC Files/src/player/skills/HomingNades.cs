@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   OnTick: steers it toward the closest enemy with 'strength' and detonates
      *     it once it is within detonationRange.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   strength        = 150
      *                       -> how aggressively the grenade turns toward the
      *                          target
@@ -45,12 +47,13 @@ namespace src.player.skills
     public class HomingNades : ISkill
     {
         private const Skills skillName = Skills.HomingNades;
+        private static HomingNadesOptions Options => SkillConfigurationResolver.Get<HomingNadesOptions>(BuiltInSkillIds.HomingNades);
         private readonly static ConcurrentDictionary<uint, Vector> nades = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -90,7 +93,7 @@ namespace src.player.skills
                 }
 
                 Vector currentVel = new(nade.Velocity.X, nade.Velocity.Y, nade.Velocity.Z);
-                float maxVelocity = SkillsInfo.GetValue<float>(skillName, "maxVelocity");
+                float maxVelocity = Options.MaxVelocity;
                 Vector newVelocity = currentVel + calculatedVelocity;
 
                 float speed = newVelocity.Length();
@@ -116,7 +119,7 @@ namespace src.player.skills
                 if (pawn?.IsValid != true || pawn.AbsOrigin == null) continue;
 
                 double dist = SkillUtils.GetDistance(nadePos, pawn.AbsOrigin);
-                if (dist < SkillsInfo.GetValue<float>(skillName, "detonationRange"))
+                if (dist < Options.DetonationRange)
                 {
                     nades.TryRemove(nade.Index, out _);
                     return Vector.Zero;
@@ -137,7 +140,7 @@ namespace src.player.skills
 
             if (length > 0)
             {
-                float strength = SkillsInfo.GetValue<float>(skillName, "strength");
+                float strength = Options.Strength;
                 return new Vector(
                     (direction.X / length) * strength,
                     (direction.Y / length) * strength,
@@ -221,7 +224,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);
@@ -234,14 +237,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#384728", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float strength = 150, float maxVelocity = 2000, float detonationRange = 130, int grenadeLimit = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Strength { get; set; } = strength;
-            public float MaxVelocity { get; set; } = maxVelocity;
-            public float DetonationRange { get; set; } = detonationRange;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

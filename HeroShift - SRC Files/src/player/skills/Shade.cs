@@ -7,6 +7,8 @@ using System.Collections.Concurrent;
 using src.utils;
 using static src.utils.RarityManager;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -16,8 +18,8 @@ namespace src.player.skills
      *   EnableSkill: rolls the trigger chance between chanceFrom and chanceTo.
      *   PlayerHurt: on a successful roll, blinks you teleportDistance units away.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   teleportDistance = 100f
      *                        -> how far the blink moves you (game units)
      *   chanceFrom       = .3f
@@ -43,11 +45,12 @@ namespace src.player.skills
     public class Shade : ISkill
     {
         private const Skills skillName = Skills.Shade;
+        private static ShadeOptions Options => SkillConfigurationResolver.Get<ShadeOptions>(BuiltInSkillIds.Shade);
         private static readonly ConcurrentDictionary<uint, float> noSpace = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void NewRound()
@@ -77,7 +80,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            float newChance = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
+            float newChance = (float)Instance.Random.NextDouble() * (Options.ChanceTo - Options.ChanceFrom) + Options.ChanceFrom;
             playerInfo.SkillChance = newChance;
 
             SkillUtils.PrintToChat(player, $"{ChatColors.DarkRed}{player.GetSkillName(skillName)}{ChatColors.Lime}: {player.GetSkillDescription(skillName, newChance)}",
@@ -119,7 +122,7 @@ namespace src.player.skills
             var victimPawn = victim.PlayerPawn.Value;
             if (victimPawn == null || !victimPawn.IsValid) return false;
 
-            var result = RayTrace.TraceHullShape(
+            var result = HeroShift.Instance.TraceService.TraceHullShape(
                     startPos,
                     endPos,
                     victim,
@@ -145,7 +148,7 @@ namespace src.player.skills
 
             Vector victimPos = new(victimPawn.AbsOrigin.X, victimPawn.AbsOrigin.Y, victimPawn.AbsOrigin.Z);
             QAngle victimAngles = new(victimPawn.AbsRotation.X, victimPawn.AbsRotation.Y, victimPawn.AbsRotation.Z);
-            float distance = SkillsInfo.GetValue<float>(skillName, "teleportDistance");
+            float distance = Options.TeleportDistance;
 
             int[] angles = [0, 90, -90];
             bool teleported = false;
@@ -170,13 +173,6 @@ namespace src.player.skills
 
             if (!teleported)
                 noSpace.AddOrUpdate(attacker.Index, Server.TickCount + (64 * 2), (_, _) => Server.TickCount + (64 * 2));
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#4d4d4d", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float teleportDistance = 100f, float chanceFrom = .3f, float chanceTo = .45f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float TeleportDistance { get; set; } = teleportDistance;
-            public float ChanceFrom { get; set; } = chanceFrom;
-            public float ChanceTo { get; set; } = chanceTo;
         }
     }
 }

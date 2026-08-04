@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   EnableSkill: rolls a damage multiplier between chanceFrom and chanceTo.
      *   OnTakeDamage: multiplies the damage you deal by that value.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   chanceFrom = 1.15f
      *                  -> lowest damage multiplier that can be rolled (1.15 =
      *                     +15% damage)
@@ -40,9 +42,10 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Soldier;
 
+        private static SoldierOptions Options => SkillConfigurationResolver.Get<SoldierOptions>(BuiltInSkillIds.Soldier);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -50,7 +53,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
 
-            float newScale = (float)Instance.Random.NextDouble() * (SkillsInfo.GetValue<float>(skillName, "ChanceTo") - SkillsInfo.GetValue<float>(skillName, "ChanceFrom")) + SkillsInfo.GetValue<float>(skillName, "ChanceFrom");
+            float newScale = (float)Instance.Random.NextDouble() * (Options.ChanceTo - Options.ChanceFrom) + Options.ChanceFrom;
             playerInfo.SkillChance = newScale;
 
             newScale = (float)Math.Round(newScale, 2);
@@ -85,12 +88,6 @@ namespace src.player.skills
                 float? skillChance = playerInfo.SkillChance;
                 param2.Damage *= skillChance ?? 1f;
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#09ba00", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float chanceFrom = 1.15f, float chanceTo = 1.35f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float ChanceFrom { get; set; } = chanceFrom;
-            public float ChanceTo { get; set; } = chanceTo;
         }
     }
 }

@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *     origins).
      *   UseSkill: teleports you back to the recorded position from N seconds ago.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   secondsInBack = 5
      *                     -> how many seconds into the past you are teleported
      *   cooldown      = 15
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class Anomaly : ISkill
     {
         private const Skills skillName = Skills.Anomaly;
+        private static AnomalyOptions Options => SkillConfigurationResolver.Get<AnomalyOptions>(BuiltInSkillIds.Anomaly);
         private static readonly float tickRate = 64;
 
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
@@ -45,7 +48,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -76,7 +79,7 @@ namespace src.player.skills
                             skillInfo.LastPositions.Enqueue(new Vector(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z));
                             skillInfo.LastRotations.Enqueue(new QAngle(pawn.V_angle.X, pawn.V_angle.Y, 0));
 
-                            if (skillInfo.LastRotations.Count > SkillsInfo.GetValue<int>(skillName, "secondsInBack"))
+                            if (skillInfo.LastRotations.Count > Options.SecondsInBack)
                             {
                                 skillInfo.LastPositions.TryDequeue(out _);
                                 skillInfo.LastRotations.TryDequeue(out _);
@@ -112,7 +115,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid || skillInfo == null) return;
 
             float cooldown = 0;
-            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
             cooldown = Math.Max(time, 0);
 
             if (cooldown == 0 && !skillInfo.CanUse)
@@ -166,12 +169,6 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
             public ConcurrentQueue<Vector>? LastPositions { get; set; }
             public ConcurrentQueue<QAngle>? LastRotations { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#a86eff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int secondsInBack = 5, float cooldown = 15) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int SecondsInBack { get; set; } = secondsInBack;
-            public float Cooldown { get; set; } = cooldown;
         }
     }
 }

@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   OnTick: re-applies the jump while the jump key is held and caps the
      *     speed.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maxSpeed     = 500f
      *                    -> speed cap while bhopping (units/s)
      *   jumpVelocity = 300f
@@ -40,6 +42,7 @@ namespace src.player.skills
     public class BunnyHop : ISkill
     {
         private const Skills skillName = Skills.BunnyHop;
+        private static BunnyHopOptions Options => SkillConfigurationResolver.Get<BunnyHopOptions>(BuiltInSkillIds.BunnyHop);
         private static readonly ConcurrentDictionary<uint, int> playersLastJump = [];
 
         public static void NewRound()
@@ -54,7 +57,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void OnTick()
@@ -91,8 +94,8 @@ namespace src.player.skills
 
             if (jumpPressed && flags.HasFlag(PlayerFlags.FL_ONGROUND) && !eventPlayerPawn.MoveType.HasFlag(MoveType_t.MOVETYPE_LADDER))
             {
-                eventPlayerPawn.AbsVelocity.Z = SkillsInfo.GetValue<float>(skillName, "jumpVelocity");
-                var maxSpeed = SkillsInfo.GetValue<float>(skillName, "maxSpeed");
+                eventPlayerPawn.AbsVelocity.Z = Options.JumpVelocity;
+                var maxSpeed = Options.MaxSpeed;
 
                 var vX = eventPlayerPawn.AbsVelocity.X;
                 var vY = eventPlayerPawn.AbsVelocity.Y;
@@ -101,7 +104,7 @@ namespace src.player.skills
 
                 if (speed2D < maxSpeed)
                 {
-                    var newSpeed = Math.Min(speed2D * SkillsInfo.GetValue<float>(skillName, "jumpBoost"), maxSpeed);
+                    var newSpeed = Math.Min(speed2D * Options.JumpBoost, maxSpeed);
                     scale = newSpeed / (speed2D == 0 ? 1 : speed2D);
                 }
                 else if (speed2D > maxSpeed)
@@ -110,13 +113,6 @@ namespace src.player.skills
                 eventPlayerPawn.AbsVelocity.X = (float)(vX * scale);
                 eventPlayerPawn.AbsVelocity.Y = (float)(vY * scale);
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d1430a", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxSpeed = 500f, float jumpVelocity = 300f, float jumpBoost = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MaxSpeed { get; set; } = maxSpeed;
-            public float JumpVelocity { get; set; } = jumpVelocity;
-            public float JumpBoost { get; set; } = jumpBoost;
         }
     }
 }

@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *     teleportAngle/teleportDistance.
      *   OnTick: enforces the cooldown.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown         = 15f
      *                        -> seconds before the skill can be used again
      *   teleportAngle    = 10.0f
@@ -41,6 +43,7 @@ namespace src.player.skills
     public class TeamTeleport : ISkill
     {
         private const Skills skillName = Skills.TeamTeleport;
+        private static TeamTeleportOptions Options => SkillConfigurationResolver.Get<TeamTeleportOptions>(BuiltInSkillIds.TeamTeleport);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
 
         public class PlayerSkillInfo
@@ -57,7 +60,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -143,7 +146,7 @@ namespace src.player.skills
             Vector eyePos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + playerPawn.ViewOffset.Z);
             Vector playerForward = SkillUtils.GetForwardVector(playerPawn.V_angle);
 
-            float teleportAngle = SkillsInfo.GetValue<float>(skillName, "teleportAngle");
+            float teleportAngle = Options.TeleportAngle;
             float minDot = MathF.Cos(teleportAngle * MathF.PI / 180.0f);
 
             skillInfo.TeamateIndex = null;
@@ -193,7 +196,7 @@ namespace src.player.skills
             var victimPawn = victim.PlayerPawn.Value;
             if (victimPawn == null || !victimPawn.IsValid) return false;
 
-            var result = RayTrace.TraceHullShape(
+            var result = HeroShift.Instance.TraceService.TraceHullShape(
                     startPos,
                     endPos,
                     victim,
@@ -216,7 +219,7 @@ namespace src.player.skills
             if (playerPawn == null || !playerPawn.IsValid || player.AbsRotation == null) return;
 
             QAngle playerAngles = new(player.AbsRotation.X, player.AbsRotation.Y, player.AbsRotation.Z);
-            float distance = SkillsInfo.GetValue<float>(skillName, "teleportDistance");
+            float distance = Options.TeleportDistance;
 
             int[] angles = [0, 90, -90, 179];
             bool teleported = false;
@@ -252,7 +255,7 @@ namespace src.player.skills
         {
             float cooldown = 0;
 
-            float time = (float)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+            float time = (float)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
             cooldown = Math.Max(time, 0);
 
             if (cooldown == 0 && !skillInfo.CanUse)
@@ -277,13 +280,6 @@ namespace src.player.skills
                     playerInfo.PrintHTML = $"{player.GetTranslation("teamteleport_hud_info", $"<font color='{color}'>{System.Net.WebUtility.HtmlEncode(skillInfo.TeamateName)}</font>")}";
                 }
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#bcf542", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = true, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 15f, float teleportAngle = 10.0f, float teleportDistance = 100f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float TeleportAngle { get; set; } = teleportAngle;
-            public float TeleportDistance { get; set; } = teleportDistance;
         }
     }
 }

@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   OnEntitySpawned: catches your thrown HE projectile and scales its
      *     damage/radius.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   damageMultiplier       = 2f
      *                              -> HE grenade damage multiplier (2 = double
      *                                 damage)
@@ -42,11 +44,12 @@ namespace src.player.skills
     public class HolyHandGrenade : ISkill
     {
         private const Skills skillName = Skills.HolyHandGrenade;
+        private static HolyHandGrenadeOptions Options => SkillConfigurationResolver.Get<HolyHandGrenadeOptions>(BuiltInSkillIds.HolyHandGrenade);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void OnEntitySpawned(CEntityInstance @event)
@@ -68,8 +71,8 @@ namespace src.player.skills
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo?.Skill != skillName) return;
 
-                hegrenade.Damage *= SkillsInfo.GetValue<float>(skillName, "damageMultiplier");
-                hegrenade.DmgRadius *= SkillsInfo.GetValue<float>(skillName, "damageRadiusMultiplier");
+                hegrenade.Damage *= Options.DamageMultiplier;
+                hegrenade.DmgRadius *= Options.DamageRadiusMultiplier;
             });
         }
 
@@ -118,7 +121,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);
@@ -131,13 +134,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffdd00", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float damageMultiplier = 2f, float damageRadiusMultiplier = 2f, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float DamageMultiplier { get; set; } = damageMultiplier;
-            public float DamageRadiusMultiplier { get; set; } = damageRadiusMultiplier;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

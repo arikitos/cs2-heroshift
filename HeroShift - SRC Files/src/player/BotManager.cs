@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Modules.Utils;
@@ -49,14 +49,14 @@ namespace src.utils
         // Starts the repeating timers. Called on every map start.
         public static void Initialize()
         {
-            if (!Config.LoadedConfig.EnableBotSkills) return;
+            if (!ConfigurationStore.Settings.General.EnableBotSkills) return;
 
             // Stop() first: a second Initialize() (map change, plugin reload) would
             // otherwise leave the previous timer running and double the bot activity.
             Stop();
             _skillTimer = Instance.AddTimer(SkillInterval, OnBotUseSkillTimer, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
 
-            if (!Config.LoadedConfig.EnableBotKickDebug) return;
+            if (!ConfigurationStore.Settings.General.EnableBotKickDebug) return;
 
             _rotationTimer = Instance.AddTimer(RotationInterval, OnBotRotationTimer, TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
         }
@@ -64,12 +64,12 @@ namespace src.utils
         // Kills both timers. Called on map end and at the top of Initialize().
         public static void Stop()
         {
-            if (!Config.LoadedConfig.EnableBotSkills) return;
+            if (!ConfigurationStore.Settings.General.EnableBotSkills) return;
 
             _skillTimer?.Kill();
             _skillTimer = null;
 
-            if (!Config.LoadedConfig.EnableBotKickDebug) return;
+            if (!ConfigurationStore.Settings.General.EnableBotKickDebug) return;
 
             _rotationTimer?.Kill();
             _rotationTimer = null;
@@ -101,9 +101,8 @@ namespace src.utils
             var bot_info = PlayerManager.GetPlayerByIndex(randomBot.Index);
             if (bot_info == null) return;
 
-            // Reflection dispatch into src/player/skills/<Skill>.UseSkill(player).
-            // Heroes with no UseSkill (passive ones) simply do nothing here.
-            Instance.SkillAction(bot_info.Skill.ToString(), "UseSkill", [randomBot]);
+            // Invoke the active typed skill definition. Passive skills simply have no UseSkill hook.
+            Instance.InvokeUseSkill(bot_info.Skill, randomBot);
         }
 
         // DEBUG churn: kick one bot, add one back. The point is to keep recycling

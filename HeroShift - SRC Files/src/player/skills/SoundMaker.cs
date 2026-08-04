@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   UseSkill/PlayerMakeSound: emits the decoy sound.
      *   OnTick: enforces the cooldown between sounds.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown = 2
      *                -> seconds between two fake sounds
      *
@@ -36,6 +38,7 @@ namespace src.player.skills
     public class SoundMaker : ISkill
     {
         private const Skills skillName = Skills.SoundMaker;
+        private static SoundMakerOptions Options => SkillConfigurationResolver.Get<SoundMakerOptions>(BuiltInSkillIds.SoundMaker);
         private static readonly ConcurrentDictionary<uint, byte> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
@@ -44,7 +47,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -122,7 +125,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % (60 * SkillsInfo.GetValue<int>(skillName, "cooldown")) != 0) return;
+            if (Server.TickCount % (60 * Options.Cooldown) != 0) return;
 
             foreach (var player in PlayerManager.GetTickPlayers()
                 .Where(p => p != null && p.IsValid && p.PlayerPawn.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0))
@@ -139,11 +142,6 @@ namespace src.player.skills
                 if (entity != null && entity.IsValid)
                     entity.EmitSound(soundEventName, volume: 1f);
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e3ed8c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int cooldown = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int Cooldown { get; set; } = cooldown;
         }
     }
 }

@@ -1,17 +1,19 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Commands;
 using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.command;
+using src.Infrastructure.Menu;
+using src.Infrastructure.Tracing;
 using src.player;
 using src.utils;
 using System.Collections.Concurrent;
-using System.Reflection;
 using System.Text.Json;
-using WASDSharedAPI;
 using static CounterStrikeSharp.API.Core.Listeners;
 
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
 namespace src
 {
     /*
@@ -23,20 +25,14 @@ namespace src
      * rest of the plugin is the machinery that hands them out and routes game
      * events into them.
      *
-     * HOW A SKILL GETS CALLED (the important part)
-     * Skill classes are NOT registered in a list of interfaces. Instead
-     * SkillAction() below builds the type name "src.player.skills.{Skill}" and
-     * looks up a public static method by name through reflection. So:
-     *   - the enum entry in Skills, the class name, and the file name must match
-     *   - the method signature must match ISkill exactly or the hook never fires
-     *   - lookups are cached in _skillMethodCache so reflection cost is paid once
+     * HOW A SKILL GETS CALLED
+     * Every built-in skill is registered in BuiltInSkillCatalog with typed hook
+     * delegates. SkillDispatcher routes game events, while explicit lifecycle
+     * coordinator methods preserve assignment history, curse ownership and PerfLog.
      *
-     * LOAD ORDER (Load method): config -> skill tunables -> translations ->
-     * event/tick listeners -> commands -> WASD menu -> all skills -> player sync.
-     *
-     * CONFIG FILES this reads (both in the plugin's configs/ folder):
-     *   settings.json    - global plugin behaviour (see utils/Config.cs)
-     *   skillsInfo.json  - per-hero tunables (see utils/SkillsInfo.cs)
+     * LOAD ORDER (Load method): typed heroshift.json snapshot -> embedded English /
+     * optional language override -> event/tick listeners -> commands -> WASD menu ->
+     * enabled skills -> player sync.
      */
     public partial class HeroShift : BasePlugin
     {
@@ -47,8 +43,11 @@ namespace src
         public Random Random { get; } = new Random();
         public CCSGameRules? GameRules { get; set; }
         private ConcurrentBag<string> ManifestResources { get; set; } = ["models/sprays/spray_plane.vmdl"];
-        public IWasdMenuManager? MenuManager;
-        // Skills that were enabled at least once this round; used to reset only those on round change (not all 124).
+        internal IGameMenuService MenuService { get; private set; } = null!;
+        internal ITraceService TraceService { get; private set; } = null!;
+        internal SkillRegistry SkillRegistry { get; private set; } = null!;
+        internal SkillDispatcher SkillDispatcher { get; private set; } = null!;
+        // Skills enabled at least once this round; used to reset only those on round change, not all 142 definitions.
         public static readonly ConcurrentDictionary<string, byte> ActiveSkillsThisRound = new();
         public static readonly ConcurrentDictionary<string, byte> SkillsUsedThisMap = new();
 
@@ -61,14 +60,17 @@ namespace src
         {
             Instance = this;
 
-            Config.LoadConfig();
-            SkillsInfo.LoadSkillsInfo();
+            SkillRegistry = BuiltInSkillCatalog.BuildRegistry();
+            MenuService = new WasdGameMenuService();
+            TraceService = new RayTraceService();
+            SkillDispatcher = new SkillDispatcher(SkillRegistry, Server.PrintToConsole);
+            ConfigurationStore.Initialize(Path.Combine(ModuleDirectory, "configs", "heroshift.json"), SkillRegistry, Logger);
             Localization.Load();
             Debug.Load();
             PlayerOnTick.Load();
             Event.Load();
             Command.Load();
-            WASDMenuAPI.WASDMenuAPI.LoadPlugin(Instance, hotReload);
+            MenuService.Load(this, hotReload);
             LoadAllSkills();
             PlayerManager.SyncWithPlugin(Instance);
 
@@ -106,15 +108,70 @@ namespace src
 
         internal void LoadAllSkills()
         {
-            foreach (var skill in Enum.GetValues(typeof(Skills)))
-                if (SkillsInfo.GetValue<bool>(skill, "active"))
-                    SkillAction(skill.ToString()!, "LoadSkill");
+            foreach (var skill in Enum.GetValues<Skills>())
+                if (SkillRuntime.GetMetadata(skill).Active)
+                    InvokeLoadSkill(skill);
 
-            Debug.WriteToDebug($"HeroShift v{Instance.ModuleVersion} ({SkillData.Skills.Count - 1}/{SkillsInfo.LoadedConfig.Count - 1} Skills) loaded!");
-            Debug.WriteToDebug($"GameModes: {(Config.GameModes)Config.LoadedConfig.GameMode}");
+            Debug.WriteToDebug($"HeroShift v{Instance.ModuleVersion} ({SkillData.Skills.Count - 1}/{SkillRuntime.All.Count - 1} Skills) loaded!");
+            Debug.WriteToDebug($"GameModes: {ConfigurationStore.Settings.General.GameMode}");
             foreach (var skill in SkillData.Skills)
                 Debug.WriteToDebug($"Loaded: {skill.Skill}");
         }
+
+        private void InvokeLifecycle(Skills skill, string hookName, Action<SkillDefinition> invoke)
+        {
+            if (!SkillRegistry.TryGet(SkillRuntime.GetId(skill), out var definition)) return;
+
+            if (!PerfLog.Enabled)
+            {
+                invoke(definition);
+                return;
+            }
+
+            long perfStart = PerfLog.Start();
+            invoke(definition);
+            PerfLog.End($"SkillAction {skill}.{hookName}", perfStart, 2.0);
+        }
+
+        internal void InvokeLoadSkill(Skills skill) =>
+            InvokeLifecycle(skill, nameof(SkillHookSet.LoadSkill), d => d.Hooks.LoadSkill?.Invoke());
+
+        internal void InvokeEnableSkill(Skills skill, CCSPlayerController player)
+        {
+            string skillName = skill.ToString();
+            ActiveSkillsThisRound.TryAdd(skillName, 0);
+            SkillsUsedThisMap.TryAdd(skillName, 0);
+            InvokeLifecycle(skill, nameof(SkillHookSet.EnableSkill), d => d.Hooks.EnableSkill?.Invoke(player));
+        }
+
+        internal void InvokeDisableSkill(Skills skill, CCSPlayerController player)
+        {
+            string skillName = skill.ToString();
+            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skillName) && player.IsValid)
+                SkillUtils.ReleaseCurse(player.Index);
+
+            InvokeLifecycle(skill, nameof(SkillHookSet.DisableSkill), d => d.Hooks.DisableSkill?.Invoke(player));
+        }
+
+        internal void InvokeUseSkill(Skills skill, CCSPlayerController player) =>
+            InvokeLifecycle(skill, nameof(SkillHookSet.UseSkill), d => d.Hooks.UseSkill?.Invoke(player));
+
+        internal bool InvokeTypeSkill(Skills skill, CCSPlayerController player, string[] arguments)
+        {
+            string skillName = skill.ToString();
+            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skillName) &&
+                !TryClaimCurseTarget([player, arguments]))
+                return false;
+
+            InvokeLifecycle(skill, nameof(SkillHookSet.TypeSkill), d => d.Hooks.TypeSkill?.Invoke(player, arguments));
+            return true;
+        }
+
+        internal void InvokeNewRoundSkill(Skills skill) =>
+            InvokeLifecycle(skill, nameof(SkillHookSet.NewRound), d => d.Hooks.NewRound?.Invoke());
+
+        internal void InvokeRoundEndSkill(Skills skill) =>
+            InvokeLifecycle(skill, nameof(SkillHookSet.RoundEnd), d => d.Hooks.RoundEnd?.Invoke());
 
         private static bool TryClaimCurseTarget(object[]? param)
         {
@@ -136,78 +193,9 @@ namespace src
             return false;
         }
 
-        private static readonly ConcurrentDictionary<(string Skill, string Method), MethodInfo?> _skillMethodCache = new();
-
-        /*
-         * The central dispatcher: calls <methodName> on the skill class <skill>.
-         * Every hook in the plugin ultimately routes through here.
-         *
-         *   skill      - skill/class name, e.g. "KillerFlash"
-         *   methodName - one of the ISkill hooks, e.g. "EnableSkill", "OnTick"
-         *   param      - arguments matching that hook's signature
-         *
-         * Returns whatever the hook returned (used for the bool hooks such as
-         * PlayerHurtPre / WeaponDrop), or null when the method does not exist.
-         * A missing type is reported to console once; a missing method is silent.
-         */
-        internal object? SkillAction(string skill, string methodName, object[]? param = null)
-        {
-            if (string.IsNullOrEmpty(skill))
-                return null;
-
-            if (methodName == "EnableSkill")
-            {
-                ActiveSkillsThisRound.TryAdd(skill, 0);
-                SkillsUsedThisMap.TryAdd(skill, 0);
-            }
-
-            if (SkillUtils.CurseLimitEnabled && SkillUtils.IsCurseSkill(skill))
-            {
-                if (methodName == "DisableSkill" && param?.Length > 0 && param[0] is CCSPlayerController curser && curser.IsValid)
-                    SkillUtils.ReleaseCurse(curser.Index);
-
-                if (methodName == "TypeSkill" && !TryClaimCurseTarget(param))
-                    return null;
-            }
-
-            var method = _skillMethodCache.GetOrAdd((skill, methodName), key =>
-            {
-                string className = $"src.player.skills.{key.Skill}";
-
-                Type? type = Type.GetType(className)
-                    ?? Assembly.GetExecutingAssembly().GetType(className)
-                    ?? AppDomain.CurrentDomain.GetAssemblies()
-                        .SelectMany(a =>
-                        {
-                            try { return a.GetTypes(); }
-                            catch (ReflectionTypeLoadException ex) { return ex.Types.Where(t => t != null)!; }
-                            catch { return []; }
-                        })
-                        .FirstOrDefault(t => t != null && string.Equals(t.FullName, className, StringComparison.Ordinal));
-
-                if (type == null || !typeof(ISkill).IsAssignableFrom(type))
-                {
-                    Server.PrintToConsole($"Could not find or load {className}");
-                    return null;
-                }
-
-                return type.GetMethod(key.Method, BindingFlags.Static | BindingFlags.Public);
-            });
-
-            if (method == null) return null;
-
-            if (!PerfLog.Enabled)
-                return method.Invoke(null, param);
-
-            long perfStart = PerfLog.Start();
-            var result = method.Invoke(null, param);
-            PerfLog.End($"SkillAction {skill}.{methodName}", perfStart, 2.0);
-            return result;
-        }
-
         internal new void AddCommand(string name, string description, CommandInfo.CommandCallback handler)
         {
-            var definition = new CommandDefinition(name, description, handler);
+            var definition = new CounterStrikeSharp.API.Core.Commands.CommandDefinition(name, description, handler);
             CommandDefinitions.Add(definition);
             CommandManager.RegisterCommand(definition);
         }
@@ -228,8 +216,6 @@ namespace src
         private static async void PrintInfoToConsole()
         {
             string? versionFromGithub = await GetLatestVersion();
-            var diffrentConfig = JsonSerializer.Serialize(Config.LoadedConfig) != JsonSerializer.Serialize(new Config.SettingsModel());
-            var diffrentSkillsInfo = JsonSerializer.Serialize(SkillsInfo.LoadedConfig) != JsonSerializer.Serialize(new SkillsInfo.SkillsInfoModel());
 
             // Top border
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Magenta;
@@ -260,7 +246,7 @@ namespace src
             }
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
-            Console.WriteLine($" ({SkillData.Skills.Count - 1}/{SkillsInfo.LoadedConfig.Count - 1} Skills) loaded!");
+            Console.WriteLine($" ({SkillData.Skills.Count - 1}/{SkillRuntime.All.Count - 1} Skills) loaded!");
 
             if (versionFromGithub != null && versionFromGithub != Instance.ModuleVersion)
             {
@@ -271,42 +257,36 @@ namespace src
                 Console.WriteLine($"#########################################################");
             }
 
-            // Config preset
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
-            Console.Write("\nConfig preset: ");
-            Console.ForegroundColor = Config.LoadedConfig.ConfigName == "Default" && diffrentConfig ? (ConsoleColor)CS2ConsoleColors.Yellow : (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.Write($"{(Config.LoadedConfig.ConfigName == "Default" && diffrentConfig ? "(CUSTOM)" : Config.LoadedConfig.ConfigName)}");
-
-            Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
-            Console.Write("\nSkillsInfo preset: ");
-            Console.ForegroundColor = SkillsInfo.LoadedConfig.Name == "Default" && diffrentSkillsInfo ? (ConsoleColor)CS2ConsoleColors.Yellow : (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.WriteLine($"{(SkillsInfo.LoadedConfig.Name == "Default" && diffrentSkillsInfo ? "(CUSTOM)" : SkillsInfo.LoadedConfig.Name)}");
+            Console.Write("\nConfiguration: ");
+            Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
+            Console.WriteLine("heroshift.json");
 
             // Main config info
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write("\nGameMode: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.Write($"{(Config.GameModes)Config.LoadedConfig.GameMode} ({Config.LoadedConfig.GameMode})");
+            Console.Write($"{ConfigurationStore.Settings.General.GameMode} ({(int)ConfigurationStore.Settings.General.GameMode})");
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write(", DebugMode: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.WriteLine(Config.LoadedConfig.DebugMode);
+            Console.WriteLine(ConfigurationStore.Settings.General.DebugMode);
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write("SkillHudDuration: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.Write(Config.LoadedConfig.SkillHudDuration == -1 ? "infinity" : Config.LoadedConfig.SkillHudDuration);
+            Console.Write(ConfigurationStore.Settings.General.SkillHudDuration == -1 ? "infinity" : ConfigurationStore.Settings.General.SkillHudDuration);
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write(", SkillButton: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.Write(Config.LoadedConfig.AlternativeSkillButton ?? "(NULL)");
+            Console.Write(ConfigurationStore.Settings.General.AlternativeSkillButton ?? "(NULL)");
 
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;
             Console.Write(", HtmlHudFix: ");
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.LightBlue;
-            Console.WriteLine(Config.LoadedConfig.EnableFlashingHtmlHudFix);
+            Console.WriteLine(ConfigurationStore.Settings.General.EnableFlashingHtmlHudFix);
 
             // Dependences
             Console.ForegroundColor = (ConsoleColor)CS2ConsoleColors.Cyan;

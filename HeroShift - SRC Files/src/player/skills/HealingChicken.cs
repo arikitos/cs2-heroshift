@@ -5,6 +5,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   OnTick: every tickCooldown ticks, heals players within healRadius by
      *     'heal'.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   amount       = 3
      *                    -> how many healing chickens are spawned
      *   heal         = 2
@@ -46,6 +48,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.HealingChicken;
 
+        private static HealingChickenOptions Options => SkillConfigurationResolver.Get<HealingChickenOptions>(BuiltInSkillIds.HealingChicken);
         private class ChickenState
         {
             public CChicken? Chicken { get; set; }
@@ -57,7 +60,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -85,7 +88,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
-            int amount = SkillsInfo.GetValue<int>(skillName, "amount");
+            int amount = Options.Amount;
             var list = new List<ChickenState>();
 
             for (int i = 0; i < amount; i++)
@@ -112,12 +115,12 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int tickCooldown = SkillsInfo.GetValue<int>(skillName, "tickCooldown");
+            int tickCooldown = Options.TickCooldown;
             if (Server.TickCount % tickCooldown == 0) return;
 
             var players = PlayerManager.GetTickPlayers().ToArray();
-            int healAmount = SkillsInfo.GetValue<int>(skillName, "heal");
-            float healRadius = SkillsInfo.GetValue<float>(skillName, "healRadius");
+            int healAmount = Options.Heal;
+            float healRadius = Options.HealRadius;
 
             foreach (var player in players)
             {
@@ -189,14 +192,6 @@ namespace src.player.skills
                         state.TickCounter = 0;
                 }
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#b5ab8f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Legendary, int amount = 3, int heal = 2, int tickCooldown = 16, float healRadius = 150.0f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int Amount { get; set; } = amount;
-            public int Heal { get; set; } = heal;
-            public int TickCooldown { get; set; } = tickCooldown;
-            public float HealRadius { get; set; } = healRadius;
         }
     }
 }

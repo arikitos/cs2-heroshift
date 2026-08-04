@@ -5,6 +5,7 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
 namespace src.player.skills
 {
     /*
@@ -14,8 +15,8 @@ namespace src.player.skills
      *   TypeSkill: pick the player whose skill you want to duplicate.
      *   OnTick: drives the selection menu.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *
      *   Shared settings:
      *   active       = true
@@ -37,7 +38,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void NewRound()
@@ -170,7 +171,7 @@ namespace src.player.skills
                     if (player == null || !player.IsValid) return;
 
                     if (!player.IsBot)
-                        Instance.SkillAction(skillName.ToString(), "EnableSkill", [player]);
+                        Instance.InvokeEnableSkill(skillName, player);
 
                     playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("thief_incorrect_skill", enemyName));
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -184,7 +185,7 @@ namespace src.player.skills
                 playerInfo.SpecialSkill = skillName;
                 SkillUtils.CloseMenu(player);
 
-                if (SkillsInfo.GetValue<bool>(enemySkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                if (SkillRuntime.GetMetadata(enemySkill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
                     {
                         var player = Utilities.GetPlayerFromIndex((int)playerIndex);
@@ -192,16 +193,12 @@ namespace src.player.skills
 
                         var dupInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                         if (dupInfo == null || dupInfo.Skill != enemySkill) return;
-                        Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
+                        Instance?.InvokeEnableSkill(enemySkill, player);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 else
-                    Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
+                    Instance?.InvokeEnableSkill(enemySkill, player);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("duplicator_player_info", enemy.PlayerName));
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ffb73b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
         }
     }
 }

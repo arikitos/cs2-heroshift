@@ -15,6 +15,8 @@ using static CounterStrikeSharp.API.Core.Listeners;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.Configuration;
+using src.SkillsCore;
 namespace src.player
 {
     /*
@@ -30,15 +32,15 @@ namespace src.player
      *   native VirtualFunctions hook the plugin needs. Each handler then does almost
      *   no work itself: it fans the event out to the heroes that are currently in
      *   play. A hero lives in src/player/skills/<Name>.cs as a static class with
-     *   `public static` hook methods, and is reached by REFLECTION through
-     *   HeroShift.Instance.SkillAction(skillName, "HookName", args), which resolves
-     *   "src.player.skills.{Skill}" plus a public static method of that name. If a
+     *   `public static` hook methods registered as typed delegates in the built-in
+     *   SkillRegistry. Event callbacks resolve stable SkillIds and invoke those
+     *   delegates directly. If a
      *   hero does not declare the hook, nothing happens - that is normal.
      *
      * FAN-OUT FLOW (the pattern almost every handler follows)
-     *   game event -> lock (setLock) -> DispatchToActiveSkills("HookName", args)
+     *   game event -> lock (setLock) -> typed SkillDispatcher hook
      *     -> for every distinct Skill currently held by a non-drawing player
-     *        -> InvokeSkill -> SkillAction(...) -> <Skill>.HookName(args)
+     *        -> SkillDispatcher -> registered <Skill>.HookName delegate
      *   The dispatch is per DISTINCT SKILL, not per player: a hero hook is called
      *   once per round even if ten players hold it, so hero code is expected to
      *   iterate the players itself (usually via PlayerManager.GetTickPlayers()).
@@ -58,9 +60,8 @@ namespace src.player
      *   - A thrown exception inside a hook would otherwise abort the whole engine
      *     callback and silently kill every later hero in the same dispatch, so the
      *     invoke helpers catch and log instead of propagating.
-     *   - Per-hero tunables come from SkillsInfo.GetValue<T>(skill, "key")
-     *     (configs/skillsInfo.json); global switches from Config.LoadedConfig
-     *     (configs/config.json).
+     *   - Per-skill metadata and options come from the immutable SkillRuntime snapshot;
+     *     global settings come from the typed ConfigurationStore snapshot.
      */
     public static partial class Event
     {
@@ -69,7 +70,7 @@ namespace src.player
         private static Timer? setSkillTimer = null;
         private static DateTime freezeTimeEnd = DateTime.MinValue;
         private static bool isTransmitRegistered = false;
-        public static readonly jSkill_SkillInfo noneSkill = new(Skills.None, SkillsInfo.GetValue<string>(Skills.None, "color"), false);
+        public static readonly jSkill_SkillInfo noneSkill = new(Skills.None, SkillRuntime.GetMetadata(Skills.None).Color, false);
 
         // Per-team / global picks used by the TeamSkills, SameSkills and Debug game
         // modes (see RoundEvents.cs). Debug mode walks debugSkills one hero at a time.
@@ -78,10 +79,10 @@ namespace src.player
         private static jSkill_SkillInfo allSkill = noneSkill;
         private static List<jSkill_SkillInfo> debugSkills = [.. SkillData.Skills];
 
-        // Team restrictions taken from skillsInfo.json: OnlyTeam 2 = T, 3 = CT, 0 = both.
-        public static readonly SkillsInfo.DefaultSkillInfo[] terroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.Terrorist)];
-        public static readonly SkillsInfo.DefaultSkillInfo[] counterterroristSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == (int)CsTeam.CounterTerrorist)];
-        private static readonly SkillsInfo.DefaultSkillInfo[] allTeamsSkills = [.. SkillsInfo.LoadedConfig.Where(s => s.OnlyTeam == 0)];
+        // Team restrictions come from the immutable effective skill snapshot.
+        public static readonly EffectiveSkillConfiguration[] terroristSkills = [.. SkillRuntime.All.Where(s => s.Metadata.OnlyTeam == CsTeam.Terrorist)];
+        public static readonly EffectiveSkillConfiguration[] counterterroristSkills = [.. SkillRuntime.All.Where(s => s.Metadata.OnlyTeam == CsTeam.CounterTerrorist)];
+        private static readonly EffectiveSkillConfiguration[] allTeamsSkills = [.. SkillRuntime.All.Where(s => s.Metadata.OnlyTeam == CsTeam.None)];
 
         // playersSkills: history per player index, used by the NoRepeat game mode.
         // staticSkills: admin-forced hero per player index, overrides the random draw.
@@ -187,31 +188,23 @@ namespace src.player
         // Skills whose OnTick already threw this round; used to log once, not 64x/sec.
         private static readonly HashSet<Skills> tickFailuresLogged = [];
 
-        // Single entry point for the reflection call, so every hero hook failure is
-        // caught and logged instead of unwinding the engine callback.
-        private static void InvokeSkill(Skills skill, string methodName, object[] args)
+        // Builds the distinct active typed IDs in player-list order. This is the
+        // typed equivalent of the legacy DispatchToActiveSkills `seen` loop and
+        // deliberately skips players whose draw animation has not resolved yet.
+        private static IReadOnlyList<SkillId> GetActiveSkillIds()
         {
-            try
-            {
-                Instance.SkillAction(skill.ToString(), methodName, args);
-            }
-            catch (Exception ex)
-            {
-                Server.PrintToConsole($"[HeroShift] {skill}.{methodName} failed: {ex.InnerException?.Message ?? ex.Message}");
-            }
-        }
+            var ids = new List<SkillId>();
+            var seen = new HashSet<SkillId>();
 
-        // Core fan-out: calls methodName once per DISTINCT hero currently in play.
-        // `seen` collapses duplicates (ten players on one hero = one call), and
-        // IsDrawing players are skipped because their hero is not decided yet.
-        private static void DispatchToActiveSkills(string methodName, params object[] args)
-        {
-            var seen = new HashSet<Skills>();
-            foreach (var p in Instance.SkillPlayer)
+            foreach (var player in Instance.SkillPlayer)
             {
-                if (p.IsDrawing || !seen.Add(p.Skill)) continue;
-                InvokeSkill(p.Skill, methodName, args);
+                if (player.IsDrawing) continue;
+
+                var id = SkillRuntime.GetId(player.Skill);
+                if (seen.Add(id)) ids.Add(id);
             }
+
+            return ids;
         }
 
         // Same fan-out as DispatchToActiveSkills, but ordered: normal heroes first,
@@ -219,7 +212,6 @@ namespace src.player
         // value everyone else already finished modifying.
         private static void DispatchOnTakeDamage(DynamicHook h, bool post = false)
         {
-            object[] args = [h];
             var seen = new HashSet<Skills>();
             List<Skills>? deferred = null;
 
@@ -233,29 +225,29 @@ namespace src.player
                     continue;
                 }
 
-                InvokeOnTakeDamage(p.Skill, h, args, post);
+                InvokeOnTakeDamage(p.Skill, h, post);
             }
 
             if (deferred == null) return;
             foreach (var skill in deferred)
-                InvokeOnTakeDamage(skill, h, args, post);
+                InvokeOnTakeDamage(skill, h, post);
         }
 
         // Outside DebugMode this is just InvokeSkill. In DebugMode it snapshots
         // CTakeDamageInfo.Damage (hook param 1) before and after the call so the log
         // shows exactly which hero altered the damage and by how much.
-        private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, object[] args, bool post)
+        private static void InvokeOnTakeDamage(Skills skill, DynamicHook h, bool post)
         {
-            if (Config.LoadedConfig.DebugMode != true)
+            if (ConfigurationStore.Settings.General.DebugMode != true)
             {
-                InvokeSkill(skill, post ? "OnTakeDamagePost" : "OnTakeDamage", args);
+                Instance.SkillDispatcher.DispatchOnTakeDamage([SkillRuntime.GetId(skill)], h, post);
                 return;
             }
 
             var info = h.GetParam<CTakeDamageInfo>(1);
             float before = info == null ? 0f : info.Damage;
 
-            InvokeSkill(skill, post ? "OnTakeDamagePost" : "OnTakeDamage", args);
+            Instance.SkillDispatcher.DispatchOnTakeDamage([SkillRuntime.GetId(skill)], h, post);
 
             float after = info == null ? 0f : info.Damage;
             if (Math.Abs(before - after) > 0.01f)
@@ -295,7 +287,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerMakeSound", um);
+                Instance.SkillDispatcher.DispatchPlayerMakeSound(GetActiveSkillIds(), um);
                 return HookResult.Continue;
             }
         }
@@ -307,7 +299,7 @@ namespace src.player
         // HideHUD == int.MaxValue means "hidden permanently", so it is left alone.
         private static HookResult GetPrintToCenterHtml(UserMessage um)
         {
-            if (!Config.LoadedConfig.HideHudForOtherPlugins) return HookResult.Continue;
+            if (!ConfigurationStore.Settings.General.HideHudForOtherPlugins) return HookResult.Continue;
 
             // Sampled every 10th tick only - parsing the message debug string is far
             // too expensive to do on every HUD write from every plugin.
@@ -353,7 +345,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("WeaponFire", @event);
+                Instance.SkillDispatcher.DispatchWeaponFire(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -362,7 +354,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("WeaponEquip", @event);
+                Instance.SkillDispatcher.DispatchWeaponEquip(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -371,7 +363,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("WeaponPickup", @event);
+                Instance.SkillDispatcher.DispatchWeaponPickup(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -380,7 +372,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("WeaponReload", @event);
+                Instance.SkillDispatcher.DispatchWeaponReload(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -389,7 +381,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("GrenadeThrown", @event);
+                Instance.SkillDispatcher.DispatchGrenadeThrown(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -415,18 +407,17 @@ namespace src.player
                     var victimInfo = PlayerManager.GetPlayerByIndex(victim.Index);
                     if (victimInfo == null || victimInfo.IsDrawing) return HookResult.Continue;
 
-                    bool suppressed = AskSkillSuppressesHit(victimInfo.Skill, @event);
-
-                    if (!suppressed)
+                    SkillId? attackerSkillId = null;
+                    var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
+                    if (attacker != null && attacker.IsValid && attacker.Index != victim.Index)
                     {
-                        var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
-                        if (attacker != null && attacker.IsValid && attacker.Index != victim.Index)
-                        {
-                            var attackerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
-                            if (attackerInfo != null && !attackerInfo.IsDrawing && attackerInfo.Skill != victimInfo.Skill)
-                                suppressed = AskSkillSuppressesHit(attackerInfo.Skill, @event);
-                        }
+                        var attackerInfo = PlayerManager.GetPlayerByIndex(attacker.Index);
+                        if (attackerInfo != null && !attackerInfo.IsDrawing)
+                            attackerSkillId = SkillRuntime.GetId(attackerInfo.Skill);
                     }
+
+                    bool suppressed = Instance.SkillDispatcher.DispatchPlayerHurtPre(
+                        SkillRuntime.GetId(victimInfo.Skill), attackerSkillId, @event);
 
                     if (!suppressed) return HookResult.Continue;
 
@@ -455,19 +446,11 @@ namespace src.player
             }
         }
 
-        // Calls <Skill>.PlayerHurtPre(event) and treats a boxed true return as
-        // "suppress this hit". A hero that does not declare the hook returns null.
-        private static bool AskSkillSuppressesHit(Skills skill, EventPlayerHurt @event)
-        {
-            if (skill == Skills.None) return false;
-            return (bool?)Instance.SkillAction(skill.ToString(), "PlayerHurtPre", [@event]) == true;
-        }
-
         private static HookResult PlayerHurt(EventPlayerHurt @event, GameEventInfo info)
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerHurt", @event);
+                Instance.SkillDispatcher.DispatchPlayerHurt(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -476,7 +459,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerJump", @event);
+                Instance.SkillDispatcher.DispatchPlayerJump(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -488,7 +471,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("BotTakeover", @event);
+                Instance.SkillDispatcher.DispatchBotTakeover(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -497,16 +480,13 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerBlind", @event);
+                Instance.SkillDispatcher.DispatchPlayerBlind(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
 
-        // OnTick runs 64 times a second, so everything it needs is pre-allocated and
-        // reused: cached enum->string names (ToString() would allocate per tick per
-        // hero) and two scratch collections cleared and refilled in place.
-        private static readonly Dictionary<Skills, string> _skillNames =
-            Enum.GetValues<Skills>().ToDictionary(s => s, s => s.ToString());
+        // OnTick runs 64 times a second, so its two scratch collections are
+        // allocated once and cleared/refilled in place every frame.
         private static readonly HashSet<Skills> _activeSkillsSet = [];
         private static readonly List<Skills> _activeSkillsList = [];
         private static readonly Comparison<Skills> _tickOrderCmp = (a, b) => TickOrder(a).CompareTo(TickOrder(b));
@@ -515,14 +495,14 @@ namespace src.player
         // AreaReaper and ChillOut depend on other skills' tick results, so they must tick last.
         private static int TickOrder(Skills s) => s == Skills.AreaReaper ? 2 : s == Skills.ChillOut ? 1 : 0;
 
-        // Set of heroes whose "disableOnFreezeTime" flag is true in skillsInfo.json.
+        // Set of heroes whose effective metadata disables them during freeze time.
         // Built lazily and cached because reading the config per hero per tick is
         // expensive; InvalidateFreezeDisabledCache() drops it after a config reload.
         private static HashSet<Skills> BuildFreezeDisabledSkills()
         {
             var set = new HashSet<Skills>();
             foreach (var s in SkillData.Skills)
-                if (SkillsInfo.GetValue<bool>(s.Skill, "disableOnFreezeTime"))
+                if (SkillRuntime.GetMetadata(s.Skill).DisableOnFreezeTime)
                     set.Add(s.Skill);
             return set;
         }
@@ -556,7 +536,7 @@ namespace src.player
                     if (freeze && _freezeDisabledSkills.Contains(skill)) continue;
                     try
                     {
-                        Instance.SkillAction(_skillNames[skill], "OnTick");
+                        Instance.SkillDispatcher.InvokeTickUnchecked(SkillRuntime.GetId(skill));
                     }
                     catch (Exception ex)
                     {
@@ -582,7 +562,7 @@ namespace src.player
                 var player = Utilities.GetPlayerFromSlot(playerSlot);
                 if (player == null || !player.IsValid) return;
 
-                if (player.IsBot && !Config.LoadedConfig.EnableBotSkills)
+                if (player.IsBot && !ConfigurationStore.Settings.General.EnableBotSkills)
                     return;
 
                 var existing = Instance.SkillPlayer.FirstOrDefault(p => p.PlayerIndex == player.Index);
@@ -654,11 +634,13 @@ namespace src.player
                 var skillPlayer = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (skillPlayer == null) return HookResult.Continue;
 
-                Instance.SkillAction(skillPlayer.Skill.ToString(), "DisableSkill", [player]);
+                Instance.SkillDispatcher.InvokeDisableSkill(SkillRuntime.GetId(skillPlayer.Skill), player);
 
                 uint leavingIndex = player.Index;
-                foreach (var skill in SkillData.Skills)
-                    Instance.SkillAction(skill.Skill.ToString(), "PlayerDisconnect", [leavingIndex]);
+                var registeredSkillIds = SkillData.Skills
+                    .Select(skill => SkillRuntime.GetId(skill.Skill))
+                    .ToArray();
+                Instance.SkillDispatcher.DispatchPlayerDisconnect(registeredSkillIds, leavingIndex);
 
                 SkillUtils.ClearCursesFor(leavingIndex);
 
@@ -779,20 +761,20 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("PlayerDeath", @event);
+                Instance.SkillDispatcher.DispatchPlayerDeath(GetActiveSkillIds(), @event);
 
                 var victim = PlayerManager.GetPlayerEvent(@event.Userid);
                 if (victim == null) return HookResult.Continue;
 
                 var playerInfo = PlayerManager.GetPlayerByIndex(victim.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return HookResult.Continue;
-                Instance.SkillAction(playerInfo.Skill.ToString(), "DisableSkill", [victim]);
+                Instance.SkillDispatcher.InvokeDisableSkill(SkillRuntime.GetId(playerInfo.Skill), victim);
 
                 var attacker = PlayerManager.GetPlayerEvent(@event.Attacker);
                 if (attacker == null || victim == attacker) return HookResult.Continue;
 
                 if (victim == attacker) return HookResult.Continue;
-                if (Config.LoadedConfig.KillerSkillChatInfo)
+                if (ConfigurationStore.Settings.General.KillerSkillChatInfo)
                 {
                     var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
                     if (attackerInfo != null)
@@ -824,7 +806,7 @@ namespace src.player
 
             lock (setLock)
             {
-                string? button = Config.LoadedConfig.AlternativeSkillButton;
+                string? button = ConfigurationStore.Settings.General.AlternativeSkillButton;
                 if (string.IsNullOrEmpty(button) || button.Length < 2) return;
 
                 string buttonName = $"{char.ToUpperInvariant(button[0])}{button[1..].ToLowerInvariant()}";
@@ -840,7 +822,7 @@ namespace src.player
                 var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
                 if (playerInfo == null || playerInfo.IsDrawing) return;
 
-                if (SkillsInfo.GetValue<bool>(playerInfo.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                if (SkillRuntime.GetMetadata(playerInfo.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                     return;
 
                 // Special case for the +use key, which the game itself needs. If the
@@ -862,7 +844,7 @@ namespace src.player
 
                     ulong mask = (ulong)(InteractionLayers.MASK_WORLD_ONLY | InteractionLayers.Player | InteractionLayers.NPC);
                     ulong contents = 0;
-                    var result = RayTrace.TraceShape(player, eyePos, endPos, mask, contents);
+                    var result = HeroShift.Instance.TraceService.TraceShape(player, eyePos, endPos, mask, contents);
 
                     if (result.HasValue && result.Value.DidHit)
                     {
@@ -877,7 +859,7 @@ namespace src.player
                 }
 
                 Debug.WriteToDebug($"Player {player.PlayerName} used the skill: {playerInfo.Skill} by PlayerButtons: {pressed}");
-                Instance.SkillAction(playerInfo.Skill.ToString(), "UseSkill", [player]);
+                Instance.SkillDispatcher.InvokeUseSkill(SkillRuntime.GetId(playerInfo.Skill), player);
             }
         }
 
@@ -885,7 +867,7 @@ namespace src.player
         {
             lock (setLock)
             {
-                DispatchToActiveSkills("BulletImpact", @event);
+                Instance.SkillDispatcher.DispatchBulletImpact(GetActiveSkillIds(), @event);
                 return HookResult.Continue;
             }
         }
@@ -916,7 +898,7 @@ namespace src.player
                     extraLine = Illiterate.GetRandomText(extraLine);
                 }
 
-                var config = Config.LoadedConfig.HtmlHudCustomisation;
+                var config = ConfigurationStore.Settings.Hud;
                 var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(headerLine) || string.IsNullOrEmpty(config.HeaderLineSize) ? "l" : "ml")}'> </font>";
                 var emptySymbol2 = $"<font class='fontSize-ml'> </font>";
 

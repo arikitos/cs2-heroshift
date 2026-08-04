@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -13,8 +15,8 @@ namespace src.player.skills
      *   WeaponFire: subtracts moneyPerShot from the cursed player's account.
      *   TypeSkill: pick the victim.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   moneyPerShot = 50
      *                    -> money deducted from the cursed player per bullet
      *                       fired
@@ -36,12 +38,13 @@ namespace src.player.skills
     public class ExpensiveAmmo : ISkill
     {
         private const Skills skillName = Skills.ExpensiveAmmo;
+        private static ExpensiveAmmoOptions Options => SkillConfigurationResolver.Get<ExpensiveAmmoOptions>(BuiltInSkillIds.ExpensiveAmmo);
         private static readonly ConcurrentDictionary<uint, byte> cursedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -73,7 +76,7 @@ namespace src.player.skills
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
 
-            int cost = SkillsInfo.GetValue<int>(skillName, "moneyPerShot");
+            int cost = Options.MoneyPerShot;
             if (cost <= 0) return;
 
             moneyServices.Account = Math.Max(moneyServices.Account - cost, 0);
@@ -135,7 +138,7 @@ namespace src.player.skills
             if (enemyEvent == null || !enemyEvent.IsValid) return;
 
             playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("expensiveammo_player_info", enemy.PlayerName));
-            enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("expensiveammo_enemy_info", SkillsInfo.GetValue<int>(skillName, "moneyPerShot")));
+            enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("expensiveammo_enemy_info", Options.MoneyPerShot));
         }
 
         public static void EnableSkill(CCSPlayerController player)
@@ -180,11 +183,6 @@ namespace src.player.skills
 
             cursedPlayers.TryRemove(player.Index, out _);
             SkillUtils.CloseMenu(player);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#e0c341", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int moneyPerShot = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int MoneyPerShot { get; set; } = moneyPerShot;
         }
     }
 }

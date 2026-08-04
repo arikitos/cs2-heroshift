@@ -33,7 +33,7 @@ public static class MeansureString
     // Fallback for any character absent from the table below.
     static readonly float DefaultCharWidth = 22.25f;
     // Per-glyph widths for the CS2 chat font, in arbitrary units shared with
-    // Config.ChatMessage.MaxWidth. Note how much narrower i/j/l/f/t are than m/w/W.
+    // chat.MaxWidth. Note how much narrower i/j/l/f/t are than m/w/W.
     static readonly Dictionary<char, float> CharWidth = new()
     {
         ['0'] = 22.25f,

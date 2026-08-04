@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
 namespace src.player.skills
 {
     /*
@@ -19,7 +20,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void OnTick()
@@ -61,13 +62,6 @@ namespace src.player.skills
             var bomb = PlayerManager.GetTickBomb();
             if (bomb != null && bomb.IsValid)
                 bomb.EntitySpottedState.SpottedByMask[0] |= (1u << (slot % 32));
-        }
-
-        public class SkillConfig : SkillsInfo.DefaultSkillInfo
-        {
-            public SkillConfig(Skills skill = skillName, bool active = true, string color = "#2effcb", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = utils.Rarity.Common) : base(skill, active, color, onlyTeam, needsTeammates)
-            {
-            }
         }
     }
 }

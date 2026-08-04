@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   TypeSkill: pick the victim.
      *   OnTick/CheckTransmit: applies the post-processing and exposure changes.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   postProcessing = "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost"
      *                      -> post-process effect file applied to the victim's
      *                         screen
@@ -44,14 +46,15 @@ namespace src.player.skills
     public class Nightmare : ISkill
     {
         private const Skills skillName = Skills.Nightmare;
+        private static NightmareOptions Options => SkillConfigurationResolver.Get<NightmareOptions>(BuiltInSkillIds.Nightmare);
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly ConcurrentDictionary<uint, uint> targetVolumes = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
-            HeroShift.Instance.AddToManifest(SkillsInfo.GetValue<string>(skillName, "postProcessing"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
+            HeroShift.Instance.AddToManifest(Options.PostProcessing);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -225,12 +228,12 @@ namespace src.player.skills
             try
             {
                 keys.SetString("targetname", $"Nightmare_{target.Index}");
-                keys.SetString("postprocessing", SkillsInfo.GetValue<string>(skillName, "postProcessing"));
+                keys.SetString("postprocessing", Options.PostProcessing);
                 keys.SetBool("master", true);
                 keys.SetBool("enableexposure", true);
-                keys.SetFloat("fadetime", SkillsInfo.GetValue<float>(skillName, "fadeTime"));
-                keys.SetFloat("minexposure", SkillsInfo.GetValue<float>(skillName, "minExposure"));
-                keys.SetFloat("maxexposure", SkillsInfo.GetValue<float>(skillName, "maxExposure"));
+                keys.SetFloat("fadetime", Options.FadeTime);
+                keys.SetFloat("minexposure", Options.MinExposure);
+                keys.SetFloat("maxexposure", Options.MaxExposure);
                 keys.SetFloat("exposurespeedup", 1f);
                 keys.SetFloat("exposurespeeddown", 1f);
                 keys.SetBool("startdisabled", false);
@@ -257,14 +260,6 @@ namespace src.player.skills
         {
             if (!targetVolumes.TryRemove(targetIndex, out uint volumeIndex)) return;
             EntityManager.DestroyEntity(volumeIndex);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5b2c6f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Rare, string postProcessing = "lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost", float fadeTime = .25f, float minExposure = .5f, float maxExposure = 2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public string PostProcessing { get; set; } = postProcessing;
-            public float FadeTime { get; set; } = fadeTime;
-            public float MinExposure { get; set; } = minExposure;
-            public float MaxExposure { get; set; } = maxExposure;
         }
     }
 }

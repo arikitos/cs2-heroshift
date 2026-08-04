@@ -5,6 +5,7 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
 namespace src.player.skills
 {
     /*
@@ -13,8 +14,8 @@ namespace src.player.skills
      * LOGIC
      *   TypeSkill: pick the victim; their skill is switched off.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *
      *   Shared settings:
      *   active       = true
@@ -36,7 +37,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -153,7 +154,7 @@ namespace src.player.skills
 
             if (enemyInfo != null)
             {
-                Instance.SkillAction(enemyInfo.Skill.ToString(), "DisableSkill", [enemy]);
+                Instance.InvokeDisableSkill(enemyInfo.Skill, enemy);
                 enemyInfo.SpecialSkill = enemyInfo.Skill;
                 enemyInfo.Skill = Skills.None;
 
@@ -162,10 +163,6 @@ namespace src.player.skills
 
                 enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("deactivator_enemy_info"));
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#919191", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
         }
     }
 }

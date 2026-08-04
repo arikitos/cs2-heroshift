@@ -5,6 +5,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   PlayerHurt: burn damage is converted into healing scaled by
      *     regenerationMultiplier.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   regenerationMultiplier = 1.5f
      *                              -> how much health fire gives you instead of
      *                                 damage (1.5 = 150%)
@@ -40,11 +42,12 @@ namespace src.player.skills
     public class Pyro : ISkill
     {
         private const Skills skillName = Skills.Pyro;
+        private static PyroOptions Options => SkillConfigurationResolver.Get<PyroOptions>(BuiltInSkillIds.Pyro);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
@@ -59,7 +62,7 @@ namespace src.player.skills
             if (victimInfo == null || victimInfo.Skill != skillName) return;
 
             var pawn = victim!.PlayerPawn.Value;
-            SkillUtils.AddHealth(pawn, (int)(damage * SkillsInfo.GetValue<float>(skillName, "regenerationMultiplier")));
+            SkillUtils.AddHealth(pawn, (int)(damage * Options.RegenerationMultiplier));
         }
 
         public static void GrenadeThrown(EventGrenadeThrown @event)
@@ -111,7 +114,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             var item = player.Team == CsTeam.CounterTerrorist ? CsItem.IncendiaryGrenade : CsItem.Molotov;
@@ -127,12 +130,6 @@ namespace src.player.skills
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.Molotov, 1);
             SkillUtils.UpdateGrenadeCount(player, CsItem.IncendiaryGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#3c47de", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float regenerationMultiplier = 1.5f, int grenadeLimit = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float RegenerationMultiplier { get; set; } = regenerationMultiplier;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

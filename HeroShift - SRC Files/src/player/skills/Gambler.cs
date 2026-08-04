@@ -5,6 +5,9 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.Configuration;
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -13,8 +16,8 @@ namespace src.player.skills
      * LOGIC
      *   TypeSkill: charges refreshPrice and gives you a new random skill.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   refreshPrice = 150
      *                    -> money charged for one skill re-roll
      *
@@ -36,9 +39,10 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Gambler;
 
+        private static GamblerOptions Options => SkillConfigurationResolver.Get<GamblerOptions>(BuiltInSkillIds.Gambler);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -84,7 +88,7 @@ namespace src.player.skills
                     playerInfo.SpecialSkill = skillName;
                 playerInfo.SkillUsed = true;
 
-                if (SkillsInfo.GetValue<bool>(skill.Skill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                if (SkillRuntime.GetMetadata(skill.Skill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                     Instance?.AddTimer(Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0), () =>
                     {
                         var player = Utilities.GetPlayerFromIndex((int)playerIndex);
@@ -92,10 +96,10 @@ namespace src.player.skills
 
                         var pi = PlayerManager.GetPlayerByIndex(playerIndex);
                         if (pi == null || pi.Skill != skill.Skill) return;
-                        Instance?.SkillAction(skill.Skill.ToString(), "EnableSkill", [player]);
+                        Instance?.InvokeEnableSkill(skill.Skill, player);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 else
-                    Instance?.SkillAction(skill.Skill.ToString(), "EnableSkill", [player]);
+                    Instance?.InvokeEnableSkill(skill.Skill, player);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
         }
 
@@ -103,7 +107,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid || player.InGameMoneyServices == null) return false;
             int account = player.InGameMoneyServices.Account;
-            int refreshPrice = SkillsInfo.GetValue<int>(skillName, "refreshPrice");
+            int refreshPrice = Options.RefreshPrice;
 
             int remainingMoney = account - refreshPrice;
             if (remainingMoney < 0)
@@ -130,7 +134,7 @@ namespace src.player.skills
 
             ConcurrentBag<(string, string)> menuItems = [(playerEvent.GetSkillName(firstSkill.Skill), firstSkill.Skill.ToString()),
                                                    (playerEvent.GetSkillName(secondSkill.Skill), secondSkill.Skill.ToString())];
-            SkillUtils.CreateMenu(player, menuItems, (playerEvent.GetTranslation("gambler_more", SkillsInfo.GetValue<int>(skillName, "refreshPrice")), skillName.ToString(), false));
+            SkillUtils.CreateMenu(player, menuItems, (playerEvent.GetTranslation("gambler_more", Options.RefreshPrice), skillName.ToString(), false));
         }
 
         public static void DisableSkill(CCSPlayerController player)
@@ -148,7 +152,7 @@ namespace src.player.skills
 
             if (PlayerManager.GetTickPlayers().FindAll(p => p.Team == player.Team && p.IsValid && !p.IsHLTV && p.Team != CsTeam.Spectator).Count == 1)
             {
-                SkillsInfo.DefaultSkillInfo[] skillsNeedsTeammates = SkillsInfo.LoadedConfig.Where(s => s.NeedsTeammates).ToArray();
+                EffectiveSkillConfiguration[] skillsNeedsTeammates = SkillRuntime.All.Where(s => s.NeedsTeammates).ToArray();
                 skillList.RemoveAll(s => skillsNeedsTeammates.Any(s2 => s2.Name == s.Skill.ToString()));
             }
 
@@ -158,11 +162,6 @@ namespace src.player.skills
                 skillList.RemoveAll(s => Event.terroristSkills.Any(s2 => s2.Name == s.Skill.ToString()));
 
             return skillList.Count == 0 ? [Event.noneSkill] : skillList;
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7eff47", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int refreshPrice = 150) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int RefreshPrice { get; set; } = refreshPrice;
         }
     }
 }

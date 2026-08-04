@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -16,8 +18,8 @@ namespace src.player.skills
      *   WeaponFire: traces up to maxDistance from your crosshair and applies the
      *     knife hit.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maxDistance  = 4096f
      *                    -> knife reach in game units (4096 = practically
      *                       map-wide)
@@ -42,6 +44,7 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.LongKnife;
 
+        private static LongKnifeOptions Options => SkillConfigurationResolver.Get<LongKnifeOptions>(BuiltInSkillIds.LongKnife);
         private static bool hooked = false;
         private const int actionCode = 503;
         private static readonly ConcurrentDictionary<uint, byte> playersInAction = [];
@@ -55,7 +58,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -135,7 +138,7 @@ namespace src.player.skills
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null)
                 return;
 
-            var result = RayTrace.EyeTrace(player);
+            var result = HeroShift.Instance.TraceService.EyeTrace(player);
             if (result == null || !result.HasValue)
                 return;
 
@@ -148,16 +151,10 @@ namespace src.player.skills
             if (target.PlayerPawn.Value == null || !target.PlayerPawn.Value.IsValid)
                 return;
 
-            if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player.Team == target.Team) return;
+            if (!Options.FriendlyFire && player.Team == target.Team) return;
 
             target.PlayerPawn.Value.EmitSound("Player.DamageBody.Onlooker");
             SkillUtils.TakeHealth(target.PlayerPawn.Value, heavyHit ? Instance.Random.Next(45, 55) : Instance.Random.Next(21, 34), player, killfeedIcon ?? KillfeedIcons.Knife);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#c9f8ff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float maxDistance = 4096f, bool friendlyFire = true) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MaxDistance { get; set; } = maxDistance;
-            public bool FriendlyFire { get; set; } = friendlyFire;
         }
     }
 }

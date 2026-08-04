@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -16,8 +18,8 @@ namespace src.player.skills
      *   BombPlanted: adds extraC4BlowTime to the countdown.
      *   OnTick: keeps the modified timer applied.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   extraC4BlowTime = 60
      *                       -> extra seconds added to the C4 countdown
      *
@@ -38,6 +40,7 @@ namespace src.player.skills
     public class Planter : ISkill
     {
         private const Skills skillName = Skills.Planter;
+        private static PlanterOptions Options => SkillConfigurationResolver.Get<PlanterOptions>(BuiltInSkillIds.Planter);
         private static readonly ConcurrentDictionary<uint, float> plantingPlayers = [];
         // mp_c4timer is an Int32 cvar; captured at load so restore never picks up another skill's override.
         private static int defaultC4Timer = 40;
@@ -45,7 +48,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
             defaultC4Timer = ConVar.Find("mp_c4timer")?.GetPrimitiveValue<int>() ?? 40;
         }
 
@@ -53,7 +56,7 @@ namespace src.player.skills
         {
             // At round start (not at plant) so the client HUD/alert countdown is right before the plant completes.
             c4TimerOverridden = true;
-            Server.ExecuteCommand($"mp_c4timer {SkillsInfo.GetValue<int>(skillName, "extraC4BlowTime")}");
+            Server.ExecuteCommand($"mp_c4timer {Options.ExtraC4BlowTime}");
         }
 
         public static void BombBeginplant(EventBombBeginplant @event)
@@ -86,11 +89,11 @@ namespace src.player.skills
                 Server.NextFrame(() =>
                 {
                     if (plantedBomb != null && plantedBomb.IsValid)
-                        plantedBomb.C4Blow = Server.CurrentTime + SkillsInfo.GetValue<int>(skillName, "extraC4BlowTime");
+                        plantedBomb.C4Blow = Server.CurrentTime + Options.ExtraC4BlowTime;
                 });
 
             foreach (var p in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
-                p.PrintToCenterAlert(p.GetTranslation("bombplanted", SkillsInfo.GetValue<int>(skillName, "extraC4BlowTime")));
+                p.PrintToCenterAlert(p.GetTranslation("bombplanted", Options.ExtraC4BlowTime));
         }
 
         public static void NewRound()
@@ -144,11 +147,6 @@ namespace src.player.skills
                     player.PrintToCenter(" ");
                 }
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7d7d7d", CsTeam onlyTeam = CsTeam.Terrorist, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, int extraC4BlowTime = 60) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int ExtraC4BlowTime { get; set; } = extraC4BlowTime;
         }
     }
 }

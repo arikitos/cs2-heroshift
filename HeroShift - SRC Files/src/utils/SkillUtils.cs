@@ -14,8 +14,8 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using WASDMenuAPI.Classes;
 using WASDSharedAPI;
+using src.Infrastructure.Menu;
 
 namespace src.utils
 {
@@ -52,7 +52,7 @@ namespace src.utils
      *
      *   CURSE LIMIT (the "pick an enemy" heroes)
      *     curseSkills is the list of heroes that target another player.
-     *     Config.CurseSkillPerPlayer caps how many may target the same victim;
+     *     general.CurseSkillPerPlayer caps how many may target the same victim;
      *     TryClaimCurse/ReleaseCurse/CanCurse enforce it.
      *
      *   MENUS (WASD menu integration)
@@ -95,7 +95,7 @@ namespace src.utils
         {
             if (!player.IsValid) return;
 
-            var config = Config.LoadedConfig.ChatMessage;
+            var config = ConfigurationStore.Settings.Chat;
             float maxWidth = config.MaxWidth;
             char symbol = config.LineSymbol;
             if (string.IsNullOrEmpty(title)) title = player.GetTranslation("HeroShift");
@@ -157,7 +157,7 @@ namespace src.utils
 
             var exists = player.PlayerPawn.Value.WeaponServices.MyWeapons
                 .FirstOrDefault(w => w != null && w.IsValid && w.Value != null && w.Value.IsValid && w.Value.DesignerName == itemString);
-            
+
             if (exists == null || !existValidator)
                 for (int i = 0; i < count; i++)
                     player.GiveNamedItem(item);
@@ -299,7 +299,7 @@ namespace src.utils
 
             skeleton.Scale = scale;
             playerPawn.AcceptInput("SetScale", null, null, scale.ToString(CultureInfo.InvariantCulture));
-            
+
             Server.NextWorldUpdate(() => {
                 if (playerPawn == null || !playerPawn.IsValid) return;
                 Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_CBodyComponent");
@@ -449,15 +449,15 @@ namespace src.utils
         private static readonly Dictionary<uint, uint> curserToVictim = [];
         private static readonly object curseLock = new();
 
-        private static readonly Config.GameModes[] sharedSkillModes =
-            [Config.GameModes.TeamSkills, Config.GameModes.SameSkills, Config.GameModes.Debug];
+        private static readonly GameMode[] sharedSkillModes =
+            [GameMode.TeamSkills, GameMode.SameSkills, GameMode.Debug];
 
         public static bool CurseLimitEnabled
         {
             get
             {
-                if (Config.LoadedConfig.CurseSkillPerPlayer is not int limit || limit <= 0) return false;
-                return Array.IndexOf(sharedSkillModes, (Config.GameModes)Config.LoadedConfig.GameMode) < 0;
+                if (ConfigurationStore.Settings.General.CurseSkillPerPlayer is not int limit || limit <= 0) return false;
+                return Array.IndexOf(sharedSkillModes, ConfigurationStore.Settings.General.GameMode) < 0;
             }
         }
 
@@ -479,7 +479,7 @@ namespace src.utils
         public static bool CanCurse(uint victimIndex)
         {
             if (!CurseLimitEnabled) return true;
-            int limit = Config.LoadedConfig.CurseSkillPerPlayer!.Value;
+            int limit = ConfigurationStore.Settings.General.CurseSkillPerPlayer!.Value;
 
             lock (curseLock)
                 return !curseCounts.TryGetValue(victimIndex, out int used) || used < limit;
@@ -488,7 +488,7 @@ namespace src.utils
         public static bool TryClaimCurse(uint curserIndex, uint victimIndex, bool force = false)
         {
             if (!CurseLimitEnabled) return true;
-            int limit = Config.LoadedConfig.CurseSkillPerPlayer!.Value;
+            int limit = ConfigurationStore.Settings.General.CurseSkillPerPlayer!.Value;
 
             lock (curseLock)
             {
@@ -677,7 +677,7 @@ namespace src.utils
 
         public static void ForceFullUpdate(CCSPlayerController player, List<(uint PlayerIndex, QAngle LastAngle)>? batchList = null, INetworkGameServer? networkGameServer = null)
         {
-            if (!Config.LoadedConfig.EnableFullForceUpdate) return;
+            if (!ConfigurationStore.Settings.General.EnableFullForceUpdate) return;
             if (player == null || !player.IsValid || player.IsBot) return;
 
             var pawn = player.PlayerPawn?.Value;
@@ -719,7 +719,7 @@ namespace src.utils
 
         public static void ForceFullUpdateToAll()
         {
-            if (!Config.LoadedConfig.EnableFullForceUpdate) return;
+            if (!ConfigurationStore.Settings.General.EnableFullForceUpdate) return;
 
             int tickCount = Server.TickCount;
             if (tickCount == lastForceFullUpdateAll) return;
@@ -837,32 +837,24 @@ namespace src.utils
             return designerName;
         }
 
-        private static IWasdMenuManager? GetMenuManager()
-        {
-            if (HeroShift.Instance.MenuManager == null)
-                HeroShift.Instance.MenuManager = new WasdManager();
-            return HeroShift.Instance.MenuManager;
-        }
+        private static IGameMenuService GetMenuService() => HeroShift.Instance.MenuService;
 
         public static void CloseMenu(CCSPlayerController? player)
         {
-            var manager = GetMenuManager();
-            if (manager == null) return;
-            manager.CloseMenu(player);
+            var menuService = GetMenuService();
+            menuService.CloseMenu(player);
         }
 
         public static bool HasMenu(CCSPlayerController? player)
         {
-            var manager = GetMenuManager();
-            if (manager == null) return false;
-            return manager.HasMenu(player);
+            var menuService = GetMenuService();
+            return menuService.HasMenu(player);
         }
 
         public static bool SetMenuPaused(CCSPlayerController? player, bool pause)
         {
-            var manager = GetMenuManager();
-            if (manager == null) return false;
-            return manager.SetMenuPaused(player, pause);
+            var menuService = GetMenuService();
+            return menuService.SetPaused(player, pause);
         }
 
         private static string GetInvisibleSignature(string id)
@@ -881,8 +873,7 @@ namespace src.utils
         {
             if (player == null) return;
 
-            var manager = GetMenuManager();
-            if (manager == null) return;
+            var menuService = GetMenuService();
 
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
@@ -900,12 +891,12 @@ namespace src.utils
 
                 list.TryAdd(uniqueKey, (p, option) =>
                 {
-                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { item.Item2 }]);
-                    manager.CloseMenu(p);
+                    HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [item.Item2]);
+                    menuService.CloseMenu(p);
                 });
             }
 
-            manager.UpdateActiveMenu(player, list);
+            menuService.UpdateActiveMenu(player, list);
         }
 
         public static void CreateMenu(CCSPlayerController? player, ConcurrentBag<(string, string)> enemies, (string, string, bool)? lastElement = null)
@@ -929,7 +920,7 @@ namespace src.utils
                 if (pool.Count > 0)
                 {
                     string randomTarget = pool[Random.Shared.Next(pool.Count)];
-                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [player, new[] { randomTarget }]);
+                    HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, player, [randomTarget]);
                 }
 
                 return;
@@ -938,10 +929,9 @@ namespace src.utils
             var skillData = SkillData.Skills.FirstOrDefault(s => s.Skill == playerInfo.Skill);
             if (skillData == null) return;
 
-            var manager = GetMenuManager();
-            if (manager == null) return;
+            var menuService = GetMenuService();
 
-            var config = Config.LoadedConfig.HtmlHudCustomisation;
+            var config = ConfigurationStore.Settings.Hud;
             var your_skill = player.GetTranslation("your_skill");
             var emptySymbol = $"<font class='fontSize-{(string.IsNullOrEmpty(your_skill) ? "l" : "ml")}'> </font>";
 
@@ -956,21 +946,21 @@ namespace src.utils
             var skill_select_info = player.GetTranslation($"{playerInfo.Skill.ToString().ToLowerInvariant()}_select_info");
             string remainingLine = string.IsNullOrWhiteSpace(skill_select_info)
                 ? ""
-                : $"<font class='fontSize-{config.WSADMenuSelectInfoLineSize}' color='{config.WSADMenuSelectInfoLineColor}'>{skill_select_info}</font><br>";
+                : $"<font class='fontSize-{config.WsadMenuSelectInfoLineSize}' color='{config.WsadMenuSelectInfoLineColor}'>{skill_select_info}</font><br>";
 
             var hudContent = infoLine + skillLine + remainingLine;
 
-            string controllsLine = 
-                $"{emptySymbol}<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor1}'>{player.GetTranslation($"menu_controlls_scroll")}</font>"
-                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor2}'>{player.GetTranslation($"menu_controlls_padding")}</font>"
-                + $"<font class='fontSize-{config.WSADMenuControllsLineSize}' color='{config.WSADMenuControllsLineColor3}'>{player.GetTranslation($"menu_controlls_select")}</font>{emptySymbol}";
+            string controllsLine =
+                $"{emptySymbol}<font class='fontSize-{config.WsadMenuControllsLineSize}' color='{config.WsadMenuControllsLineColor1}'>{player.GetTranslation($"menu_controlls_scroll")}</font>"
+                + $"<font class='fontSize-{config.WsadMenuControllsLineSize}' color='{config.WsadMenuControllsLineColor2}'>{player.GetTranslation($"menu_controlls_padding")}</font>"
+                + $"<font class='fontSize-{config.WsadMenuControllsLineSize}' color='{config.WsadMenuControllsLineColor3}'>{player.GetTranslation($"menu_controlls_select")}</font>{emptySymbol}";
 
-            string itemText = $"<font class='fontSize-{config.WSADMenuItemLineSize}' color='{config.WSADMenuItemLineColor}'>{{0}}</font><br>";
-            string itemHoverText = $"<font class='fontSize-{config.WSADMenuItemLineSize}'><font color='purple'>[ </font><font color='{config.WSADMenuItemHoverLineColor}'>{{0}}</font><font color='purple'> ]</font></font><br>";
+            string itemText = $"<font class='fontSize-{config.WsadMenuItemLineSize}' color='{config.WsadMenuItemLineColor}'>{{0}}</font><br>";
+            string itemHoverText = $"<font class='fontSize-{config.WsadMenuItemLineSize}'><font color='purple'>[ </font><font color='{config.WsadMenuItemHoverLineColor}'>{{0}}</font><font color='purple'> ]</font></font><br>";
 
             bool isIlliterate = Illiterate.CheckIlliterateSkill(player);
 
-            IWasdMenu menu = manager.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
+            IWasdMenu menu = menuService.CreateMenu(hudContent, itemText, itemHoverText, controllsLine);
             foreach (var enemy in enemies)
             {
                 string encodedEnemyName = isIlliterate
@@ -981,8 +971,8 @@ namespace src.utils
 
                 menu.Add(uniqueKey, (p, option) =>
                 {
-                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { enemy.Item2 }]);
-                    manager.CloseMenu(p);
+                    HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [enemy.Item2]);
+                    menuService.CloseMenu(p);
                 });
             }
 
@@ -994,13 +984,13 @@ namespace src.utils
 
                 menu.Add($"\u202A{encodedLastElement}\u202C", (p, option) =>
                 {
-                    HeroShift.Instance.SkillAction(playerInfo.Skill.ToString(), "TypeSkill", [p, new[] { lastElement.Value.Item2 }]);
+                    HeroShift.Instance.InvokeTypeSkill(playerInfo.Skill, p, [lastElement.Value.Item2]);
                     if (lastElement.Value.Item3)
-                        manager.CloseMenu(p);
+                        menuService.CloseMenu(p);
                 });
             }
 
-            manager.OpenMainMenu(player, menu);
+            menuService.OpenMainMenu(player, menu);
         }
 
         public static void SetTeamScores(short ctScore, short tScore, RoundEndReason roundEndReason)

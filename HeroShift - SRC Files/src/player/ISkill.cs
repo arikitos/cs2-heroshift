@@ -10,14 +10,13 @@ namespace src.player;
  *
  * HOW THE SKILL SYSTEM WORKS
  * Every skill lives in its own file under src/player/skills/<Name>.cs and is a
- * `public class <Name> : ISkill`. The methods below are NOT called through the
- * interface - they are all `static`, so the plugin finds and calls them by NAME
- * through reflection in HeroShift.SkillAction() ("src.player.skills.{Skill}" +
- * method name). That means:
- *   - A skill only implements the hooks it actually needs; the empty bodies here
- *     are the fallbacks, so an unimplemented hook simply does nothing.
- *   - The method signature in a skill file must match the one here EXACTLY,
- *     otherwise reflection will not find it and the hook silently never fires.
+ * `public class <Name> : ISkill`. The methods below are static gameplay hooks.
+ * BuiltInSkillCatalog registers the hooks explicitly against a stable SkillId,
+ * and SkillDispatcher invokes those typed delegates directly. That means:
+ *   - A skill only implements the hooks it actually needs; an unregistered hook
+ *     simply does nothing.
+ *   - The method signature in a skill file must match the typed SkillHookSet
+ *     delegate assigned by its canonical definition.
  *
  * LIFECYCLE OF A SKILL (typical round)
  *   LoadSkill()    - once at plugin load; registers the skill + its HUD color.
@@ -30,12 +29,10 @@ namespace src.player;
  *                    the next round.
  *
  * WHERE THE TUNABLE VALUES LIVE
- * Each skill file ends with a `SkillConfig` class whose constructor parameters
- * are the tunables (damage, duration, radius, chance, limits...). They are
- * serialized to configs/skillsInfo.json and read back at runtime with
- * SkillsInfo.GetValue<T>(skillName, "key"). So to rebalance a hero you edit
- * skillsInfo.json (or the default in the SkillConfig constructor) - never the
- * hook code.
+ * Every built-in skill has a canonical typed options record under src/Skills/BuiltIn.
+ * Code owns the defaults; configs/heroshift.json contains server-specific overrides.
+ * Gameplay code reads its typed options through SkillRuntime, without reflection or
+ * string property names.
  */
 public interface ISkill
 {
@@ -117,14 +114,10 @@ public interface ISkill
     public static void OnTriggerExit(CBaseTrigger _, CBaseEntity __) { }
     public static bool OnWeaponCanAcquire(DynamicHook _, CCSPlayerController __, CEconItemView ___, CCSWeaponBaseVData ____) { return false; }
 
-    // Base for the per-skill tunables class. Each skill shadows this with its
-    // own SkillConfig deriving from SkillsInfo.DefaultSkillInfo.
-    public class SkillConfig { }
 }
 
-// Master list of every hero in the plugin. The enum name MUST match the class
-// name in src/player/skills/ exactly - reflection builds the type name from it.
-// Adding a hero = new file + new entry here.
+// Legacy player-state identity retained for runtime compatibility. Canonical
+// registration and configuration identity live in BuiltInSkillCatalog/SkillId.
 
 public enum Skills
 {

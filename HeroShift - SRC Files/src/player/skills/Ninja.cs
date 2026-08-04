@@ -7,6 +7,8 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -17,8 +19,8 @@ namespace src.player.skills
      *   CheckTransmit/OnTick: sets your transparency from your current state.
      *   PlayerHurt: taking damage can reveal you.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   idlePercentInvisibility  = .3f
      *                                -> invisibility while standing still (0.3 =
      *                                   30%)
@@ -44,6 +46,7 @@ namespace src.player.skills
     public class Ninja : ISkill
     {
         private const Skills skillName = Skills.Ninja;
+        private static NinjaOptions Options => SkillConfigurationResolver.Get<NinjaOptions>(BuiltInSkillIds.Ninja);
         private static readonly ConcurrentDictionary<nint, float> invisibilityChanged = [];
         private static readonly ConcurrentDictionary<uint, byte> invisiblePlayers = [];
         private const string bloodParticle = "particles/blood_impact/blood_impact_high.vpcf";
@@ -52,7 +55,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
             Instance.AddToManifest(bloodParticle);
             Instance.AddToManifest(cameraViewModel);
         }
@@ -227,11 +230,11 @@ namespace src.player.skills
             float percentInvisibility = 0;
 
             if (buttons.HasFlag(PlayerButtons.Duck))
-                percentInvisibility += SkillsInfo.GetValue<float>(skillName, "duckPercentInvisibility");
+                percentInvisibility += Options.DuckPercentInvisibility;
             if (activeWeapon != null && (activeWeapon.DesignerName == "weapon_knife" || activeWeapon.DesignerName == "weapon_bayonet"))
-                percentInvisibility += SkillsInfo.GetValue<float>(skillName, "knifePercentInvisibility");
+                percentInvisibility += Options.KnifePercentInvisibility;
             if (!buttons.HasFlag(PlayerButtons.Moveleft) && !buttons.HasFlag(PlayerButtons.Moveright) && !buttons.HasFlag(PlayerButtons.Forward) && !buttons.HasFlag(PlayerButtons.Back) && flags.HasFlag(PlayerFlags.FL_ONGROUND))
-                percentInvisibility += SkillsInfo.GetValue<float>(skillName, "idlePercentInvisibility");
+                percentInvisibility += Options.IdlePercentInvisibility;
 
             if (invisibilityChanged.TryGetValue(playerEvent.Handle, out float oldInvisibility))
                 if (percentInvisibility == oldInvisibility)
@@ -263,13 +266,6 @@ namespace src.player.skills
             Vector pos = new(playerPawn.AbsOrigin.X, playerPawn.AbsOrigin.Y, playerPawn.AbsOrigin.Z + 50);
             particle.Teleport(pos);
             particle.AcceptInput("Start");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#dedede", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float idlePercentInvisibility = .3f, float duckPercentInvisibility = .3f, float knifePercentInvisibility = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float IdlePercentInvisibility { get; set; } = idlePercentInvisibility;
-            public float DuckPercentInvisibility { get; set; } = duckPercentInvisibility;
-            public float KnifePercentInvisibility { get; set; } = knifePercentInvisibility;
         }
     }
 }

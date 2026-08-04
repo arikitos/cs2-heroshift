@@ -5,6 +5,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   OnTick: applies slownessModifier for slownessTime seconds, then restores
      *     speed.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   slownessTime     = 2f
      *                        -> how long (seconds) the slow lasts
      *   slownessModifier = .2f
@@ -39,11 +41,12 @@ namespace src.player.skills
     public class Rubber : ISkill
     {
         private const Skills skillName = Skills.Rubber;
+        private static RubberOptions Options => SkillConfigurationResolver.Get<RubberOptions>(BuiltInSkillIds.Rubber);
         private static readonly ConcurrentDictionary<uint, float> playersToSlow = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -62,7 +65,7 @@ namespace src.player.skills
             var victimPawn = victim!.PlayerPawn.Value;
             if (victimPawn == null || !victimPawn.IsValid) return;
 
-            var rubberTime = SkillsInfo.GetValue<float>(skillName, "slownessTime");
+            var rubberTime = Options.SlownessTime;
             if (attackerInfo?.Skill == skillName)
                 playersToSlow.AddOrUpdate(victim.Index, Server.TickCount + (64 * rubberTime), (k, v) => Server.TickCount + (64 * rubberTime));
         }
@@ -91,13 +94,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid) return;
 
-            pawn.VelocityModifier = SkillsInfo.GetValue<float>(skillName, "slownessModifier");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8B4513", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float slownessTime = 2f, float slownessModifier = .2f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float SlownessTime { get; set; } = slownessTime;
-            public float SlownessModifier { get; set; } = slownessModifier;
+            pawn.VelocityModifier = Options.SlownessModifier;
         }
     }
 }

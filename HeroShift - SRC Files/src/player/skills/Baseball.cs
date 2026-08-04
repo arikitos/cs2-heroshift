@@ -6,6 +6,8 @@ using HeroShift.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -17,8 +19,8 @@ namespace src.player.skills
      *   OnTick: accelerates the decoy up to maxSpeed along its flight.
      *   PlayerHurt: a player struck by it takes damageDeal (9999 = instant kill).
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   speedMultipier = 2f
      *                      -> how strongly the decoy is accelerated each tick
      *   maxSpeed       = 900f
@@ -45,12 +47,13 @@ namespace src.player.skills
     public class Baseball : ISkill
     {
         private const Skills skillName = Skills.Baseball;
+        private static BaseballOptions Options => SkillConfigurationResolver.Get<BaseballOptions>(BuiltInSkillIds.Baseball);
         private static readonly ConcurrentDictionary<uint, byte> decoys = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -92,7 +95,7 @@ namespace src.player.skills
             var attackerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(attacker)?.Index ?? attacker.Index));
             if (attackerInfo?.Skill != skillName) return;
 
-            SkillUtils.TakeHealth(victim!.PlayerPawn.Value, SkillsInfo.GetValue<int>(skillName, "damageDeal"), attacker, KillfeedIcons.Decoy);
+            SkillUtils.TakeHealth(victim!.PlayerPawn.Value, Options.DamageDeal, attacker, KillfeedIcons.Decoy);
         }
 
         public static void OnEntitySpawned(CEntityInstance entity)
@@ -157,7 +160,7 @@ namespace src.player.skills
 
                 var vel = decoy.AbsVelocity;
                 float speed = vel.Length();
-                float targetSpeed = Math.Min(speed * SkillsInfo.GetValue<float>(skillName, "speedMultipier"), SkillsInfo.GetValue<float>(skillName, "maxSpeed"));
+                float targetSpeed = Math.Min(speed * Options.SpeedMultipier, Options.MaxSpeed);
 
                 if (speed > .01f)
                 {
@@ -216,7 +219,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.DecoyGrenade);
@@ -229,14 +232,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.DecoyGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#2effc7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float speedMultipier = 2f, float maxSpeed = 900f, int damageDeal = 9999, int grenadeLimit = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float SpeedMultipier { get; set; } = speedMultipier;
-            public float MaxSpeed { get; set; } = maxSpeed;
-            public float DamageDeal { get; set; } = damageDeal;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

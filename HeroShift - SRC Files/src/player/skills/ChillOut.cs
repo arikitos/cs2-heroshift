@@ -6,6 +6,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   BombBeginplant/BombPlanted: records the plant and delays the armed state.
      *   OnTick: counts down bombArmedTime before the C4 actually starts ticking.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   bombArmedTime = 10f
      *                     -> extra seconds before the planted C4 becomes armed
      *
@@ -37,11 +39,12 @@ namespace src.player.skills
     public class ChillOut : ISkill
     {
         private const Skills skillName = Skills.ChillOut;
+        private static ChillOutOptions Options => SkillConfigurationResolver.Get<ChillOutOptions>(BuiltInSkillIds.ChillOut);
         private static readonly ConcurrentDictionary<uint, float> plantingPlayers = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -77,7 +80,7 @@ namespace src.player.skills
             var bomb = PlayerManager.GetTickBomb();
             if (bomb == null || !bomb.IsValid) return;
 
-            bomb.ArmedTime = Server.CurrentTime + SkillsInfo.GetValue<float>(skillName, "bombArmedTime");
+            bomb.ArmedTime = Server.CurrentTime + Options.BombArmedTime;
         }
 
         private static bool IsAnyOwnerAlive()
@@ -107,7 +110,7 @@ namespace src.player.skills
             if (plantingPlayers.IsEmpty) return;
 
             float currentTime = Server.CurrentTime;
-            float extraTime = SkillsInfo.GetValue<float>(skillName, "bombArmedTime");
+            float extraTime = Options.BombArmedTime;
 
             foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.Team == CsTeam.Terrorist))
             {
@@ -129,11 +132,6 @@ namespace src.player.skills
                     playerInfo.PrintHTML = $"{player.GetTranslation("planter_planting", $"<font color='#00FF00'>{Math.Max(0, remaining):0.0}s</font>")}";
                 }
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#343deb", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, float bombArmedTime = 10f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float BombArmedTime { get; set; } = bombArmedTime;
         }
     }
 }

@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   OnEntitySpawned: turns the thrown grenade into a stationary mine.
      *   OnTick: detonates it when a player comes within detonationRange.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   detonationRange = 130
      *                       -> trigger distance for the mine (game units)
      *   grenadeLimit    = 3
@@ -38,12 +40,13 @@ namespace src.player.skills
     public class Miner : ISkill
     {
         private const Skills skillName = Skills.Miner;
+        private static MinerOptions Options => SkillConfigurationResolver.Get<MinerOptions>(BuiltInSkillIds.Miner);
         private readonly static ConcurrentDictionary<uint, byte> nades = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -55,7 +58,7 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (Server.TickCount % 10 != 0) return;
-            float detonationRange = SkillsInfo.GetValue<float>(skillName, "detonationRange");
+            float detonationRange = Options.DetonationRange;
             float currentTime = Server.CurrentTime;
 
             foreach (var index in nades.Keys.ToList())
@@ -133,7 +136,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.HEGrenade);
@@ -187,12 +190,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.HEGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#adf542", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float detonationRange = 130, int grenadeLimit = 3) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float DetonationRange { get; set; } = detonationRange;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

@@ -11,7 +11,7 @@ using static src.HeroShift;
 namespace src.player
 {
     /*
-     * Debug - the plugin's debug log, gated on Config.LoadedConfig.DebugMode.
+     * Debug - the plugin's debug log, gated on ConfigurationStore.Settings.General.DebugMode.
      *
      * Writes to <plugin>/logs/debug_<session timestamp>.txt. Load() picks a fresh
      * sessionId per load, so every map load / !reload starts a new file, and the
@@ -59,7 +59,7 @@ namespace src.player
             // Drop any writer from a previous session so the next line opens the new file.
             lock (_writeLock) { _writer?.Dispose(); _writer = null; }
 
-            if (Config.LoadedConfig.DebugMode != true)
+            if (ConfigurationStore.Settings.General.DebugMode != true)
                 return;
 
             Instance.RegisterEventHandler<EventPlayerConnectFull>((@event, info) =>
@@ -239,7 +239,7 @@ namespace src.player
         // matters because tick hooks and event handlers can both reach it.
         public static void WriteToDebug(string message)
         {
-            if (Config.LoadedConfig.DebugMode != true)
+            if (ConfigurationStore.Settings.General.DebugMode != true)
                 return;
 
             lock (_writeLock)

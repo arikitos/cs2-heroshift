@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *     (torso vs legs) and bounces the damage back.
      *   OnTick: applies the movement speed change while holding a knife.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   torseReflectionChance = .95f
      *                             -> reflect chance for hits on the torso (0.95 =
      *                                95%)
@@ -42,16 +44,17 @@ namespace src.player.skills
     public class BladeMaster : ISkill
     {
         private const Skills skillName = Skills.BladeMaster;
+        private static BladeMasterOptions Options => SkillConfigurationResolver.Get<BladeMasterOptions>(BuiltInSkillIds.BladeMaster);
         private static readonly string[] noReflectionWeapon = ["inferno", "flashbang", "smokegrenade", "decoy", "hegrenade", "knife", "taser", "bayonet"];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void OnTick()
         {
-            var modifier = SkillsInfo.GetValue<float>(skillName, "velocityModifier");
+            var modifier = Options.VelocityModifier;
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -93,8 +96,8 @@ namespace src.player.skills
             if (string.IsNullOrEmpty(weapon) || noReflectionWeapon.Contains(weapon)) return false;
 
             float chance = (hitgroup == (int)HitGroup_t.HITGROUP_LEFTLEG || hitgroup == (int)HitGroup_t.HITGROUP_RIGHTLEG)
-                ? SkillsInfo.GetValue<float>(skillName, "legReflectionChance")
-                : SkillsInfo.GetValue<float>(skillName, "torseReflectionChance");
+                ? Options.LegReflectionChance
+                : Options.TorseReflectionChance;
 
             var victimPawn = victim.PlayerPawn?.Value;
             if (victimPawn == null || !victimPawn.IsValid || Instance.Random.NextDouble() > chance)
@@ -113,13 +116,6 @@ namespace src.player.skills
 
             SkillUtils.RestoreHealth(victim);
             return true;
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#cc7504", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float torseReflectionChance = .95f, float legReflectionChance = .70f, float velocityModifier = .85f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float TorseReflectionChance { get; set; } = torseReflectionChance;
-            public float LegReflectionChance { get; set; } = legReflectionChance;
-            public float VelocityModifier { get; set; } = velocityModifier;
         }
     }
 }

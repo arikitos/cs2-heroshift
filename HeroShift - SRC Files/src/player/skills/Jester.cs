@@ -7,6 +7,8 @@ using System.Drawing;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -21,8 +23,8 @@ namespace src.player.skills
      *   BombBeginplant/BombBegindefuse: planting or defusing forces the mode off
      *     after 1 second, so you cannot do it while invulnerable.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   minTime = 10f
      *               -> shortest time (seconds) between mode switches
      *   maxTime = 25f
@@ -45,11 +47,12 @@ namespace src.player.skills
     public class Jester : ISkill
     {
         private const Skills skillName = Skills.Jester;
+        private static JesterOptions Options => SkillConfigurationResolver.Get<JesterOptions>(BuiltInSkillIds.Jester);
         private static readonly ConcurrentDictionary<uint, JesterInfo> jesters = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -176,8 +179,8 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            var minTime = SkillsInfo.GetValue<float>(skillName, "minTime");
-            var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
+            var minTime = Options.MinTime;
+            var maxTime = Options.MaxTime;
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
             uint playerIndex = player.Index;
@@ -232,8 +235,8 @@ namespace src.player.skills
                     playerEvent.ExecuteClientCommand("play sounds/weapons/taser/taser_charge_ready");
             }
 
-            var minTime = SkillsInfo.GetValue<float>(skillName, "minTime");
-            var maxTime = SkillsInfo.GetValue<float>(skillName, "maxTime");
+            var minTime = Options.MinTime;
+            var maxTime = Options.MaxTime;
             float wait = (float)Instance.Random.NextDouble() * (maxTime - minTime) + minTime;
 
             jester.Generation++;
@@ -305,12 +308,6 @@ namespace src.player.skills
             public bool Active { get; set; } = false;
             public int Generation { get; set; } = 0;
             public Timer? Timer { get; set; } = null;
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8f108f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float minTime = 10f, float maxTime = 25f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float MinTime { get; set; } = minTime;
-            public float MaxTime { get; set; } = maxTime;
         }
     }
 }

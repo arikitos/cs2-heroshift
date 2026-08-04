@@ -13,6 +13,8 @@ using System.Drawing;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -23,8 +25,8 @@ namespace src.player.skills
      *   OnTriggerEnter: a player it touches takes 'damage' (9999 = instant kill).
      *   CheckTransmit: controls who can see the flying knife.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   friendlyFire = false
      *                    -> true = the thrown knife can also kill teammates
      *   damage       = 9999
@@ -47,11 +49,12 @@ namespace src.player.skills
     public class ThrowingKnife : ISkill
     {
         private const Skills skillName = Skills.ThrowingKnife;
+        private static ThrowingKnifeOptions Options => SkillConfigurationResolver.Get<ThrowingKnifeOptions>(BuiltInSkillIds.ThrowingKnife);
         private readonly static ConcurrentDictionary<uint, KnifeInfo> knivesInfo = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         private static bool roundEnded;
@@ -381,7 +384,7 @@ namespace src.player.skills
 
                 var victimController = victimPawn.Controller.Value?.As<CCSPlayerController>();
 
-                bool friendlyFire = SkillsInfo.GetValue<bool>(skillName, "friendlyFire");
+                bool friendlyFire = Options.FriendlyFire;
                 if (!friendlyFire)
                 {
                     if (thrower.TeamNum == victimPawn.TeamNum) return;
@@ -390,7 +393,7 @@ namespace src.player.skills
 
                 if (CheckHasKnife(thrower!)) return;
 
-                SkillUtils.TakeHealth(victimPawn, SkillsInfo.GetValue<int>(skillName, "damage"), thrower, KillfeedIcons.Knife);
+                SkillUtils.TakeHealth(victimPawn, Options.Damage, thrower, KillfeedIcons.Knife);
             }
         }
 
@@ -485,12 +488,6 @@ namespace src.player.skills
             public bool IsDropped { get; set; } = false;
             public QAngle? InitialLook { get; set; } = null;
             public Timer? Timer { get; set; } = null;
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#8f108f", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, bool friendlyFire = false, int damage = 9999) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public bool FriendlyFire { get; set; } = friendlyFire;
-            public int Damage { get; set; } = damage;
         }
     }
 }

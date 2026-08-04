@@ -1,6 +1,9 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
+using src.SkillsCore.BuiltIn;
 using src.utils;
 using static src.HeroShift;
 
@@ -12,8 +15,8 @@ namespace src.player.skills
      * LOGIC
      *   PlayerHurt: adds a share of the damage dealt back to your own health.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   healthRegainScale = .3f
      *                         -> share of damage dealt returned as health (0.3 =
      *                            30%)
@@ -36,9 +39,10 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Dracula;
 
+        private static DraculaOptions Options => SkillConfigurationResolver.Get<DraculaOptions>(BuiltInSkillIds.Dracula);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
@@ -77,7 +81,8 @@ namespace src.player.skills
 
             if (attackerPawn.LifeState != (byte)LifeState_t.LIFE_ALIVE || attackerPawn.Health <= 0) return;
 
-            int extraHealth = (int)(damage * SkillsInfo.GetValue<float>(skillName, "healthRegainScale"));
+            var draculaOptions = Options;
+            int extraHealth = (int)(damage * draculaOptions.HealthRegainScale);
             if (extraHealth <= 0) return;
 
             attackerPawn.Health += extraHealth;
@@ -88,11 +93,6 @@ namespace src.player.skills
                 attackerPawn.MaxHealth = attackerPawn.Health;
                 Utilities.SetStateChanged(attackerPawn, "CBaseEntity", "m_iMaxHealth");
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#FA050D", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float healthRegainScale = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float HealthRegainScale { get; set; } = healthRegainScale;
         }
     }
 }

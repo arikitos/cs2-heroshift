@@ -5,6 +5,8 @@ using HeroShift.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   OnTick: every 'cooldown' seconds removes 'damage' health, but never below
      *     minHealth.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown  = .85f
      *                 -> seconds between each poison tick
      *   damage    = 1
@@ -41,6 +43,7 @@ namespace src.player.skills
     public class Poison : ISkill
     {
         private const Skills skillName = Skills.Poison;
+        private static PoisonOptions Options => SkillConfigurationResolver.Get<PoisonOptions>(BuiltInSkillIds.Poison);
         private static readonly ConcurrentDictionary<uint, byte> poisonedPlayers = [];
         private static readonly ConcurrentDictionary<uint, uint> playersToTarget = [];
         private static readonly ConcurrentDictionary<uint, uint> targetToPlayer = [];
@@ -48,7 +51,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void PlayerDisconnect(uint playerIndex)
@@ -79,7 +82,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int cooldown = Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "Cooldown")));
+            int cooldown = Math.Max(1, (int)(64 * Options.Cooldown));
 
             if (Server.TickCount % cooldown == 0)
             {
@@ -95,9 +98,9 @@ namespace src.player.skills
 
                     if (Jester.IsActiveJester(playerIndex)) continue;
 
-                    if (pawn.Health <= SkillsInfo.GetValue<int>(skillName, "MinHealth")) continue;
+                    if (pawn.Health <= Options.MinHealth) continue;
 
-                    SkillUtils.TakeHealth(pawn, SkillsInfo.GetValue<int>(skillName, "Damage"), GetSkillOwner(playerIndex), KillfeedIcons.Spray);
+                    SkillUtils.TakeHealth(pawn, Options.Damage, GetSkillOwner(playerIndex), KillfeedIcons.Spray);
 
                     if (Server.TickCount % cooldown2 == 0)
                         PlayerManager.GetPlayerFromEvent(player)?.ExecuteClientCommand($"play player/player_damagebody_0{HeroShift.Instance.Random.Next(4, 8)}");
@@ -215,13 +218,6 @@ namespace src.player.skills
             targetToPlayer.TryRemove(player.Index, out _);
 
             SkillUtils.CloseMenu(player);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#902eff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = .85f, int damage = 1, int minHealth = 30) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int Damage { get; set; } = damage;
-            public float Cooldown { get; set; } = cooldown;
-            public int MinHealth { get; set; } = minHealth;
         }
     }
 }

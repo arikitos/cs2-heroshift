@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   OnTick: every tickCooldown ticks, heals players within smokeRadius by
      *     smokeHeal.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   smokeHeal    = 1
      *                    -> health restored per heal tick
      *   smokeRadius  = 180
@@ -44,12 +46,13 @@ namespace src.player.skills
     public class HealingSmoke : ISkill
     {
         private const Skills skillName = Skills.HealingSmoke;
+        private static HealingSmokeOptions Options => SkillConfigurationResolver.Get<HealingSmokeOptions>(BuiltInSkillIds.HealingSmoke);
         private static readonly ConcurrentDictionary<Vector, byte> smokes = [];
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -109,11 +112,11 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            int tick = Math.Max(1, SkillsInfo.GetValue<int>(skillName, "tickCooldown"));
+            int tick = Math.Max(1, Options.TickCooldown);
             if (Server.TickCount % tick != 0) return;
 
-            float smokeRadius = SkillsInfo.GetValue<float>(skillName, "smokeRadius");
-            int smokeHeal = SkillsInfo.GetValue<int>(skillName, "smokeHeal");
+            float smokeRadius = Options.SmokeRadius;
+            int smokeHeal = Options.SmokeHeal;
 
             foreach (Vector smokePos in smokes.Keys)
                 foreach (var player in PlayerManager.GetTickPlayers().Where(p => p.IsValid))
@@ -175,7 +178,7 @@ namespace src.player.skills
         {
             if (player == null || !player.IsValid) return;
 
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
             playersWithSkill.TryAdd(player.Index, grenadeLimit);
 
             SkillUtils.TryGiveWeapon(player, CsItem.SmokeGrenade);
@@ -188,14 +191,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.SmokeGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#1fe070", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int smokeHeal = 1, float smokeRadius = 180, int tickCooldown = 16, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int SmokeHeal { get; set; } = smokeHeal;
-            public float SmokeRadius { get; set; } = smokeRadius;
-            public int TickCooldown { get; set; } = tickCooldown;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

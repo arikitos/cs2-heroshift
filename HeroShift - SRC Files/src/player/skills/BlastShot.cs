@@ -9,6 +9,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -19,8 +21,8 @@ namespace src.player.skills
      *   OnTick/OnEntitySpawned: tracks the projectile and triggers the explosion.
      *   OnTakeDamage: applies explosionDamage falling off inside explosionRadius.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   explosionRadius         = 400.0f
      *                               -> blast radius in game units
      *   explosionDamage         = 60
@@ -51,6 +53,7 @@ namespace src.player.skills
     public class BlastShot : ISkill
     {
         private const Skills skillName = Skills.BlastShot;
+        private static BlastShotOptions Options => SkillConfigurationResolver.Get<BlastShotOptions>(BuiltInSkillIds.BlastShot);
         private static readonly QAngle angle = new(13, -5, 5);
         private static readonly ConcurrentDictionary<int, (byte Team, uint Owner)> nades = [];
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
@@ -58,7 +61,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -86,7 +89,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            float cooldown = SkillsInfo.GetValue<float>(skillName, "cooldown");
+            float cooldown = Options.Cooldown;
 
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -143,7 +146,7 @@ namespace src.player.skills
             var pawn = player.PlayerPawn.Value;
             if (pawn == null || !pawn.IsValid || pawn.AbsOrigin == null) return;
 
-            float force = SkillsInfo.GetValue<float>(skillName, "force");
+            float force = Options.Force;
 
             Vector pos = new(pawn.AbsOrigin.X, pawn.AbsOrigin.Y, pawn.AbsOrigin.Z + pawn.ViewOffset.Z);
             Vector vel = SkillUtils.GetForwardVector(pawn.EyeAngles) * force;
@@ -168,8 +171,8 @@ namespace src.player.skills
                     return;
 
                 heProjectile.TicksAtZeroVelocity = 100;
-                heProjectile.Damage = SkillsInfo.GetValue<int>(skillName, "explosionDamage");
-                heProjectile.DmgRadius = SkillsInfo.GetValue<float>(skillName, "explosionRadius");
+                heProjectile.Damage = Options.ExplosionDamage;
+                heProjectile.DmgRadius = Options.ExplosionRadius;
 
                 if (nades.TryRemove(lastTick, out var source))
                     heProjectile.Globalname = $"deathbomb_team_{source.Team}_{source.Owner}_{heProjectile.Index}";
@@ -207,7 +210,7 @@ namespace src.player.skills
 
             if (victimPawn.TeamNum == nadeTeam)
             {
-                float reduction = SkillsInfo.GetValue<float>(skillName, "dmgReductionForTeamates");
+                float reduction = Options.DmgReductionForTeamates;
                 param2.Damage *= 1f - Math.Clamp(reduction, 0f, 1f);
 
                 if (IsFriendlyFireOff())
@@ -240,15 +243,6 @@ namespace src.player.skills
             public ulong SteamID { get; set; }
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#7740c9", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float explosionRadius = 400.0f, int explosionDamage = 60, float dmgReductionForTeamates = 0.5f, float cooldown = 10f, float force = 1000f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float ExplosionRadius { get; set; } = explosionRadius;
-            public int ExplosionDamage { get; set; } = explosionDamage;
-            public float DmgReductionForTeamates { get; set; } = dmgReductionForTeamates;
-            public float Cooldown { get; set; } = cooldown;
-            public float Force { get; set; } = force;
         }
     }
 }

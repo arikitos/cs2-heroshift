@@ -3,6 +3,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using HeroShift.src.utils;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *     applied to the attacker with the armor kill-feed icon. Self-damage is
      *     ignored (attacker index == victim index).
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   healthTakenScale      = .3f
      *                             -> share of the damage reflected back (0.3 =
      *                                30%)
@@ -40,9 +42,10 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Thorns;
 
+        private static ThornsOptions Options => SkillConfigurationResolver.Get<ThornsOptions>(BuiltInSkillIds.Thorns);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerHurt(EventPlayerHurt @event)
@@ -67,18 +70,12 @@ namespace src.player.skills
             var victimInfo = PlayerManager.GetPlayerByIndex(victimEvent!.Index);
             if (victimInfo?.Skill == skillName)
             {
-                int damage = (int)(@event.DmgHealth * SkillsInfo.GetValue<float>(skillName, "healthTakenScale"));
-                damage = Math.Min(damage, SkillsInfo.GetValue<int>(skillName, "maxTakenDamagePerShot"));
+                int damage = (int)(@event.DmgHealth * Options.HealthTakenScale);
+                damage = Math.Min(damage, Options.MaxTakenDamagePerShot);
 
                 SkillUtils.TakeHealth(attackerEvent.PlayerPawn.Value, damage, victimEvent, KillfeedIcons.Armor);
                 attackerEvent.EmitSound("Player.DamageBody.Onlooker");
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#962631", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float healthTakenScale = .3f, int maxTakenDamagePerShot = 37) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float HealthTakenScale { get; set; } = healthTakenScale;
-            public int MaxTakenDamagePerShot { get; set; } = maxTakenDamagePerShot;
         }
     }
 }

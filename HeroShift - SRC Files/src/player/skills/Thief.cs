@@ -5,6 +5,7 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
 namespace src.player.skills
 {
     /*
@@ -14,8 +15,8 @@ namespace src.player.skills
      *   TypeSkill: pick the victim to steal from.
      *   OnTick: drives the selection menu.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *
      *   Shared settings:
      *   active       = true
@@ -37,7 +38,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"), false);
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color, false);
         }
 
         public static void OnTick()
@@ -180,7 +181,7 @@ namespace src.player.skills
                     if (playerEvent == null || !playerEvent.IsValid) return;
 
                     if (!player.IsBot)
-                        Instance.SkillAction(skillName.ToString(), "EnableSkill", [p]);
+                        Instance.InvokeEnableSkill(skillName, p);
 
                     playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("thief_incorrect_skill", e.PlayerName));
                 }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
@@ -206,11 +207,11 @@ namespace src.player.skills
                 pInfo.SpecialSkill = skillName;
 
                 SkillUtils.CloseMenu(p);
-                Instance.SkillAction(enemySkill.ToString(), "EnableSkill", [p]);
+                Instance.InvokeEnableSkill(enemySkill, p);
 
                 playerEvent.PrintToChat($" {ChatColors.Green}" + playerEvent.GetTranslation("thief_player_info", e.PlayerName));
 
-                if (SkillsInfo.GetValue<bool>(enemySkill, "disableOnFreezeTime") && SkillUtils.IsFreezeTime())
+                if (SkillRuntime.GetMetadata(enemySkill).DisableOnFreezeTime && SkillUtils.IsFreezeTime())
                 {
                     float delay = Math.Max((float)(Event.GetFreezeTimeEnd() - DateTime.Now).TotalSeconds, 0);
                     Instance?.AddTimer(delay, () =>
@@ -220,11 +221,11 @@ namespace src.player.skills
 
                         var info = PlayerManager.GetPlayerByIndex(player!.Index);
                         if (info?.Skill == enemySkill)
-                            Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [player]);
+                            Instance?.InvokeEnableSkill(enemySkill, player);
                     }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
                 }
                 else
-                    Instance?.SkillAction(enemySkill.ToString(), "EnableSkill", [p]);
+                    Instance?.InvokeEnableSkill(enemySkill, p);
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
 
             Instance.AddTimer(.1f, () =>
@@ -238,16 +239,12 @@ namespace src.player.skills
                 var enemyEvent = PlayerManager.GetPlayerFromEvent(e);
                 if (enemyEvent == null || !enemyEvent.IsValid) return;
 
-                Instance.SkillAction(enemySkill.ToString(), "DisableSkill", [e]);
+                Instance.InvokeDisableSkill(enemySkill, e);
 
                 eInfo.SpecialSkill = enemySkill;
                 eInfo.Skill = Skills.None;
                 enemyEvent.PrintToChat($" {ChatColors.Red}" + enemyEvent.GetTranslation("thief_enemy_info"));
             }, CounterStrikeSharp.API.Modules.Timers.TimerFlags.STOP_ON_MAPCHANGE);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#adaec7", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
         }
     }
 }

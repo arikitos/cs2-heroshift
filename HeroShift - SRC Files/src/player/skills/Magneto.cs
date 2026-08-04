@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -12,8 +14,8 @@ namespace src.player.skills
      * LOGIC
      *   OnEntitySpawned/OnTick: pulls pickups within 'radius' toward you.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   radius = 100
      *              -> pickup attraction radius in game units
      *
@@ -34,12 +36,13 @@ namespace src.player.skills
     public class Magneto : ISkill
     {
         private const Skills skillName = Skills.Magneto;
+        private static MagnetoOptions Options => SkillConfigurationResolver.Get<MagnetoOptions>(BuiltInSkillIds.Magneto);
         private readonly static ConcurrentDictionary<uint, byte> nades = [];
         private readonly static ConcurrentDictionary<uint, byte> players = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -51,7 +54,7 @@ namespace src.player.skills
         public static void OnTick()
         {
             if (Server.TickCount % 5 != 0) return;
-            float radius = SkillsInfo.GetValue<float>(skillName, "radius");
+            float radius = Options.Radius;
 
             foreach (var nadeIndex in nades.Keys)
             {
@@ -102,11 +105,6 @@ namespace src.player.skills
         public static void DisableSkill(CCSPlayerController player)
         {
             players.TryRemove(player.Index, out _);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#f081ec", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float radius = 100) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Radius { get; set; } = radius;
         }
     }
 }

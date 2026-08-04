@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -13,8 +15,8 @@ namespace src.player.skills
      * LOGIC
      *   OnTakeDamage: allows team damage and scales it by healthDamageMultiplier.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   healthDamageMultiplier = .3f
      *                              -> multiplier applied to friendly-fire damage
      *                                 (0.3 = 30%)
@@ -36,12 +38,13 @@ namespace src.player.skills
     public class FriendlyFire : ISkill
     {
         private const Skills skillName = Skills.FriendlyFire;
+        private static FriendlyFireOptions Options => SkillConfigurationResolver.Get<FriendlyFireOptions>(BuiltInSkillIds.FriendlyFire);
         private static bool defaultAutoKick = true;
         private static bool autoKickOverridden;
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
 
             try { defaultAutoKick = ConVar.Find("mp_autokick")?.GetPrimitiveValue<bool>() ?? true; }
             catch { defaultAutoKick = true; }
@@ -104,14 +107,9 @@ namespace src.player.skills
 
             SkillUtils.AddHealth(
                 victimPawn,
-                (int)(damage * SkillsInfo.GetValue<float>(skillName, "healthDamageMultiplier")),
+                (int)(damage * Options.HealthDamageMultiplier),
                 victimPawn.MaxHealth
             );
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff0000", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = true, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float healthDamageMultiplier = .3f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float HealthDamageMultiplier { get; set; } = healthDamageMultiplier;
         }
     }
 }

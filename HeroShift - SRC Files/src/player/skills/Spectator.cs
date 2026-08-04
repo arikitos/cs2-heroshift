@@ -6,6 +6,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   UseSkill: moves the view out to 'distance' units.
      *   OnTick: keeps the camera positioned; useCooldown limits toggling.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   distance    = 100f
      *                   -> how far the camera is placed from you (game units)
      *   useCooldown = .5f
@@ -39,13 +41,14 @@ namespace src.player.skills
     public class Spectator : ISkill
     {
         private const Skills skillName = Skills.Spectator;
+        private static SpectatorOptions Options => SkillConfigurationResolver.Get<SpectatorOptions>(BuiltInSkillIds.Spectator);
         private const string cameraViewModel = "models/sprays/spray_plane.vmdl";
         private static readonly ConcurrentDictionary<uint, (uint, uint, uint)> cameras = [];
         private static readonly ConcurrentDictionary<uint, DateTime> lastUse = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
             Instance.AddToManifest(cameraViewModel);
         }
 
@@ -84,7 +87,7 @@ namespace src.player.skills
             var playerPawn = player.PlayerPawn.Value;
             if (playerPawn?.CBodyComponent == null) return;
 
-            float cooldown = SkillsInfo.GetValue<float>(skillName, "useCooldown");
+            float cooldown = Options.UseCooldown;
             if (lastUse.TryGetValue(player.Index, out var last) && (DateTime.Now - last).TotalSeconds < cooldown) return;
             lastUse[player.Index] = DateTime.Now;
 
@@ -201,7 +204,7 @@ namespace src.player.skills
 
             QAngle angle = new(0, pawn.EyeAngles.Y, 0);
 
-            var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(angle) * SkillsInfo.GetValue<float>(skillName, "distance");
+            var pos = pawn.AbsOrigin - SkillUtils.GetForwardVector(angle) * Options.Distance;
             pos.Z += pawn.ViewOffset.Z;
 
             Server.NextFrame(() =>
@@ -253,12 +256,6 @@ namespace src.player.skills
                     Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextPrimaryAttackTick");
                     Utilities.SetStateChanged(weapon.Value, "CBasePlayerWeapon", "m_nNextSecondaryAttackTick");
                 }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42f5da", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float distance = 100f, float useCooldown = .5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Distance { get; set; } = distance;
-            public float UseCooldown { get; set; } = useCooldown;
         }
     }
 }

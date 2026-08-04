@@ -2,6 +2,9 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities.Constants;
 using CounterStrikeSharp.API.Modules.Utils;
+using src.SkillsCore;
+using src.SkillsCore.Abstractions;
+using src.SkillsCore.BuiltIn;
 using src.utils;
 using System.Collections.Concurrent;
 
@@ -16,8 +19,8 @@ namespace src.player.skills
      *   GrenadeThrown/WeaponEquip/WeaponPickup: keeps the extra flashbang count
      *     in the HUD.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   flashDuration = 7f
      *                     -> max blind seconds you can suffer; above this you are
      *                        protected
@@ -41,11 +44,12 @@ namespace src.player.skills
     public class AntyFlash : ISkill
     {
         private const Skills skillName = Skills.AntyFlash;
+        private static AntyFlashOptions Options => SkillConfigurationResolver.Get<AntyFlashOptions>(BuiltInSkillIds.AntyFlash);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerBlind(EventPlayerBlind @event)
@@ -68,7 +72,7 @@ namespace src.player.skills
             {
                 var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
                 if (attackerInfo?.Skill == skillName)
-                    playerPawn.FlashDuration = SkillsInfo.GetValue<float>(skillName, "flashDuration");
+                    playerPawn.FlashDuration = Options.FlashDuration;
             }
         }
 
@@ -118,7 +122,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int flashbangLimit = ConVar.Find("ammo_grenade_limit_flashbang")?.GetPrimitiveValue<int>() ?? 2;
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
 
             if (grenadeLimit > flashbangLimit)
             {
@@ -136,12 +140,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.FlashbangGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#D6E6FF", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float flashDuration = 7f, int grenadeLimit = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float FlashDuration { get; set; } = flashDuration;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

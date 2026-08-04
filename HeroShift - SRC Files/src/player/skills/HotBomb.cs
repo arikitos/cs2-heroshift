@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using System.Drawing;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -16,8 +18,8 @@ namespace src.player.skills
      *   OnTick: every 'cooldown' seconds, the bomb carrier loses 'damage' health.
      *   WeaponPickup/PlayerDeath: tracks who is currently holding the bomb.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown = 1
      *                -> seconds between each damage tick while carrying the bomb
      *   damage   = 2
@@ -40,20 +42,21 @@ namespace src.player.skills
     public class HotBomb : ISkill
     {
         private const Skills skillName = Skills.HotBomb;
+        private static HotBombOptions Options => SkillConfigurationResolver.Get<HotBombOptions>(BuiltInSkillIds.HotBomb);
         private readonly static ConcurrentDictionary<uint, byte> players = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void OnTick()
         {
-            int cooldown = Math.Max(1, (int)(SkillsInfo.GetValue<float>(skillName, "cooldown") * 64));
+            int cooldown = Math.Max(1, (int)(Options.Cooldown * 64));
             if (Server.TickCount % cooldown != 0) return;
 
             if (players.IsEmpty || HeroShift.Instance.GameRules?.FreezePeriod == true) return;
-            int damage = SkillsInfo.GetValue<int>(skillName, "damage");
+            int damage = Options.Damage;
 
             var owner = GetSkillOwner();
 
@@ -147,12 +150,6 @@ namespace src.player.skills
                 foreach (var enemy in PlayerManager.GetTickPlayers().Where(p => p.IsValid && p.Team == CsTeam.Terrorist && p.PlayerPawn?.Value?.Health > 0))
                     enemy.PrintToCenterAlert(enemy.GetTranslation("hotbomb_disable_info"));
             }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#baf081", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, float cooldown = 1, int damage = 2) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public int Damage { get; set; } = damage;
         }
     }
 }

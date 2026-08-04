@@ -9,6 +9,8 @@ using System.Collections.Concurrent;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -20,8 +22,8 @@ namespace src.player.skills
      *     lives.
      *   OnTakeDamage: shooting the clone hurts the shooter.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown        = 30f
      *                       -> seconds before the skill can be used again
      *   durationRun     = 5
@@ -52,6 +54,7 @@ namespace src.player.skills
     public class Illusionist : ISkill
     {
         private const Skills skillName = Skills.Illusionist;
+        private static IllusionistOptions Options => SkillConfigurationResolver.Get<IllusionistOptions>(BuiltInSkillIds.Illusionist);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<int, Timer> ActiveTimers = [];
         private static readonly ConcurrentDictionary<uint, byte> consumedReplicas = [];
@@ -59,7 +62,7 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -119,7 +122,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -209,7 +212,7 @@ namespace src.player.skills
                 ActiveTimers.TryAdd(replicaIndex, moveTimer);
             }, TimerFlags.STOP_ON_MAPCHANGE);
 
-            float duration = SkillsInfo.GetValue<float>(skillName, ducking ? "durationCrouch" : "durationRun");
+            float duration = ducking ? Options.DurationCrouch : Options.DurationRun;
             Instance.AddTimer(duration, () =>
             {
                 if (replica != null && replica.IsValid)
@@ -248,7 +251,7 @@ namespace src.player.skills
             var attackerTeam = attackerPawn.TeamNum;
             var replicaTeam = replica.Globalname.EndsWith("CT") ? 3 : 2;
 
-            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? SkillsInfo.GetValue<int>(skillName, "EnemyTeamDamage") : SkillsInfo.GetValue<int>(skillName, "YourTeamDamage"), owner, KillfeedIcons.Player);
+            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? Options.EnemyTeamDamage : Options.YourTeamDamage, owner, KillfeedIcons.Player);
         }
 
         private static CCSPlayerController? GetReplicaOwner(uint replicaIndex)
@@ -265,15 +268,6 @@ namespace src.player.skills
             public ulong SteamID { get; set; }
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#42f5ef", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 30f, float durationRun = 5, float durationCrouch = 12, int yourTeamDamage = 10, int enemyTeamDamage = 20) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float DurationRun { get; set; } = durationRun;
-            public float DurationCrouch { get; set; } = durationCrouch;
-            public int YourTeamDamage { get; set; } = yourTeamDamage;
-            public int EnemyTeamDamage { get; set; } = enemyTeamDamage;
         }
     }
 }

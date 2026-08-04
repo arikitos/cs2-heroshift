@@ -1,10 +1,5 @@
 name: Release
 
-# Triggered by release.ps1 (git push origin <tag>), or manually for re-running a
-# release build without re-tagging. Builds the plugin, packages the server files
-# the same way release.ps1 does locally, and publishes a GitHub Release with the
-# zip attached.
-
 on:
   push:
     tags:
@@ -21,50 +16,56 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest
+    timeout-minutes: 30
+
     steps:
       - name: Determine tag
         id: vars
         shell: pwsh
         run: |
           $tag = "${{ github.event.inputs.tag }}"
-          if ([string]::IsNullOrEmpty($tag)) { $tag = "${{ github.ref_name }}" }
+          if ([string]::IsNullOrWhiteSpace($tag)) { $tag = "${{ github.ref_name }}" }
+          if ($tag -notmatch '^v\d+\.\d+\.\d+$') { throw "Invalid release tag: $tag" }
           "tag=$tag" >> $env:GITHUB_OUTPUT
+          "version=$($tag.Substring(1))" >> $env:GITHUB_OUTPUT
 
       - name: Checkout ${{ steps.vars.outputs.tag }}
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.vars.outputs.tag }}
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "10.0.x"
+          dotnet-version: 10.0.x
 
-      - name: Build (Release)
-        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release
+      - name: Restore
+        run: dotnet restore "HeroShift - SRC Files/HeroShift.sln"
 
-      - name: Package server files
-        id: package
+      - name: Test
+        run: dotnet test "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Build
+        run: dotnet build "HeroShift - SRC Files/HeroShift.sln" -c Release --no-restore
+
+      - name: Package
         shell: pwsh
-        run: |
-          $tag = "${{ steps.vars.outputs.tag }}"
-          $zipPath = "HeroShift-$tag.zip"
+        run: ./scripts/package.ps1 -Configuration Release -Version '${{ steps.vars.outputs.tag }}' -OutputDirectory artifacts -NoBuild
 
-          # Stage a copy so debug symbols can be excluded without disturbing the build output.
-          $staging = Join-Path $env:RUNNER_TEMP "HeroShift-release-$tag"
-          if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
-          New-Item -ItemType Directory -Path $staging | Out-Null
-          Copy-Item -Path "HeroShift - Server Files/*" -Destination $staging -Recurse -Force
-          Get-ChildItem -Path $staging -Recurse -Filter "*.pdb" | Remove-Item -Force
-          Compress-Archive -Path (Join-Path $staging "*") -DestinationPath $zipPath -Force
-
-          "zipPath=$zipPath" >> $env:GITHUB_OUTPUT
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HeroShift-${{ steps.vars.outputs.tag }}
+          path: artifacts/HeroShift-${{ steps.vars.outputs.tag }}.zip
+          if-no-files-found: error
 
       - name: Create GitHub Release
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ steps.vars.outputs.tag }}" "${{ steps.package.outputs.zipPath }}" `
-            --title "HeroShift ${{ steps.vars.outputs.tag }}" `
+          gh release create '${{ steps.vars.outputs.tag }}' 'artifacts/HeroShift-${{ steps.vars.outputs.tag }}.zip' `
+            --verify-tag `
+            --title 'HeroShift ${{ steps.vars.outputs.tag }}' `
             --generate-notes

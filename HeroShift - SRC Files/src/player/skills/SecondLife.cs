@@ -6,6 +6,8 @@ using static src.HeroShift;
 using System.Collections.Concurrent;
 using src.utils;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   OnTakeDamage/TryConsumeRevive: the first lethal hit is converted into a
      *     revive with startHealth health.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   startHealth = 50
      *                   -> health you respawn with after the second life triggers
      *
@@ -37,13 +39,14 @@ namespace src.player.skills
     public class SecondLife : ISkill
     {
         private const Skills skillName = Skills.SecondLife;
+        private static SecondLifeOptions Options => SkillConfigurationResolver.Get<SecondLifeOptions>(BuiltInSkillIds.SecondLife);
         private const float DefaultHeadshotMultiplier = 4f;
         private static readonly ConcurrentDictionary<nint, int> usedThisRound = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -120,7 +123,7 @@ namespace src.player.skills
 
                 usedThisRound.TryAdd(victim.Handle, Server.TickCount);
 
-                victimPawn.Health = SkillsInfo.GetValue<int>(skillName, "startHealth");
+                victimPawn.Health = Options.StartHealth;
                 Utilities.SetStateChanged(victimPawn, "CBaseEntity", "m_iHealth");
 
                 Server.NextFrame(() =>
@@ -139,14 +142,14 @@ namespace src.player.skills
 
         public static void EnableSkill(CCSPlayerController player)
         {
-            SetHealth(player, SkillsInfo.GetValue<int>(skillName, "startHealth"));
+            SetHealth(player, Options.StartHealth);
         }
 
         public static void DisableSkill(CCSPlayerController player)
         {
             usedThisRound.TryRemove(player.Handle, out _);
             if (player.PlayerPawn.Value == null) return;
-            SetHealth(player, Math.Min(player.PlayerPawn.Value.Health + SkillsInfo.GetValue<int>(skillName, "startHealth"), 100));
+            SetHealth(player, Math.Min(player.PlayerPawn.Value.Health + Options.StartHealth, 100));
         }
 
         private static void SetHealth(CCSPlayerController player, int health)
@@ -156,11 +159,6 @@ namespace src.player.skills
 
             pawn.Health = health;
             Utilities.SetStateChanged(pawn, "CBaseEntity", "m_iHealth");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#d41c1c", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int startHealth = 50) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int StartHealth { get; set; } = startHealth;
         }
     }
 }

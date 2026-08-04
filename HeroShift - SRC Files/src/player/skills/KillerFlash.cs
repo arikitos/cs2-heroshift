@@ -7,6 +7,8 @@ using src.utils;
 using System.Collections.Concurrent;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -20,8 +22,8 @@ namespace src.player.skills
      *   GrenadeThrown/WeaponEquip/WeaponPickup: keeps the extra flashbang count
      *     in sync in the HUD when grenadeLimit is above the server limit.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   flashDuration = 1f
      *                     -> blind seconds required to trigger the instant kill
      *                        (lower = deadlier)
@@ -49,11 +51,12 @@ namespace src.player.skills
     public class KillerFlash : ISkill
     {
         private const Skills skillName = Skills.KillerFlash;
+        private static KillerFlashOptions Options => SkillConfigurationResolver.Get<KillerFlashOptions>(BuiltInSkillIds.KillerFlash);
         private readonly static ConcurrentDictionary<uint, int> playersWithSkill = [];
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void PlayerBlind(EventPlayerBlind @event)
@@ -65,9 +68,9 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             var attackerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
 
-            if (!SkillsInfo.GetValue<bool>(skillName, "friendlyFire") && player!.Team == attacker!.Team) return;
+            if (!Options.FriendlyFire && player!.Team == attacker!.Team) return;
 
-            if (attackerInfo?.Skill == skillName && playerInfo?.Skill != Skills.AntyFlash && player!.PlayerPawn.Value!.FlashDuration >= SkillsInfo.GetValue<float>(skillName, "flashDuration"))
+            if (attackerInfo?.Skill == skillName && playerInfo?.Skill != Skills.AntyFlash && player!.PlayerPawn.Value!.FlashDuration >= Options.FlashDuration)
                 SkillUtils.TakeHealth(player.PlayerPawn.Value, 9999, attacker, KillfeedIcons.Flashbang);
         }
 
@@ -117,7 +120,7 @@ namespace src.player.skills
             if (player == null || !player.IsValid) return;
 
             int flashbangLimit = ConVar.Find("ammo_grenade_limit_flashbang")?.GetPrimitiveValue<int>() ?? 2;
-            int grenadeLimit = SkillsInfo.GetValue<int>(skillName, "grenadeLimit");
+            int grenadeLimit = Options.GrenadeLimit;
 
             if (grenadeLimit > flashbangLimit)
             {
@@ -135,13 +138,6 @@ namespace src.player.skills
 
             playersWithSkill.TryRemove(player.Index, out _);
             SkillUtils.UpdateGrenadeCount(player, CsItem.FlashbangGrenade, 1);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#57bcff", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Epic, float flashDuration = 1f, bool friendlyFire = true, int grenadeLimit = 1) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float FlashDuration { get; set; } = flashDuration;
-            public bool FriendlyFire { get; set; } = friendlyFire;
-            public int GrenadeLimit { get; set; } = grenadeLimit;
         }
     }
 }

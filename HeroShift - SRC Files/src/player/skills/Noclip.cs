@@ -8,6 +8,8 @@ using System.Collections.Concurrent;
 using static src.HeroShift;
 using Timer = CounterStrikeSharp.API.Modules.Timers.Timer;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -18,8 +20,8 @@ namespace src.player.skills
      *   OnTick: disables it on expiry; if you end up stuck inside geometry,
      *     cooldownWhenStuck is used instead of the normal cooldown.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown          = 30f
      *                         -> seconds before the skill can be used again
      *   duration          = 2f
@@ -45,12 +47,13 @@ namespace src.player.skills
     public class Noclip : ISkill
     {
         private const Skills skillName = Skills.Noclip;
+        private static NoclipOptions Options => SkillConfigurationResolver.Get<NoclipOptions>(BuiltInSkillIds.Noclip);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -94,10 +97,10 @@ namespace src.player.skills
             float flying = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
-                float flyingTime = (int)(skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "duration")) - DateTime.Now).TotalMilliseconds;
+                float flyingTime = (int)(skillInfo.Cooldown.AddSeconds(Options.Duration) - DateTime.Now).TotalMilliseconds;
                 flying = Math.Max(flyingTime, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -136,7 +139,7 @@ namespace src.player.skills
 
                 if (skillInfo.CanUse)
                 {
-                    var duration = SkillsInfo.GetValue<float>(skillName, "duration");
+                    var duration = Options.Duration;
 
                     skillInfo.CanUse = false;
                     skillInfo.IsFlying = true;
@@ -223,7 +226,7 @@ namespace src.player.skills
                 Vector start = new(targetPos.X, targetPos.Y, targetPos.Z + 70);
                 Vector end = new(targetPos.X, targetPos.Y, targetPos.Z - 1000);
 
-                var groundResult = RayTrace.TraceShape(player, start, end, mask, contents);
+                var groundResult = HeroShift.Instance.TraceService.TraceShape(player, start, end, mask, contents);
                 if (!groundResult.HasValue || !groundResult.Value.DidHit) continue;
 
                 Vector newPos =
@@ -234,7 +237,7 @@ namespace src.player.skills
                 hasGround = true;
                 stuckVector = newPos;
 
-                var result = RayTrace.TraceHullShape(
+                var result = HeroShift.Instance.TraceService.TraceHullShape(
                     targetPos,
                     targetPos,
                     player
@@ -245,7 +248,7 @@ namespace src.player.skills
             }
 
             if (hasGround)
-                skillInfo.Cooldown = DateTime.Now.AddSeconds(-SkillsInfo.GetValue<float>(skillName, "cooldown") + SkillsInfo.GetValue<float>(skillName, "cooldownWhenStuck"));
+                skillInfo.Cooldown = DateTime.Now.AddSeconds(-Options.Cooldown + Options.CooldownWhenStuck);
             return hasGround ? stuckVector : null;
         }
 
@@ -257,13 +260,6 @@ namespace src.player.skills
             public DateTime Cooldown { get; set; }
             public Vector? LastPosition { get; set; }
             public Timer? Timer { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#44ebd4", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, float cooldown = 30f, float duration = 2f, float cooldownWhenStuck = 5f) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public float CooldownWhenStuck { get; set; } = cooldownWhenStuck;
-            public float Duration { get; set; } = duration;
         }
     }
 }

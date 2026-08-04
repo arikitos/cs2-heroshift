@@ -1,0 +1,5645 @@
+{
+  "skillCount": 142,
+  "skills": [
+    {
+      "name": "AimLock",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#fa7b48\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "20f",
+        "duration": ".3f"
+      }
+    },
+    {
+      "name": "Aimbot",
+      "hooks": [
+        "LoadSkill",
+        "OnTakeDamage",
+        "OnTakeDamagePost"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff0000\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Anomaly",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#a86eff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "secondsInBack": "5",
+        "cooldown": "15"
+      }
+    },
+    {
+      "name": "AntyFlash",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "PlayerBlind",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#D6E6FF\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "flashDuration": "7f",
+        "grenadeLimit": "2"
+      }
+    },
+    {
+      "name": "AntyHead",
+      "hooks": [
+        "LoadSkill",
+        "PlayerHurtPre"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8B4513\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "AreaReaper",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#edf5b5\u0022",
+        "onlyTeam": "CsTeam.CounterTerrorist",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Armored",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "OnTakeDamage"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#d1430a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": ".65f",
+        "chanceTo": ".85f"
+      }
+    },
+    {
+      "name": "Assassin",
+      "hooks": [
+        "LoadSkill",
+        "OnTakeDamage"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#d9d9d9\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "damageMultiplier": "2f",
+        "toleranceDeg": "45f"
+      }
+    },
+    {
+      "name": "Astronaut",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#7E10AD\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": ".1f",
+        "chanceTo": ".7f"
+      }
+    },
+    {
+      "name": "Bankrupt",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#abab33\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Baseball",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound",
+        "PlayerHurt",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown",
+        "DecoyStarted"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#2effc7\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "speedMultipier": "2f",
+        "maxSpeed": "900f",
+        "damageDeal": "9999",
+        "grenadeLimit": "3"
+      }
+    },
+    {
+      "name": "Behind",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#00FF00\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": ".2f",
+        "chanceTo": ".4f"
+      }
+    },
+    {
+      "name": "Berserker",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTakeDamage",
+        "OnTick",
+        "NewRound",
+        "PlayerJump"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#cc2929\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "maxSpeedVelocity": "2f",
+        "maxDamageVelocity": "2f"
+      }
+    },
+    {
+      "name": "BladeMaster",
+      "hooks": [
+        "LoadSkill",
+        "OnTick",
+        "PlayerHurtPre"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#cc7504\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "torseReflectionChance": ".95f",
+        "legReflectionChance": ".70f",
+        "velocityModifier": ".85f"
+      }
+    },
+    {
+      "name": "BlastShot",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTakeDamage",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#7740c9\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "explosionRadius": "400.0f",
+        "explosionDamage": "60",
+        "dmgReductionForTeamates": "0.5f",
+        "cooldown": "10f",
+        "force": "1000f"
+      }
+    },
+    {
+      "name": "BunnyHop",
+      "hooks": [
+        "LoadSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#d1430a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "maxSpeed": "500f",
+        "jumpVelocity": "300f",
+        "jumpBoost": "2f"
+      }
+    },
+    {
+      "name": "C4Camouflage",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "CheckTransmit",
+        "NewRound",
+        "PlayerHurt",
+        "WeaponEquip",
+        "WeaponPickup"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#00911f\u0022",
+        "onlyTeam": "CsTeam.Terrorist",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Uncommon"
+      },
+      "options": {}
+    },
+    {
+      "name": "CarefulBullets",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTakeDamage",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "BulletImpact"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#db6c35\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "damageAfterMiss": "5"
+      }
+    },
+    {
+      "name": "Catapult",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#FF4500\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": ".2f",
+        "chanceTo": ".4f"
+      }
+    },
+    {
+      "name": "Chicken",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "WeaponPickup"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#FF8B42\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "ChillOut",
+      "hooks": [
+        "LoadSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "BombBeginplant",
+        "BombAbortplant",
+        "BombPlanted"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#343deb\u0022",
+        "onlyTeam": "CsTeam.CounterTerrorist",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "bombArmedTime": "10f"
+      }
+    },
+    {
+      "name": "Cutter",
+      "hooks": [
+        "LoadSkill",
+        "OnTakeDamage"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#88a31a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Cypher",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTakeDamage",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#34ebd5\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "30"
+      }
+    },
+    {
+      "name": "Darkness",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "BotTakeover"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#383838\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Rare"
+      },
+      "options": {
+        "r": "0",
+        "g": "0",
+        "b": "0",
+        "a": "230"
+      }
+    },
+    {
+      "name": "Dash",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#42bbfc\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "jumpVelocity": "150f",
+        "pushVelocity": "600f",
+        "anyDirection": "true",
+        "cooldown": "2f"
+      }
+    },
+    {
+      "name": "Deactivator",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#919191\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Deaf",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerMakeSound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#dae01f\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "DeathBomb",
+      "hooks": [
+        "LoadSkill",
+        "OnTakeDamage",
+        "OnEntitySpawned",
+        "NewRound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#F5CB42\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "explosionRadius": "500.0f",
+        "explosionDamage": "999",
+        "dmgReductionForTeamates": "0.5f"
+      }
+    },
+    {
+      "name": "DemonEye",
+      "hooks": [
+        "LoadSkill",
+        "OnTick"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#c91243\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "secondCooldown": "1f",
+        "damage": "5"
+      }
+    },
+    {
+      "name": "Disarmament",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#FF4500\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": ".2f",
+        "chanceTo": ".35f"
+      }
+    },
+    {
+      "name": "Distancer",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#00f2ff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Dracula",
+      "hooks": [
+        "LoadSkill",
+        "DisableSkill",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#FA050D\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "healthRegainScale": ".3f"
+      }
+    },
+    {
+      "name": "Duplicator",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ffb73b\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Dwarf",
+      "hooks": [
+        "LoadSkill",
+        "DisableSkill",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ffff00\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "minScale": ".6f",
+        "maxScale": ".95f"
+      }
+    },
+    {
+      "name": "EnemySpawn",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff8c92\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "15f",
+        "cooldownBeforeUse": "10f"
+      }
+    },
+    {
+      "name": "ExpensiveAmmo",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "WeaponFire"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#e0c341\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "moneyPerShot": "50"
+      }
+    },
+    {
+      "name": "ExplodingBarrel",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTakeDamage",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#c0392b\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "2",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "20f",
+        "explosionRadius": "600f",
+        "explosionDamage": "50",
+        "propModel": "\u0022models/props/de_train/hr_t/barrel_a/barrel_a.vmdl\u0022",
+        "dmgReductionForTeamates": "0.5f"
+      }
+    },
+    {
+      "name": "ExplosiveShot",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "OnEntitySpawned",
+        "BulletImpact"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#9c0000\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "damage": "25f",
+        "damageRadius": "210f",
+        "chanceFrom": ".15f",
+        "chanceTo": ".3f"
+      }
+    },
+    {
+      "name": "FalconEye",
+      "hooks": [
+        "LoadSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound",
+        "WeaponPickup"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#d1f542\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "distance": "1000f"
+      }
+    },
+    {
+      "name": "FastReload",
+      "hooks": [
+        "LoadSkill",
+        "UseSkill"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ffc061\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "FireRain",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "OnEntitySpawned",
+        "NewRound",
+        "DecoyStarted"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ffbf47\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Epic"
+      },
+      "options": {}
+    },
+    {
+      "name": "Flash",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerMakeSound",
+        "PlayerJump"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#A31912\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": "1.2f",
+        "chanceTo": "3.0f"
+      }
+    },
+    {
+      "name": "Flashlight",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound",
+        "RoundEnd",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#a3000b\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "2",
+        "rarity": "Rarity.Legendary"
+      },
+      "options": {
+        "cooldown": "2f",
+        "colorR": "255",
+        "colorG": "255",
+        "colorB": "255",
+        "brightness": "1.5f",
+        "range": "1200.0f",
+        "blindDuration": "5f",
+        "blindAngle": "10.0f",
+        "blindAlpha": "200"
+      }
+    },
+    {
+      "name": "Fortnite",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTakeDamage",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#1b04cc\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "5",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "2f",
+        "barricadeHealth": "115",
+        "propModel": "\u0022models/props/de_aztec/hr_aztec/aztec_scaffolding/aztec_scaffold_wall_support_128.vmdl\u0022"
+      }
+    },
+    {
+      "name": "FragileBomb",
+      "hooks": [
+        "LoadSkill",
+        "NewRound",
+        "BulletImpact",
+        "BombPlanted"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#5d00ff\u0022",
+        "onlyTeam": "CsTeam.CounterTerrorist",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "maxBombHealth": "1000"
+      }
+    },
+    {
+      "name": "FriendlyFire",
+      "hooks": [
+        "LoadSkill",
+        "OnTakeDamage",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff0000\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "true",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "healthDamageMultiplier": ".3f"
+      }
+    },
+    {
+      "name": "FrozenDecoy",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown",
+        "DecoyStarted",
+        "DecoyDetonate"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#00eaff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "triggerRadius": "180",
+        "slownessMultiplier": "5",
+        "grenadeLimit": "3"
+      }
+    },
+    {
+      "name": "Gambler",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#7eff47\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "refreshPrice": "150"
+      }
+    },
+    {
+      "name": "Ghost",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "CheckTransmit",
+        "NewRound",
+        "PlayerHurt",
+        "WeaponEquip",
+        "WeaponPickup"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#FFFFFF\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Epic"
+      },
+      "options": {}
+    },
+    {
+      "name": "Giant",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8ad3ff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "minScale": "1.1f",
+        "maxScale": "1.4f"
+      }
+    },
+    {
+      "name": "Glaz",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "CheckTransmit",
+        "NewRound",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown",
+        "SmokegrenadeDetonate",
+        "SmokegrenadeExpired"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#5d00ff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "grenadeLimit": "2"
+      }
+    },
+    {
+      "name": "Glitch",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "BotTakeover"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#f542ef\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Glue",
+      "hooks": [
+        "LoadSkill",
+        "OnEntitySpawned"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#fff52e\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "GodMode",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#e0d83a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "30f",
+        "duration": "2f"
+      }
+    },
+    {
+      "name": "Grenadier",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "GrenadeThrown"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#4a6e21\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "HealingChicken",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#b5ab8f\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Legendary"
+      },
+      "options": {
+        "amount": "3",
+        "heal": "2",
+        "tickCooldown": "16",
+        "healRadius": "150.0f"
+      }
+    },
+    {
+      "name": "HealingSmoke",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown",
+        "SmokegrenadeDetonate",
+        "SmokegrenadeExpired"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#1fe070\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "smokeHeal": "1",
+        "smokeRadius": "180",
+        "tickCooldown": "16",
+        "grenadeLimit": "1"
+      }
+    },
+    {
+      "name": "Hermit",
+      "hooks": [
+        "LoadSkill",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ded678\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "healthToAdd": "100",
+        "effectDuration": "1.0f"
+      }
+    },
+    {
+      "name": "HolyHandGrenade",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnEntitySpawned",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ffdd00\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "damageMultiplier": "2f",
+        "damageRadiusMultiplier": "2f",
+        "grenadeLimit": "1"
+      }
+    },
+    {
+      "name": "HomingNades",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#384728\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "strength": "150",
+        "maxVelocity": "2000",
+        "detonationRange": "130",
+        "grenadeLimit": "2"
+      }
+    },
+    {
+      "name": "HotBomb",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "WeaponPickup"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#baf081\u0022",
+        "onlyTeam": "CsTeam.CounterTerrorist",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "1",
+        "damage": "2"
+      }
+    },
+    {
+      "name": "Iana",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTakeDamage",
+        "OnTick",
+        "NewRound",
+        "PlayerHurt",
+        "WeaponEquip",
+        "WeaponPickup",
+        "WeaponDrop",
+        "OnWeaponCanAcquire"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#d0d930\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "30",
+        "duration": "10"
+      }
+    },
+    {
+      "name": "Illiterate",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#1466F5\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Illusionist",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTakeDamage",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#42f5ef\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "2",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "30f",
+        "durationRun": "5",
+        "durationCrouch": "12",
+        "yourTeamDamage": "10",
+        "enemyTeamDamage": "20"
+      }
+    },
+    {
+      "name": "Impostor",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#99140B\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "InfiniteAmmo",
+      "hooks": [
+        "LoadSkill",
+        "WeaponFire",
+        "WeaponReload",
+        "GrenadeThrown"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#0000FF\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Jackal",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "CheckTransmit",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#f542ef\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "particleName": "\u0022particles/ui/hud/ui_map_def_utility_trail.vpcf\u0022"
+      }
+    },
+    {
+      "name": "Jammer",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "BotTakeover"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#42f5a7\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Jester",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerHurtPre",
+        "BombBeginplant",
+        "BombBegindefuse"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8f108f\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "minTime": "10f",
+        "maxTime": "25f"
+      }
+    },
+    {
+      "name": "JetKick",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "WeaponFire"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#5a4fd1\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "pushVelocity": "400f"
+      }
+    },
+    {
+      "name": "JumpBan",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "PlayerJump"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#b01e5d\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "JumpCurse",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "PlayerJump"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#7ad1c4\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "jumpVelocity": "301f"
+      }
+    },
+    {
+      "name": "JumpingJack",
+      "hooks": [
+        "LoadSkill",
+        "PlayerJump"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#a86eff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "healthToAdd": "3"
+      }
+    },
+    {
+      "name": "KillerFlash",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "PlayerBlind",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#57bcff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Epic"
+      },
+      "options": {
+        "flashDuration": "1f",
+        "friendlyFire": "true",
+        "grenadeLimit": "1"
+      }
+    },
+    {
+      "name": "Knockback",
+      "hooks": [
+        "LoadSkill",
+        "WeaponFire"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff8c42\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "knockbackUnits": "120f",
+        "maxSpeed": "1200f"
+      }
+    },
+    {
+      "name": "LastGasp",
+      "hooks": [
+        "LoadSkill",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#88bdba\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Rare"
+      },
+      "options": {
+        "damageAfterDeath": "30",
+        "canKill": "true"
+      }
+    },
+    {
+      "name": "LifeSwap",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#a3651a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "LongKnife",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "NewRound",
+        "WeaponFire"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#c9f8ff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "maxDistance": "4096f",
+        "friendlyFire": "true"
+      }
+    },
+    {
+      "name": "LongZeus",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#6effc7\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Uncommon"
+      },
+      "options": {
+        "maxDistance": "4096f",
+        "friendlyFire": "false"
+      }
+    },
+    {
+      "name": "MagneticDecoy",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown",
+        "DecoyStarted",
+        "DecoyDetonate"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#81f0c4\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "triggerRadius": "180",
+        "strenght": "30",
+        "grenadeLimit": "3"
+      }
+    },
+    {
+      "name": "Magneto",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#f081ec\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "radius": "100"
+      }
+    },
+    {
+      "name": "Magnifier",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "BotTakeover"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#9ba882\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "customFOV": "50"
+      }
+    },
+    {
+      "name": "Medic",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#10c212\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "healthToAdd": "50",
+        "healthShotLimit": "3",
+        "cooldown": "1f"
+      }
+    },
+    {
+      "name": "Miner",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#adf542\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "detonationRange": "130",
+        "grenadeLimit": "3"
+      }
+    },
+    {
+      "name": "MoneySwap",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#52f54c\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Nightmare",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "CheckTransmit",
+        "NewRound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#5b2c6f\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Rare"
+      },
+      "options": {
+        "postProcessing": "\u0022lighting/postprocessing/effects/death_cam_phase1_low_violence.vpost\u0022",
+        "fadeTime": ".25f",
+        "minExposure": ".5f",
+        "maxExposure": "2f"
+      }
+    },
+    {
+      "name": "Ninja",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "CheckTransmit",
+        "NewRound",
+        "PlayerHurt",
+        "WeaponEquip",
+        "WeaponPickup"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#dedede\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "idlePercentInvisibility": ".3f",
+        "duckPercentInvisibility": ".3f",
+        "knifePercentInvisibility": ".3f"
+      }
+    },
+    {
+      "name": "NoNades",
+      "hooks": [
+        "LoadSkill",
+        "PlayerHurtPre"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#a38c1a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "NoRecoil",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8a42f5\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Noclip",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#44ebd4\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "30f",
+        "duration": "2f",
+        "cooldownWhenStuck": "5f"
+      }
+    },
+    {
+      "name": "None",
+      "hooks": [
+        "LoadSkill"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#FFFFFF\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "OneShot",
+      "hooks": [
+        "LoadSkill",
+        "OnTakeDamage"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff5CD9\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "OnlyHead",
+      "hooks": [
+        "LoadSkill",
+        "PlayerHurtPre"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#3c47de\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "PawelJumper",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "OnTick"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#FFA500\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "extraJumpsMin": "1",
+        "extraJumpsMax": "4"
+      }
+    },
+    {
+      "name": "Phoenix",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTakeDamage",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff5C0A\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": ".2f",
+        "chanceTo": ".4f"
+      }
+    },
+    {
+      "name": "Pilot",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#1466F5\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "maximumFuel": "150f",
+        "fuelConsumption": ".64f",
+        "refuelling": ".1f"
+      }
+    },
+    {
+      "name": "Planter",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "BombBeginplant",
+        "BombAbortplant",
+        "BombPlanted"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#7d7d7d\u0022",
+        "onlyTeam": "CsTeam.Terrorist",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "extraC4BlowTime": "60"
+      }
+    },
+    {
+      "name": "Poison",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#902eff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "2",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": ".85f",
+        "damage": "1",
+        "minHealth": "30"
+      }
+    },
+    {
+      "name": "PrimaryBan",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "WeaponEquip"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ffc061\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Prosthesis",
+      "hooks": [
+        "LoadSkill",
+        "PlayerHurtPre"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#9c9c9c\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "PsychicDefusing",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath",
+        "BombPlanted"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#507529\u0022",
+        "onlyTeam": "CsTeam.CounterTerrorist",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "maxDefusingRange": "80f",
+        "defusingTime": "10f"
+      }
+    },
+    {
+      "name": "Push",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#1e9ab0\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": ".3f",
+        "chanceTo": ".4f",
+        "jumpVelocity": "300f",
+        "pushVelocity": "400f"
+      }
+    },
+    {
+      "name": "Pyro",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "PlayerHurt",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#3c47de\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "regenerationMultiplier": "1.5f",
+        "grenadeLimit": "2"
+      }
+    },
+    {
+      "name": "QuickShot",
+      "hooks": [
+        "LoadSkill",
+        "OnTick"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8a42f5\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "RadarHack",
+      "hooks": [
+        "LoadSkill",
+        "OnTick"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#2effcb\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "utils.Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Rambo",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#009905\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "minExtraHealth": "50",
+        "maxExtraHealth": "501"
+      }
+    },
+    {
+      "name": "RandomWeapon",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#e0873a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "15f"
+      }
+    },
+    {
+      "name": "ReZombie",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTakeDamage",
+        "NewRound",
+        "WeaponEquip",
+        "OnWeaponCanAcquire"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff5C0A\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "zombieHealth": "500",
+        "r": "255",
+        "g": "0",
+        "b": "0",
+        "a": "60"
+      }
+    },
+    {
+      "name": "ReactiveArmor",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerHurtPre"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#3cded3\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "15"
+      }
+    },
+    {
+      "name": "Regeneration",
+      "hooks": [
+        "LoadSkill",
+        "OnTick"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff462e\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "utils.Rarity.Common"
+      },
+      "options": {
+        "healthToAdd": "1",
+        "cooldown": ".25f"
+      }
+    },
+    {
+      "name": "Replicator",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTakeDamage",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#a3000b\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "2",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "15f",
+        "yourTeamDamage": "10",
+        "enemyTeamDamage": "20"
+      }
+    },
+    {
+      "name": "Retreat",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#a86eff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "15f"
+      }
+    },
+    {
+      "name": "ReturnToSender",
+      "hooks": [
+        "LoadSkill",
+        "DisableSkill",
+        "NewRound",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#a68132\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "RichBoy",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#D4AF37\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "minMoney": "5000",
+        "maxMoney": "15000"
+      }
+    },
+    {
+      "name": "RobinHood",
+      "hooks": [
+        "LoadSkill",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#119125\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "moneyMultiplier": "35"
+      }
+    },
+    {
+      "name": "Rubber",
+      "hooks": [
+        "LoadSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8B4513\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "slownessTime": "2f",
+        "slownessModifier": ".2f"
+      }
+    },
+    {
+      "name": "Saper",
+      "hooks": [
+        "LoadSkill",
+        "BombBeginplant",
+        "BombBegindefuse"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8A2BE2\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "SecondLife",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTakeDamage",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#d41c1c\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "startHealth": "50"
+      }
+    },
+    {
+      "name": "Shade",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#4d4d4d\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "teleportDistance": "100f",
+        "chanceFrom": ".3f",
+        "chanceTo": ".45f"
+      }
+    },
+    {
+      "name": "ShortBomb",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "NewRound",
+        "BombPlanted"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#f5b74c\u0022",
+        "onlyTeam": "CsTeam.Terrorist",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "detonationTime": "20"
+      }
+    },
+    {
+      "name": "Silent",
+      "hooks": [
+        "LoadSkill",
+        "PlayerMakeSound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#333333\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Smoker",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "NewRound",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown",
+        "SmokegrenadeDetonate"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#b5ab8f\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "grenadeLimit": "1"
+      }
+    },
+    {
+      "name": "SniperElite",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "NewRound",
+        "PlayerDeath",
+        "WeaponEquip"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#e0873a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Soldier",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "OnTakeDamage"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#09ba00\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": "1.15f",
+        "chanceTo": "1.35f"
+      }
+    },
+    {
+      "name": "SoundMaker",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerMakeSound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#e3ed8c\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "2"
+      }
+    },
+    {
+      "name": "Spectator",
+      "hooks": [
+        "LoadSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound",
+        "WeaponPickup"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#42f5da\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "distance": "100f",
+        "useCooldown": ".5f"
+      }
+    },
+    {
+      "name": "SwapPosition",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#1466F5\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "30f",
+        "cooldownBeforeUse": "10f"
+      }
+    },
+    {
+      "name": "TakeAmmo",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound",
+        "WeaponEquip"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#5eb8b0\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "30f"
+      }
+    },
+    {
+      "name": "TeamTeleport",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#bcf542\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "true",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "2",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "15f",
+        "teleportAngle": "10.0f",
+        "teleportDistance": "100f"
+      }
+    },
+    {
+      "name": "Teleporter",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8A2BE2\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "chanceFrom": ".5f",
+        "chanceTo": ".6f"
+      }
+    },
+    {
+      "name": "Thief",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#adaec7\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "ThirdEye",
+      "hooks": [
+        "LoadSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#1b04cc\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "distance": "100f"
+      }
+    },
+    {
+      "name": "Thorns",
+      "hooks": [
+        "LoadSkill",
+        "PlayerHurt"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#962631\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "healthTakenScale": ".3f",
+        "maxTakenDamagePerShot": "37"
+      }
+    },
+    {
+      "name": "ThrowingKnife",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "CheckTransmit",
+        "NewRound",
+        "RoundEnd",
+        "PlayerMakeSound",
+        "OnTriggerEnter",
+        "OnWeaponCanAcquire"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8f108f\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "friendlyFire": "false",
+        "damage": "9999"
+      }
+    },
+    {
+      "name": "ToxicSmoke",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown",
+        "SmokegrenadeDetonate",
+        "SmokegrenadeExpired"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#507529\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "smokeDamage": "2",
+        "smokeRadius": "180",
+        "tickCooldown": "17",
+        "grenadeLimit": "1"
+      }
+    },
+    {
+      "name": "Tripwire",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff3b3b\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Rare"
+      },
+      "options": {
+        "radarDuration": "5f",
+        "triggerRadius": "24f",
+        "wireHeight": "30f",
+        "wireWidth": "0.7f",
+        "maxWallDistance": "400f",
+        "cooldown": "20f"
+      }
+    },
+    {
+      "name": "Wallhack",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "CheckTransmit",
+        "NewRound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#5d00ff\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Epic"
+      },
+      "options": {}
+    },
+    {
+      "name": "Watchmaker",
+      "hooks": [
+        "LoadSkill",
+        "OnEntitySpawned",
+        "NewRound",
+        "BombPlanted"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ff462e\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "changeRoundTime": "7",
+        "soundEvent": "\u0022UIPanorama.sidemenu_select\u0022"
+      }
+    },
+    {
+      "name": "WeaponsSwap",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#c7e03a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "cooldown": "30f"
+      }
+    },
+    {
+      "name": "Weightless",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound",
+        "WeaponEquip",
+        "WeaponPickup",
+        "GrenadeThrown"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#8f6dc9\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {
+        "grenadeLimit": "2"
+      }
+    },
+    {
+      "name": "WildThrow",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "OnEntitySpawned",
+        "OnTick",
+        "NewRound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#384728\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Zeus",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "WeaponFire"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#fbff00\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Common"
+      },
+      "options": {}
+    }
+  ],
+  "localization": {
+    "sourceFile": "src/lang/en.json",
+    "keyCount": 459,
+    "keys": [
+      {
+        "key": "active_hud_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "aimbot",
+        "placeholders": []
+      },
+      {
+        "key": "aimbot_desc",
+        "placeholders": []
+      },
+      {
+        "key": "aimlock",
+        "placeholders": []
+      },
+      {
+        "key": "aimlock_desc",
+        "placeholders": []
+      },
+      {
+        "key": "anomaly",
+        "placeholders": []
+      },
+      {
+        "key": "anomaly_desc",
+        "placeholders": []
+      },
+      {
+        "key": "antyflash",
+        "placeholders": []
+      },
+      {
+        "key": "antyflash_desc",
+        "placeholders": []
+      },
+      {
+        "key": "antyhead",
+        "placeholders": []
+      },
+      {
+        "key": "antyhead_desc",
+        "placeholders": []
+      },
+      {
+        "key": "areareaper",
+        "placeholders": []
+      },
+      {
+        "key": "areareaper_bombsite_disabled",
+        "placeholders": []
+      },
+      {
+        "key": "areareaper_desc",
+        "placeholders": []
+      },
+      {
+        "key": "areareaper_incorrect_site",
+        "placeholders": []
+      },
+      {
+        "key": "areareaper_no_site",
+        "placeholders": []
+      },
+      {
+        "key": "areareaper_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "areareaper_site_disabled",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "areareaper_teammates_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "areareaper_used_info",
+        "placeholders": []
+      },
+      {
+        "key": "armored",
+        "placeholders": []
+      },
+      {
+        "key": "armored_desc",
+        "placeholders": []
+      },
+      {
+        "key": "armored_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "assassin",
+        "placeholders": []
+      },
+      {
+        "key": "assassin_desc",
+        "placeholders": []
+      },
+      {
+        "key": "astronaut",
+        "placeholders": []
+      },
+      {
+        "key": "astronaut_desc",
+        "placeholders": []
+      },
+      {
+        "key": "astronaut_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "bankrupt",
+        "placeholders": []
+      },
+      {
+        "key": "bankrupt_desc",
+        "placeholders": []
+      },
+      {
+        "key": "bankrupt_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "bankrupt_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "bankrupt_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "baseball",
+        "placeholders": []
+      },
+      {
+        "key": "baseball_desc",
+        "placeholders": []
+      },
+      {
+        "key": "behind",
+        "placeholders": []
+      },
+      {
+        "key": "behind_desc",
+        "placeholders": []
+      },
+      {
+        "key": "behind_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "berserker",
+        "placeholders": []
+      },
+      {
+        "key": "berserker_desc",
+        "placeholders": []
+      },
+      {
+        "key": "blademaster",
+        "placeholders": []
+      },
+      {
+        "key": "blademaster_desc",
+        "placeholders": []
+      },
+      {
+        "key": "blastshot",
+        "placeholders": []
+      },
+      {
+        "key": "blastshot_desc",
+        "placeholders": []
+      },
+      {
+        "key": "bombplanted",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "bombsite_a",
+        "placeholders": []
+      },
+      {
+        "key": "bombsite_b",
+        "placeholders": []
+      },
+      {
+        "key": "bunnyhop",
+        "placeholders": []
+      },
+      {
+        "key": "bunnyhop_desc",
+        "placeholders": []
+      },
+      {
+        "key": "c4camouflage",
+        "placeholders": []
+      },
+      {
+        "key": "c4camouflage_desc",
+        "placeholders": []
+      },
+      {
+        "key": "carefulbullets",
+        "placeholders": []
+      },
+      {
+        "key": "carefulbullets_desc",
+        "placeholders": []
+      },
+      {
+        "key": "carefulbullets_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "carefulbullets_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "carefulbullets_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "carefulbullets_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "catapult",
+        "placeholders": []
+      },
+      {
+        "key": "catapult_desc",
+        "placeholders": []
+      },
+      {
+        "key": "catapult_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "chicken",
+        "placeholders": []
+      },
+      {
+        "key": "chicken_desc",
+        "placeholders": []
+      },
+      {
+        "key": "chillout",
+        "placeholders": []
+      },
+      {
+        "key": "chillout_desc",
+        "placeholders": []
+      },
+      {
+        "key": "correct_form_setscore",
+        "placeholders": []
+      },
+      {
+        "key": "correct_form_setskill",
+        "placeholders": []
+      },
+      {
+        "key": "curse_limit_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "cutter",
+        "placeholders": []
+      },
+      {
+        "key": "cutter_desc",
+        "placeholders": []
+      },
+      {
+        "key": "cypher",
+        "placeholders": []
+      },
+      {
+        "key": "cypher_desc",
+        "placeholders": []
+      },
+      {
+        "key": "cypher_nospace",
+        "placeholders": []
+      },
+      {
+        "key": "darkness",
+        "placeholders": []
+      },
+      {
+        "key": "darkness_desc",
+        "placeholders": []
+      },
+      {
+        "key": "darkness_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "darkness_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "darkness_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "darkness_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "dash",
+        "placeholders": []
+      },
+      {
+        "key": "dash_desc",
+        "placeholders": []
+      },
+      {
+        "key": "deactivator",
+        "placeholders": []
+      },
+      {
+        "key": "deactivator_desc",
+        "placeholders": []
+      },
+      {
+        "key": "deactivator_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "deactivator_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "deactivator_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "deaf",
+        "placeholders": []
+      },
+      {
+        "key": "deaf_desc",
+        "placeholders": []
+      },
+      {
+        "key": "deaf_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "deaf_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "deaf_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "deaf_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "deathbomb",
+        "placeholders": []
+      },
+      {
+        "key": "deathbomb_desc",
+        "placeholders": []
+      },
+      {
+        "key": "deathbomb_explosion",
+        "placeholders": []
+      },
+      {
+        "key": "demoneye",
+        "placeholders": []
+      },
+      {
+        "key": "demoneye_desc",
+        "placeholders": []
+      },
+      {
+        "key": "disabled_weapon",
+        "placeholders": []
+      },
+      {
+        "key": "disarmament",
+        "placeholders": []
+      },
+      {
+        "key": "disarmament_desc",
+        "placeholders": []
+      },
+      {
+        "key": "disarmament_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "distancer",
+        "placeholders": []
+      },
+      {
+        "key": "distancer_desc",
+        "placeholders": []
+      },
+      {
+        "key": "done_setskill",
+        "placeholders": []
+      },
+      {
+        "key": "dracula",
+        "placeholders": []
+      },
+      {
+        "key": "dracula_desc",
+        "placeholders": []
+      },
+      {
+        "key": "drawing_skill",
+        "placeholders": []
+      },
+      {
+        "key": "duplicate_player",
+        "placeholders": []
+      },
+      {
+        "key": "duplicator",
+        "placeholders": []
+      },
+      {
+        "key": "duplicator_desc",
+        "placeholders": []
+      },
+      {
+        "key": "duplicator_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "duplicator_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "dwarf",
+        "placeholders": []
+      },
+      {
+        "key": "dwarf_desc",
+        "placeholders": []
+      },
+      {
+        "key": "dwarf_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "enemy_skill",
+        "placeholders": []
+      },
+      {
+        "key": "enemyspawn",
+        "placeholders": []
+      },
+      {
+        "key": "enemyspawn_desc",
+        "placeholders": []
+      },
+      {
+        "key": "error_setskill",
+        "placeholders": []
+      },
+      {
+        "key": "expensiveammo",
+        "placeholders": []
+      },
+      {
+        "key": "expensiveammo_desc",
+        "placeholders": []
+      },
+      {
+        "key": "expensiveammo_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "expensiveammo_enemy_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "expensiveammo_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "expensiveammo_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "explodingbarrel",
+        "placeholders": []
+      },
+      {
+        "key": "explodingbarrel_desc",
+        "placeholders": []
+      },
+      {
+        "key": "explosiveshot",
+        "placeholders": []
+      },
+      {
+        "key": "explosiveshot_desc",
+        "placeholders": []
+      },
+      {
+        "key": "explosiveshot_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "falconeye",
+        "placeholders": []
+      },
+      {
+        "key": "falconeye_desc",
+        "placeholders": []
+      },
+      {
+        "key": "fastreload",
+        "placeholders": []
+      },
+      {
+        "key": "fastreload_desc",
+        "placeholders": []
+      },
+      {
+        "key": "firerain",
+        "placeholders": []
+      },
+      {
+        "key": "firerain_desc",
+        "placeholders": []
+      },
+      {
+        "key": "flash",
+        "placeholders": []
+      },
+      {
+        "key": "flash_desc",
+        "placeholders": []
+      },
+      {
+        "key": "flash_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "flashlight",
+        "placeholders": []
+      },
+      {
+        "key": "flashlight_desc",
+        "placeholders": []
+      },
+      {
+        "key": "for_setskill",
+        "placeholders": []
+      },
+      {
+        "key": "fortnite",
+        "placeholders": []
+      },
+      {
+        "key": "fortnite_desc",
+        "placeholders": []
+      },
+      {
+        "key": "fragilebomb",
+        "placeholders": []
+      },
+      {
+        "key": "fragilebomb_bomb_health",
+        "placeholders": []
+      },
+      {
+        "key": "fragilebomb_desc",
+        "placeholders": []
+      },
+      {
+        "key": "friendlyfire",
+        "placeholders": []
+      },
+      {
+        "key": "friendlyfire_desc",
+        "placeholders": []
+      },
+      {
+        "key": "frozendecoy",
+        "placeholders": []
+      },
+      {
+        "key": "frozendecoy_desc",
+        "placeholders": []
+      },
+      {
+        "key": "gambler",
+        "placeholders": []
+      },
+      {
+        "key": "gambler_desc",
+        "placeholders": []
+      },
+      {
+        "key": "gambler_more",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "gambler_no_money",
+        "placeholders": []
+      },
+      {
+        "key": "gambler_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "game_start",
+        "placeholders": []
+      },
+      {
+        "key": "ghost",
+        "placeholders": []
+      },
+      {
+        "key": "ghost_desc",
+        "placeholders": []
+      },
+      {
+        "key": "giant",
+        "placeholders": []
+      },
+      {
+        "key": "giant_desc",
+        "placeholders": []
+      },
+      {
+        "key": "giant_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "giant_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "giant_enemy_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "giant_player_info",
+        "placeholders": [
+          0,
+          1
+        ]
+      },
+      {
+        "key": "giant_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "glaz",
+        "placeholders": []
+      },
+      {
+        "key": "glaz_desc",
+        "placeholders": []
+      },
+      {
+        "key": "glitch",
+        "placeholders": []
+      },
+      {
+        "key": "glitch_desc",
+        "placeholders": []
+      },
+      {
+        "key": "glitch_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "glitch_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "glitch_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "glitch_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "glue",
+        "placeholders": []
+      },
+      {
+        "key": "glue_desc",
+        "placeholders": []
+      },
+      {
+        "key": "godmode",
+        "placeholders": []
+      },
+      {
+        "key": "godmode_desc",
+        "placeholders": []
+      },
+      {
+        "key": "godmode_off",
+        "placeholders": []
+      },
+      {
+        "key": "godmode_on",
+        "placeholders": []
+      },
+      {
+        "key": "grenadier",
+        "placeholders": []
+      },
+      {
+        "key": "grenadier_desc",
+        "placeholders": []
+      },
+      {
+        "key": "healed",
+        "placeholders": []
+      },
+      {
+        "key": "healingchicken",
+        "placeholders": []
+      },
+      {
+        "key": "healingchicken_desc",
+        "placeholders": []
+      },
+      {
+        "key": "healingsmoke",
+        "placeholders": []
+      },
+      {
+        "key": "healingsmoke_desc",
+        "placeholders": []
+      },
+      {
+        "key": "hermit",
+        "placeholders": []
+      },
+      {
+        "key": "hermit_desc",
+        "placeholders": []
+      },
+      {
+        "key": "holyhandgrenade",
+        "placeholders": []
+      },
+      {
+        "key": "holyhandgrenade_desc",
+        "placeholders": []
+      },
+      {
+        "key": "homingnades",
+        "placeholders": []
+      },
+      {
+        "key": "homingnades_desc",
+        "placeholders": []
+      },
+      {
+        "key": "hotbomb",
+        "placeholders": []
+      },
+      {
+        "key": "hotbomb_desc",
+        "placeholders": []
+      },
+      {
+        "key": "hotbomb_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "hotbomb_hint",
+        "placeholders": []
+      },
+      {
+        "key": "hud_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "hud_info_no_enemy",
+        "placeholders": []
+      },
+      {
+        "key": "hud_off",
+        "placeholders": []
+      },
+      {
+        "key": "hud_on",
+        "placeholders": []
+      },
+      {
+        "key": "iana",
+        "placeholders": []
+      },
+      {
+        "key": "iana_desc",
+        "placeholders": []
+      },
+      {
+        "key": "illiterate",
+        "placeholders": []
+      },
+      {
+        "key": "illiterate_desc",
+        "placeholders": []
+      },
+      {
+        "key": "illusionist",
+        "placeholders": []
+      },
+      {
+        "key": "illusionist_desc",
+        "placeholders": []
+      },
+      {
+        "key": "impostor",
+        "placeholders": []
+      },
+      {
+        "key": "impostor_desc",
+        "placeholders": []
+      },
+      {
+        "key": "infiniteammo",
+        "placeholders": []
+      },
+      {
+        "key": "infiniteammo_desc",
+        "placeholders": []
+      },
+      {
+        "key": "invalid_map",
+        "placeholders": []
+      },
+      {
+        "key": "jackal",
+        "placeholders": []
+      },
+      {
+        "key": "jackal_desc",
+        "placeholders": []
+      },
+      {
+        "key": "jammer",
+        "placeholders": []
+      },
+      {
+        "key": "jammer_desc",
+        "placeholders": []
+      },
+      {
+        "key": "jammer_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "jammer_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "jammer_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "jammer_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "jester",
+        "placeholders": []
+      },
+      {
+        "key": "jester_desc",
+        "placeholders": []
+      },
+      {
+        "key": "jester_mode",
+        "placeholders": []
+      },
+      {
+        "key": "jester_off",
+        "placeholders": []
+      },
+      {
+        "key": "jester_on",
+        "placeholders": []
+      },
+      {
+        "key": "jetkick",
+        "placeholders": []
+      },
+      {
+        "key": "jetkick_desc",
+        "placeholders": []
+      },
+      {
+        "key": "jetkick_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "jetkick_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "jetkick_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "jumpban",
+        "placeholders": []
+      },
+      {
+        "key": "jumpban_desc",
+        "placeholders": []
+      },
+      {
+        "key": "jumpban_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "jumpban_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "jumpban_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "jumpban_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "jumpcurse",
+        "placeholders": []
+      },
+      {
+        "key": "jumpcurse_desc",
+        "placeholders": []
+      },
+      {
+        "key": "jumpcurse_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "jumpcurse_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "jumpcurse_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "jumpcurse_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "jumpingjack",
+        "placeholders": []
+      },
+      {
+        "key": "jumpingjack_desc",
+        "placeholders": []
+      },
+      {
+        "key": "killerflash",
+        "placeholders": []
+      },
+      {
+        "key": "killerflash_desc",
+        "placeholders": []
+      },
+      {
+        "key": "knockback",
+        "placeholders": []
+      },
+      {
+        "key": "knockback_desc",
+        "placeholders": []
+      },
+      {
+        "key": "lastgasp",
+        "placeholders": []
+      },
+      {
+        "key": "lastgasp_desc",
+        "placeholders": []
+      },
+      {
+        "key": "lifeswap",
+        "placeholders": []
+      },
+      {
+        "key": "lifeswap_desc",
+        "placeholders": []
+      },
+      {
+        "key": "lifeswap_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "lifeswap_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "lifeswap_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "loading_map",
+        "placeholders": []
+      },
+      {
+        "key": "longknife",
+        "placeholders": []
+      },
+      {
+        "key": "longknife_desc",
+        "placeholders": []
+      },
+      {
+        "key": "longzeus",
+        "placeholders": []
+      },
+      {
+        "key": "longzeus_desc",
+        "placeholders": []
+      },
+      {
+        "key": "magneticdecoy",
+        "placeholders": []
+      },
+      {
+        "key": "magneticdecoy_desc",
+        "placeholders": []
+      },
+      {
+        "key": "magneto",
+        "placeholders": []
+      },
+      {
+        "key": "magneto_desc",
+        "placeholders": []
+      },
+      {
+        "key": "magnifier",
+        "placeholders": []
+      },
+      {
+        "key": "magnifier_desc",
+        "placeholders": []
+      },
+      {
+        "key": "magnifier_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "magnifier_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "magnifier_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "magnifier_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "medic",
+        "placeholders": []
+      },
+      {
+        "key": "medic_desc",
+        "placeholders": []
+      },
+      {
+        "key": "menu_controlls_padding",
+        "placeholders": []
+      },
+      {
+        "key": "menu_controlls_scroll",
+        "placeholders": []
+      },
+      {
+        "key": "menu_controlls_select",
+        "placeholders": []
+      },
+      {
+        "key": "miner",
+        "placeholders": []
+      },
+      {
+        "key": "miner_desc",
+        "placeholders": []
+      },
+      {
+        "key": "moneyswap",
+        "placeholders": []
+      },
+      {
+        "key": "moneyswap_desc",
+        "placeholders": []
+      },
+      {
+        "key": "moneyswap_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "moneyswap_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "moneyswap_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "nightmare",
+        "placeholders": []
+      },
+      {
+        "key": "nightmare_desc",
+        "placeholders": []
+      },
+      {
+        "key": "nightmare_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "nightmare_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "nightmare_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "nightmare_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "ninja",
+        "placeholders": []
+      },
+      {
+        "key": "ninja_desc",
+        "placeholders": []
+      },
+      {
+        "key": "no_player",
+        "placeholders": []
+      },
+      {
+        "key": "noclip",
+        "placeholders": []
+      },
+      {
+        "key": "noclip_desc",
+        "placeholders": []
+      },
+      {
+        "key": "nonades",
+        "placeholders": []
+      },
+      {
+        "key": "nonades_desc",
+        "placeholders": []
+      },
+      {
+        "key": "none",
+        "placeholders": []
+      },
+      {
+        "key": "none_desc",
+        "placeholders": []
+      },
+      {
+        "key": "norecoil",
+        "placeholders": []
+      },
+      {
+        "key": "norecoil_desc",
+        "placeholders": []
+      },
+      {
+        "key": "observer_skill",
+        "placeholders": []
+      },
+      {
+        "key": "oneshot",
+        "placeholders": []
+      },
+      {
+        "key": "oneshot_desc",
+        "placeholders": []
+      },
+      {
+        "key": "onlyhead",
+        "placeholders": []
+      },
+      {
+        "key": "onlyhead_desc",
+        "placeholders": []
+      },
+      {
+        "key": "pause",
+        "placeholders": []
+      },
+      {
+        "key": "paweljumper",
+        "placeholders": []
+      },
+      {
+        "key": "paweljumper_desc",
+        "placeholders": []
+      },
+      {
+        "key": "paweljumper_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "phoenix",
+        "placeholders": []
+      },
+      {
+        "key": "phoenix_desc",
+        "placeholders": []
+      },
+      {
+        "key": "phoenix_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "phoenix_respawn",
+        "placeholders": []
+      },
+      {
+        "key": "pilot",
+        "placeholders": []
+      },
+      {
+        "key": "pilot_desc",
+        "placeholders": []
+      },
+      {
+        "key": "pilot_hud_info",
+        "placeholders": []
+      },
+      {
+        "key": "planter",
+        "placeholders": []
+      },
+      {
+        "key": "planter_desc",
+        "placeholders": []
+      },
+      {
+        "key": "planter_planting",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "player_not_found_setskill",
+        "placeholders": []
+      },
+      {
+        "key": "poison",
+        "placeholders": []
+      },
+      {
+        "key": "poison_desc",
+        "placeholders": []
+      },
+      {
+        "key": "poison_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "poison_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "poison_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "poison_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "primaryban",
+        "placeholders": []
+      },
+      {
+        "key": "primaryban_desc",
+        "placeholders": []
+      },
+      {
+        "key": "primaryban_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "primaryban_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "primaryban_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "primaryban_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "prosthesis",
+        "placeholders": []
+      },
+      {
+        "key": "prosthesis_desc",
+        "placeholders": []
+      },
+      {
+        "key": "psychicdefusing",
+        "placeholders": []
+      },
+      {
+        "key": "psychicdefusing_desc",
+        "placeholders": []
+      },
+      {
+        "key": "psychicdefusing_hud_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "push",
+        "placeholders": []
+      },
+      {
+        "key": "push_desc",
+        "placeholders": []
+      },
+      {
+        "key": "push_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "pyro",
+        "placeholders": []
+      },
+      {
+        "key": "pyro_desc",
+        "placeholders": []
+      },
+      {
+        "key": "quickshot",
+        "placeholders": []
+      },
+      {
+        "key": "quickshot_desc",
+        "placeholders": []
+      },
+      {
+        "key": "radarhack",
+        "placeholders": []
+      },
+      {
+        "key": "radarhack_desc",
+        "placeholders": []
+      },
+      {
+        "key": "rambo",
+        "placeholders": []
+      },
+      {
+        "key": "rambo_desc",
+        "placeholders": []
+      },
+      {
+        "key": "randomweapon",
+        "placeholders": []
+      },
+      {
+        "key": "randomweapon_desc",
+        "placeholders": []
+      },
+      {
+        "key": "reactivearmor",
+        "placeholders": []
+      },
+      {
+        "key": "reactivearmor_desc",
+        "placeholders": []
+      },
+      {
+        "key": "regeneration",
+        "placeholders": []
+      },
+      {
+        "key": "regeneration_desc",
+        "placeholders": []
+      },
+      {
+        "key": "reload",
+        "placeholders": []
+      },
+      {
+        "key": "replicator",
+        "placeholders": []
+      },
+      {
+        "key": "replicator_desc",
+        "placeholders": []
+      },
+      {
+        "key": "retreat",
+        "placeholders": []
+      },
+      {
+        "key": "retreat_desc",
+        "placeholders": []
+      },
+      {
+        "key": "returntosender",
+        "placeholders": []
+      },
+      {
+        "key": "returntosender_desc",
+        "placeholders": []
+      },
+      {
+        "key": "rezombie",
+        "placeholders": []
+      },
+      {
+        "key": "rezombie_desc",
+        "placeholders": []
+      },
+      {
+        "key": "richboy",
+        "placeholders": []
+      },
+      {
+        "key": "richboy_desc",
+        "placeholders": []
+      },
+      {
+        "key": "robinhood",
+        "placeholders": []
+      },
+      {
+        "key": "robinhood_desc",
+        "placeholders": []
+      },
+      {
+        "key": "rubber",
+        "placeholders": []
+      },
+      {
+        "key": "rubber_desc",
+        "placeholders": []
+      },
+      {
+        "key": "saper",
+        "placeholders": []
+      },
+      {
+        "key": "saper_desc",
+        "placeholders": []
+      },
+      {
+        "key": "secondlife",
+        "placeholders": []
+      },
+      {
+        "key": "secondlife_desc",
+        "placeholders": []
+      },
+      {
+        "key": "selectplayerskill_command",
+        "placeholders": []
+      },
+      {
+        "key": "selectplayerskill_incorrect_enemy_index",
+        "placeholders": []
+      },
+      {
+        "key": "shade",
+        "placeholders": []
+      },
+      {
+        "key": "shade_desc",
+        "placeholders": []
+      },
+      {
+        "key": "shade_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "shade_nospace",
+        "placeholders": []
+      },
+      {
+        "key": "shortbomb",
+        "placeholders": []
+      },
+      {
+        "key": "shortbomb_desc",
+        "placeholders": []
+      },
+      {
+        "key": "silent",
+        "placeholders": []
+      },
+      {
+        "key": "silent_desc",
+        "placeholders": []
+      },
+      {
+        "key": "skill_not_found_setskill",
+        "placeholders": []
+      },
+      {
+        "key": "skills_menu",
+        "placeholders": []
+      },
+      {
+        "key": "smoker",
+        "placeholders": []
+      },
+      {
+        "key": "smoker_desc",
+        "placeholders": []
+      },
+      {
+        "key": "sniperelite",
+        "placeholders": []
+      },
+      {
+        "key": "sniperelite_customname",
+        "placeholders": []
+      },
+      {
+        "key": "sniperelite_desc",
+        "placeholders": []
+      },
+      {
+        "key": "soldier",
+        "placeholders": []
+      },
+      {
+        "key": "soldier_desc",
+        "placeholders": []
+      },
+      {
+        "key": "soldier_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "soundmaker",
+        "placeholders": []
+      },
+      {
+        "key": "soundmaker_desc",
+        "placeholders": []
+      },
+      {
+        "key": "spectator",
+        "placeholders": []
+      },
+      {
+        "key": "spectator_desc",
+        "placeholders": []
+      },
+      {
+        "key": "summary",
+        "placeholders": []
+      },
+      {
+        "key": "swapposition",
+        "placeholders": []
+      },
+      {
+        "key": "swapposition_desc",
+        "placeholders": []
+      },
+      {
+        "key": "takeammo",
+        "placeholders": []
+      },
+      {
+        "key": "takeammo_desc",
+        "placeholders": []
+      },
+      {
+        "key": "takeammo_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "takeammo_hud_info1",
+        "placeholders": []
+      },
+      {
+        "key": "takeammo_hud_info2",
+        "placeholders": []
+      },
+      {
+        "key": "teammate_skills",
+        "placeholders": []
+      },
+      {
+        "key": "teamteleport",
+        "placeholders": []
+      },
+      {
+        "key": "teamteleport_desc",
+        "placeholders": []
+      },
+      {
+        "key": "teamteleport_hud_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "teamteleport_noenemy",
+        "placeholders": []
+      },
+      {
+        "key": "teleporter",
+        "placeholders": []
+      },
+      {
+        "key": "teleporter_desc",
+        "placeholders": []
+      },
+      {
+        "key": "teleporter_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "thief",
+        "placeholders": []
+      },
+      {
+        "key": "thief_desc",
+        "placeholders": []
+      },
+      {
+        "key": "thief_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "thief_incorrect_skill",
+        "placeholders": []
+      },
+      {
+        "key": "thief_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "thief_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "thirdeye",
+        "placeholders": []
+      },
+      {
+        "key": "thirdeye_desc",
+        "placeholders": []
+      },
+      {
+        "key": "thorns",
+        "placeholders": []
+      },
+      {
+        "key": "thorns_desc",
+        "placeholders": []
+      },
+      {
+        "key": "throwingknife",
+        "placeholders": []
+      },
+      {
+        "key": "throwingknife_desc",
+        "placeholders": []
+      },
+      {
+        "key": "toxicsmoke",
+        "placeholders": []
+      },
+      {
+        "key": "toxicsmoke_desc",
+        "placeholders": []
+      },
+      {
+        "key": "tripwire",
+        "placeholders": []
+      },
+      {
+        "key": "tripwire_desc",
+        "placeholders": []
+      },
+      {
+        "key": "tripwire_no_wall_info",
+        "placeholders": []
+      },
+      {
+        "key": "tripwire_placed_info",
+        "placeholders": []
+      },
+      {
+        "key": "tripwire_triggered_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "unpause",
+        "placeholders": []
+      },
+      {
+        "key": "vote_alredy_voted",
+        "placeholders": []
+      },
+      {
+        "key": "vote_not_enough_players",
+        "placeholders": []
+      },
+      {
+        "key": "vote_same_wait",
+        "placeholders": []
+      },
+      {
+        "key": "vote_started",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "vote_timeout",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "vote_vote",
+        "placeholders": []
+      },
+      {
+        "key": "vote_wait",
+        "placeholders": []
+      },
+      {
+        "key": "wallhack",
+        "placeholders": []
+      },
+      {
+        "key": "wallhack_desc",
+        "placeholders": []
+      },
+      {
+        "key": "watchmaker",
+        "placeholders": []
+      },
+      {
+        "key": "watchmaker_ct",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "watchmaker_desc",
+        "placeholders": []
+      },
+      {
+        "key": "watchmaker_tt",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "weaponsswap",
+        "placeholders": []
+      },
+      {
+        "key": "weaponsswap_desc",
+        "placeholders": []
+      },
+      {
+        "key": "weaponsswap_hud_info2",
+        "placeholders": []
+      },
+      {
+        "key": "weightless",
+        "placeholders": []
+      },
+      {
+        "key": "weightless_desc",
+        "placeholders": []
+      },
+      {
+        "key": "welcome_message",
+        "placeholders": []
+      },
+      {
+        "key": "wildthrow",
+        "placeholders": []
+      },
+      {
+        "key": "wildthrow_desc",
+        "placeholders": []
+      },
+      {
+        "key": "wildthrow_disable_info",
+        "placeholders": []
+      },
+      {
+        "key": "wildthrow_enemy_info",
+        "placeholders": []
+      },
+      {
+        "key": "wildthrow_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "wildthrow_select_info",
+        "placeholders": []
+      },
+      {
+        "key": "your_skill",
+        "placeholders": []
+      },
+      {
+        "key": "zeus",
+        "placeholders": []
+      },
+      {
+        "key": "zeus_desc",
+        "placeholders": []
+      }
+    ]
+  },
+  "package": {
+    "root": "HeroShift - Server Files",
+    "fileCount": 9,
+    "files": [
+      "gamedata/HeroShift.gamedata.json",
+      "plugins/HeroShift/HeroShift.dll",
+      "plugins/HeroShift/HeroShift.pdb",
+      "plugins/HeroShift/Newtonsoft.Json.dll",
+      "plugins/HeroShift/WASDMenuAPI.dll",
+      "plugins/HeroShift/WASDMenuAPI.pdb",
+      "plugins/HeroShift/configs/config.json",
+      "plugins/HeroShift/configs/skillsInfo.json",
+      "plugins/HeroShift/languages/en.json"
+    ]
+  },
+  "warnings": [
+    "Mute: no \u0027class Mute : ISkill\u0027 found (likely dead/commented-out file) - excluded from baseline"
+  ]
+}

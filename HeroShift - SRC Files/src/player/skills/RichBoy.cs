@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -14,8 +16,8 @@ namespace src.player.skills
      *   EnableSkill: rolls money between minMoney and maxMoney and sets your
      *     account.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   minMoney = 5000
      *                -> lowest starting money that can be rolled
      *   maxMoney = 15000
@@ -39,9 +41,10 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.RichBoy;
 
+        private static RichBoyOptions Options => SkillConfigurationResolver.Get<RichBoyOptions>(BuiltInSkillIds.RichBoy);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         private static int GetMaxMoney() => ConVar.Find("mp_maxmoney")?.GetPrimitiveValue<int>() ?? 16000;
@@ -50,7 +53,7 @@ namespace src.player.skills
         {
             var playerInfo = PlayerManager.GetPlayerByIndex(player!.Index);
             if (playerInfo == null) return;
-            int moneyBonus = Instance.Random.Next(SkillsInfo.GetValue<int>(skillName, "minMoney"), SkillsInfo.GetValue<int>(skillName, "maxMoney"));
+            int moneyBonus = Instance.Random.Next(Options.MinMoney, Options.MaxMoney);
 
             var moneyServices = player.InGameMoneyServices;
             if (moneyServices == null) return;
@@ -81,12 +84,6 @@ namespace src.player.skills
 
             moneyServices.Account = Math.Clamp(moneyServices.Account + money, minimum, GetMaxMoney());
             Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#D4AF37", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = Rarity.Common, int minMoney = 5000, int maxMoney = 15000) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int MinMoney { get; set; } = minMoney;
-            public int MaxMoney { get; set; } = maxMoney;
         }
     }
 }

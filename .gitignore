@@ -6,8 +6,6 @@
 **/out/
 **/TestResults/
 
-# Ignore specific project-level build dirs (legacy/explicit)
-!HeroShift\ -\ Server Files/*
 HeroShift\ -\ SRC Files/*/bin/
 HeroShift\ -\ SRC Files/*/obj/
 WASDMenuAPI\ -\ SRC Files/*/bin/
@@ -41,6 +39,3 @@ perf_*.txt
 node_modules/
 dist/
 .env
-
-# release.ps1 / release workflow packaging output
-/HeroShift-v*.zip

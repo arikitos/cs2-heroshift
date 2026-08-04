@@ -4,6 +4,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -13,8 +15,8 @@ namespace src.player.skills
      *   BombPlanted/OnEntitySpawned: adjusts the timer by changeRoundTime and
      *     plays a sound.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   changeRoundTime = 7
      *                       -> seconds added to / removed from the timer per use
      *   soundEvent      = "UIPanorama.sidemenu_select"
@@ -37,11 +39,12 @@ namespace src.player.skills
     public class Watchmaker : ISkill
     {
         private const Skills skillName = Skills.Watchmaker;
+        private static WatchmakerOptions Options => SkillConfigurationResolver.Get<WatchmakerOptions>(BuiltInSkillIds.Watchmaker);
         private static bool bombPlanted = false;
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -70,7 +73,7 @@ namespace src.player.skills
             var playerInfo = PlayerManager.GetPlayerByIndex((PlayerManager.GetPlayerEvent(player)?.Index ?? player.Index));
             if (playerInfo?.Skill != skillName || Instance.GameRules == null) return;
 
-            var roundTime = SkillsInfo.GetValue<int>(skillName, "changeRoundTime");
+            var roundTime = Options.ChangeRoundTime;
             Instance.GameRules.RoundTime += player.Team == CsTeam.Terrorist ? roundTime : -roundTime;
 
             if (player.Team == CsTeam.Terrorist)
@@ -78,17 +81,11 @@ namespace src.player.skills
             else
                 Localization.PrintTranslationToChatAll($" {ChatColors.LightBlue}{{0}}", ["watchmaker_ct"], [roundTime]);
 
-            player.EmitSound(SkillsInfo.GetValue<string>(skillName, "SoundEvent"));
+            player.EmitSound(Options.SoundEvent);
 
             var proxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
             if (proxy == null) return;
             Utilities.SetStateChanged(proxy, "CCSGameRulesProxy", "m_pGameRules");
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff462e", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, int changeRoundTime = 7, string soundEvent = "UIPanorama.sidemenu_select") : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int ChangeRoundTime { get; set; } = changeRoundTime;
-            public string SoundEvent { get; set; } = soundEvent;
         }
     }
 }

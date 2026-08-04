@@ -3,6 +3,8 @@ using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
 using static src.HeroShift;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,14 +17,15 @@ namespace src.player.skills
     {
         private const Skills skillName = Skills.Regeneration;
 
+        private static RegenerationOptions Options => SkillConfigurationResolver.Get<RegenerationOptions>(BuiltInSkillIds.Regeneration);
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void OnTick()
         {
-            int cooldown = Math.Max(1, (int)(64 * SkillsInfo.GetValue<float>(skillName, "cooldown")));
+            int cooldown = Math.Max(1, (int)(64 * Options.Cooldown));
             if (Server.TickCount % cooldown != 0) return;
             foreach (var player in PlayerManager.GetTickPlayers())
             {
@@ -31,18 +34,7 @@ namespace src.player.skills
 
                 var pawn = player.PlayerPawn.Value;
                 if (pawn == null || !pawn.IsValid) continue;
-                SkillUtils.AddHealth(pawn, SkillsInfo.GetValue<int>(skillName, "healthToAdd"));
-            }
-        }
-
-        public class SkillConfig : SkillsInfo.DefaultSkillInfo
-        {
-            public int HealthToAdd { get; set; }
-            public float Cooldown { get; set; }
-            public SkillConfig(Skills skill = skillName, bool active = true, string color = "#ff462e", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = -1, Rarity rarity = utils.Rarity.Common, int healthToAdd = 1, float cooldown = .25f) : base(skill, active, color, onlyTeam, needsTeammates)
-            {
-                HealthToAdd = healthToAdd;
-                Cooldown = cooldown;
+                SkillUtils.AddHealth(pawn, Options.HealthToAdd);
             }
         }
     }

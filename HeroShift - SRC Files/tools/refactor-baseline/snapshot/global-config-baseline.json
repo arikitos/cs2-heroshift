@@ -1,0 +1,110 @@
+{
+  "sourceFile": "HeroShift - SRC Files/src/utils/Config.cs",
+  "sourceType": "Config.SettingsModel",
+  "note": "Hand-transcribed from the SettingsModel constructor defaults (not regex-extracted: the constructor body assigns fields imperatively with nested object initializers, unlike the regular SkillConfig primary-constructor pattern). Cross-checked line-by-line against Config.cs during Commit 1.",
+  "general": {
+    "configName": "Default",
+    "gameMode": 3,
+    "gameModeEnumName": "NoRepeat",
+    "yourSkillChatInfo": true,
+    "killerSkillChatInfo": true,
+    "teamMateSkillChatInfo": true,
+    "summaryAfterTheRound": true,
+    "enableBotSkills": true,
+    "enableBotKickDebug": false,
+    "enableFullForceUpdate": false,
+    "debugMode": false,
+    "perfMode": false,
+    "alternativeSkillButton": null,
+    "skillTimeBeforeStart": 7.0,
+    "skillHudDuration": -1.0,
+    "skillDescriptionDuration": 7.0,
+    "displayAlwaysDescription": false,
+    "disableSpectateHUD": false,
+    "hideHudForOtherPlugins": true,
+    "enableFlashingHtmlHudFix": false,
+    "traceRayBeam": false,
+    "disableHUDOnDeathPermission": "@HeroShift/death",
+    "disableSkillsOnRoundEnd": false,
+    "curseSkillPerPlayer": null
+  },
+  "gameModes": {
+    "Normal": 0,
+    "TeamSkills": 1,
+    "SameSkills": 2,
+    "NoRepeat": 3,
+    "FullRandom": 4,
+    "Debug": 5
+  },
+  "htmlHudCustomisation": {
+    "headerLineColor": "#FFFFFF",
+    "headerLineSize": "",
+    "skillLineSize": "l",
+    "infoLineColor": "#FFFFFF",
+    "infoLineSize": "sm",
+    "skillDescriptionLineColor": "#999999",
+    "skillDescriptionLineSize": "sm",
+    "wsadMenuSelectInfoLineColor": "#999999",
+    "wsadMenuSelectInfoLineSize": "sm",
+    "wsadMenuItemLineColor": "white",
+    "wsadMenuItemHoverLineColor": "orange",
+    "wsadMenuItemLineSize": "sm",
+    "wsadMenuControllsLineSize": "sm",
+    "wsadMenuControllsLineColor1": "cyan",
+    "wsadMenuControllsLineColor2": "white",
+    "wsadMenuControllsLineColor3": "green"
+  },
+  "chatMessage": {
+    "maxWidth": 1280,
+    "lineSymbol": "―",
+    "lineColor": "",
+    "lineShow": true,
+    "infoPlayerNameColor": "",
+    "infoSkillColor": "",
+    "infoMessageShow": true,
+    "tagFormat": "◢◆◤ {TAG} ◥◆◣"
+  },
+  "normalCommands": {
+    "setSkillCommand": { "aliases": ["setskill", "set_skill"], "permission": "@HeroShift/admin" },
+    "skillsListCommand": { "aliases": ["skills"], "permission": "@HeroShift/admin" },
+    "useSkillCommand": { "aliases": ["t", "useSkill"], "permission": "@HeroShift/admin" },
+    "healCommand": { "aliases": ["heal"], "permission": "@HeroShift/admin" },
+    "healthCommand": { "aliases": ["sethealth", "set_health", "health"], "permission": "@HeroShift/admin" },
+    "plantedBomb": { "aliases": ["plantedbomb", "planted_bomb", "bomb"], "permission": "@HeroShift/admin" },
+    "botPlace": { "aliases": ["botplace", "bot_place"], "permission": "@HeroShift/admin" },
+    "consoleCommand": { "aliases": ["console", "sv"], "permission": "@HeroShift/owner" },
+    "hudCommand": { "aliases": ["hud", "hood"], "permission": "" },
+    "setStaticSkillCommand": { "aliases": ["setstaticskill", "set_static_skill"], "permission": "@HeroShift/admin" },
+    "reloadCommand": { "aliases": ["reload", "refresh"], "permission": "@HeroShift/admin" },
+    "nextCommand": { "aliases": ["next_skill"], "permission": "@HeroShift/admin" },
+    "checkEntityCommand": { "aliases": ["ent", "entity", "checkentity", "check_entity", "checkent", "check_ent"], "permission": "@HeroShift/owner" }
+  },
+  "votingCommands": {
+    "startGameCommand": {
+      "enableVoting": true, "aliases": ["start", "go"], "permission": "@HeroShift/admin",
+      "startParams": "mp_freezetime 15; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 0",
+      "svStartParams": "mp_freezetime 0; mp_forcecamera 0; mp_overtime_enable 1; sv_cheats 1",
+      "timeToVote": 15, "percentagesToSuccess": 60, "timeToNextVoting": 15, "timeToNextSameVoting": 500, "minimumPlayersToStartVoting": 2
+    },
+    "changeMapCommand": {
+      "enableVoting": true, "aliases": ["map", "changemap"], "permission": "@HeroShift/admin",
+      "timeToVote": 25, "percentagesToSuccess": 90, "timeToNextVoting": 15, "timeToNextSameVoting": 500, "minimumPlayersToStartVoting": 2
+    },
+    "swapCommand": {
+      "enableVoting": true, "aliases": ["swap"], "permission": "@HeroShift/admin",
+      "timeToVote": 15, "percentagesToSuccess": 90, "timeToNextVoting": 15, "timeToNextSameVoting": 20, "minimumPlayersToStartVoting": 2
+    },
+    "shuffleCommand": {
+      "enableVoting": true, "aliases": ["shuffle"], "permission": "@HeroShift/admin",
+      "timeToVote": 15, "percentagesToSuccess": 90, "timeToNextVoting": 15, "timeToNextSameVoting": 20, "minimumPlayersToStartVoting": 2
+    },
+    "pauseCommand": {
+      "enableVoting": true, "aliases": ["pause", "unpause"], "permission": "@HeroShift/admin",
+      "timeToVote": 15, "percentagesToSuccess": 60, "timeToNextVoting": 15, "timeToNextSameVoting": 2, "minimumPlayersToStartVoting": 2
+    },
+    "setScoreCommand": {
+      "enableVoting": true, "aliases": ["setscore"], "permission": "@HeroShift/owner",
+      "timeToVote": 15, "percentagesToSuccess": 90, "timeToNextVoting": 15, "timeToNextSameVoting": 90, "minimumPlayersToStartVoting": 2
+    }
+  }
+}

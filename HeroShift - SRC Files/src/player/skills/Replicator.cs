@@ -6,6 +6,8 @@ using HeroShift.src.utils;
 using src.utils;
 using System.Collections.Concurrent;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   UseSkill: spawns the replica.
      *   OnTakeDamage: shooting the replica hurts the shooter.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   cooldown        = 15f
      *                       -> seconds before the skill can be used again
      *   yourTeamDamage  = 10
@@ -41,13 +43,14 @@ namespace src.player.skills
     public class Replicator : ISkill
     {
         private const Skills skillName = Skills.Replicator;
+        private static ReplicatorOptions Options => SkillConfigurationResolver.Get<ReplicatorOptions>(BuiltInSkillIds.Replicator);
         private static readonly ConcurrentDictionary<uint, PlayerSkillInfo> SkillPlayerInfo = [];
         private static readonly ConcurrentDictionary<uint, byte> consumedReplicas = [];
         private static readonly object setLock = new();
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
@@ -102,7 +105,7 @@ namespace src.player.skills
             float cooldown = 0;
             if (skillInfo != null)
             {
-                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(SkillsInfo.GetValue<float>(skillName, "cooldown")) - DateTime.Now).TotalSeconds);
+                float time = (int)Math.Ceiling((skillInfo.Cooldown.AddSeconds(Options.Cooldown) - DateTime.Now).TotalSeconds);
                 cooldown = Math.Max(time, 0);
 
                 if (cooldown == 0 && skillInfo?.CanUse == false)
@@ -193,7 +196,7 @@ namespace src.player.skills
             var attackerTeam = attackerPawn.TeamNum;
             var replicaTeam = replica.Globalname.EndsWith("CT") ? 3 : 2;
 
-            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? SkillsInfo.GetValue<int>(skillName, "EnemyTeamDamage") : SkillsInfo.GetValue<int>(skillName, "YourTeamDamage"), owner, KillfeedIcons.Player);
+            SkillUtils.TakeHealth(attackerPawn, attackerTeam != replicaTeam ? Options.EnemyTeamDamage : Options.YourTeamDamage, owner, KillfeedIcons.Player);
         }
 
         private static CCSPlayerController? GetReplicaOwner(uint replicaIndex)
@@ -210,13 +213,6 @@ namespace src.player.skills
             public ulong SteamID { get; set; }
             public bool CanUse { get; set; }
             public DateTime Cooldown { get; set; }
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#a3000b", CsTeam onlyTeam = CsTeam.None, bool disableOnFreezeTime = true, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 2, Rarity rarity = Rarity.Common, float cooldown = 15f, int yourTeamDamage = 10, int enemyTeamDamage = 20) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public float Cooldown { get; set; } = cooldown;
-            public int YourTeamDamage { get; set; } = yourTeamDamage;
-            public int EnemyTeamDamage { get; set; } = enemyTeamDamage;
         }
     }
 }

@@ -5,6 +5,8 @@ using src.utils;
 using static src.HeroShift;
 using Vector = CounterStrikeSharp.API.Modules.Utils.Vector;
 
+using src.SkillsCore;
+using src.SkillsCore.BuiltIn;
 namespace src.player.skills
 {
     /*
@@ -15,8 +17,8 @@ namespace src.player.skills
      *   BulletImpact: bullets hitting the C4 reduce that health until it is
      *     destroyed.
      *
-     * TUNABLE VALUES  (edit configs/skillsInfo.json, or the defaults in the
-     * SkillConfig constructor at the bottom of this file)
+     * TUNABLE VALUES  (defaults live in the typed skill options record;
+     * override them under this skill in configs/heroshift.json)
      *   maxBombHealth = 1000
      *                     -> hit points of the planted C4 before it is destroyed
      *
@@ -37,6 +39,7 @@ namespace src.player.skills
     public class FragileBomb : ISkill
     {
         private const Skills skillName = Skills.FragileBomb;
+        private static FragileBombOptions Options => SkillConfigurationResolver.Get<FragileBombOptions>(BuiltInSkillIds.FragileBomb);
         private static int bombHealth = 1000;
         private static int maxBombHealth = 1000;
 
@@ -45,13 +48,13 @@ namespace src.player.skills
 
         public static void LoadSkill()
         {
-            SkillUtils.RegisterSkill(skillName, SkillsInfo.GetValue<string>(skillName, "color"));
+            SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
         public static void NewRound()
         {
-            bombHealth = SkillsInfo.GetValue<int>(skillName, "maxBombHealth");
-            maxBombHealth = SkillsInfo.GetValue<int>(skillName, "maxBombHealth");
+            bombHealth = Options.MaxBombHealth;
+            maxBombHealth = Options.MaxBombHealth;
             plantedC4 = null;
         }
 
@@ -96,11 +99,6 @@ namespace src.player.skills
             }
 
             Localization.PrintTranslationToChatAll($" {ChatColors.Gold}{{0}}: {ChatColors.Red}{bombHealth}{ChatColors.Gold}/{ChatColors.Green}{maxBombHealth}", ["fragilebomb_bomb_health"]);
-        }
-
-        public class SkillConfig(Skills skill = skillName, bool active = true, string color = "#5d00ff", CsTeam onlyTeam = CsTeam.CounterTerrorist, bool disableOnFreezeTime = false, bool needsTeammates = false, string requiredPermission = "", float? hudDuration = null, float? descriptionHudDuration = null, int maxPerServer = 1, Rarity rarity = Rarity.Common, int maxBombHealth = 1000) : SkillsInfo.DefaultSkillInfo(skill, active, color, onlyTeam, disableOnFreezeTime, needsTeammates, requiredPermission, hudDuration, descriptionHudDuration, maxPerServer, rarity)
-        {
-            public int MaxBombHealth { get; set; } = maxBombHealth;
         }
     }
 }
