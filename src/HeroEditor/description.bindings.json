@@ -1,0 +1,3 @@
+{
+  "ninja": "Standing still increases your invisibility by {{idlePercentInvisibility|percent}}, crouching by {{duckPercentInvisibility|percent}}, and holding a knife by {{knifePercentInvisibility|percent}}"
+}
