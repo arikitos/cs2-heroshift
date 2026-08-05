@@ -1,34 +1,57 @@
-# HeroEditor (local-only tool)
+# HeroEditor
 
-A single-page, no-build UI for browsing and editing all 142 HeroShift skills — display name,
-description, and per-skill tunable options — instead of hand-editing JSON files.
+HeroEditor is a local tool for browsing and editing HeroShift skill names, descriptions, metadata, and tunable options.
 
-This is **not part of the release build** (the CI packaging script only zips compiled plugin
-output, never `src/`), so it's safe to keep around for local use only.
+## Recommended startup
 
-## Usage
+Run the launcher from PowerShell.
 
-1. Open `index.html` in Chrome or Edge (needs the File System Access API).
-2. Click **Open project folder…** and select the repository root (`cs2-heroshift`).
-3. Edit any skill's display name, description, color, rarity, team restriction, or options.
-   Fields matching the code default show no highlight; changed fields mark the card as
-   "overridden" (blue border) and get written to `config/heroshift.json` on save.
-4. Click **Save changes** to write both:
-   - `src/HeroShift/Localization/Resources/en.json` (display name + description)
-   - `config/heroshift.json` (per-skill overrides — metadata + options)
-5. **Reset to defaults** on a card removes its override block entirely.
+```powershell
+./src/HeroEditor/start.ps1
+```
+
+The launcher starts a local server, opens the browser, and loads the repository root automatically. This mode enables all editor actions, including local release packaging.
+
+Opening `index.html` directly remains supported in Chrome and Edge. The first direct opening requires selecting the repository root because browsers cannot grant filesystem access automatically. The selected directory handle is stored in IndexedDB and is restored automatically on later openings when permission remains granted.
+
+## Header actions
+
+The header contains search, Reset to Default, Save Changes, and Publish Local Zip.
+
+Reset to Default clears every skill override and restores names, descriptions, metadata, and options from `skills.generated.json` and `description.bindings.json`.
+
+Save Changes writes these files.
+
+```text
+src/HeroShift/Localization/Resources/en.json
+config/heroshift.json
+src/HeroEditor/description.bindings.json
+```
+
+Publish Local Zip first saves the current editor state, calculates the next patch version from the project version, local release archives, and local Git tags, then executes the root release script with `NoPublish`. It creates a local archive only. It never creates or pushes a Git tag and never creates a GitHub release.
+
+## Dynamic descriptions
+
+A description can reference skill options with tokens.
+
+```text
+{{optionName}}
+{{optionName|percent}}
+{{optionName|seconds}}
+{{optionName|multiplier}}
+{{optionName|currency}}
+```
+
+The editor shows the rendered description below the editable template. Option changes update the rendered description immediately. Saved localization contains the rendered text, so the game receives a normal string without editor tokens.
+
+The initial binding for Ninja is stored in `description.bindings.json`, so its invisibility percentages are derived from the effective option values instead of a hardcoded description.
 
 ## Regenerating skill data
 
-`skills.generated.json` holds each skill's id, class name, hooks, and code-default
-metadata/options — the source of truth the editor diffs overrides against. It's built from:
+`skills.generated.json` is generated from the reflection baseline and English localization.
 
-- `tests/HeroShift.Tests/Fixtures/baseline.json` — reflection-derived skill metadata/options,
-  kept accurate by the test suite.
-- `src/HeroShift/Localization/Resources/en.json` — display names/descriptions.
-
-Re-run after adding/removing a skill or changing a default:
-
-```
+```powershell
 python src/HeroEditor/regenerate.py
 ```
+
+Run regeneration after adding or removing a skill or changing code defaults.
