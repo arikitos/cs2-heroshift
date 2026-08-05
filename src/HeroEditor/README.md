@@ -44,7 +44,11 @@ A description can reference skill options with tokens.
 
 The editor shows the rendered description below the editable template. Option changes update the rendered description immediately. Saved localization contains the rendered text, so the game receives a normal string without editor tokens.
 
-The initial binding for Ninja is stored in `description.bindings.json`, so its invisibility percentages are derived from the effective option values instead of a hardcoded description.
+`description.bindings.json` contains templates for every skill that has player facing numeric or Boolean options. Percentages, timing, damage, health, ranges, movement values, limits, chances, multipliers, and similar gameplay quantities are resolved from the effective option values instead of being duplicated as hardcoded text.
+
+Descriptions for fixed behavior that is not exposed as an option avoid numeric claims that could drift. For example, Chicken now describes faster movement and reduced health without duplicating its internal constants, and Behind describes turning the enemy to face the opposite direction instead of hardcoding an angle.
+
+The HeroEditor test suite validates that every gameplay numeric or Boolean option is represented by a description token, every token points to an existing option, and every numeric default description has a binding. These tests run in CI on Windows and Linux.
 
 ## Regenerating skill data
 
