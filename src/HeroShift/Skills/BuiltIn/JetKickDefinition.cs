@@ -34,6 +34,7 @@ public static class JetKickDefinition
             OnTick = JetKick.OnTick,
             NewRound = JetKick.NewRound,
             PlayerDeath = JetKick.PlayerDeath,
+            PlayerDisconnect = JetKick.PlayerDisconnect,
             WeaponFire = JetKick.WeaponFire,
         },
     };

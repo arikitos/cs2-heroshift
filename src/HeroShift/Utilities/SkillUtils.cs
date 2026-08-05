@@ -389,6 +389,15 @@ namespace src.utils
             return !ff && !tae; // same team + FF off -> engine will zero this damage
         }
 
+        // Same convar check as IsFriendlyFireBlocked, but usable when the inflictor isn't a player pawn
+        // (e.g. a tagged grenade projectile whose owning team is tracked separately from info.Attacker).
+        public static bool IsFriendlyFireOff()
+        {
+            bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
+            bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
+            return !ff && !tae;
+        }
+
         private static readonly ConcurrentDictionary<uint, (uint AttackerIndex, string? Weapon, int ExpiryTick)> pendingKillCredits = [];
 
         public static void RegisterKillCredit(uint victimIndex, uint attackerIndex, KillfeedIcons? killfeedIcon = null)

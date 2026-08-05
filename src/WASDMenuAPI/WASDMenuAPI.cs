@@ -50,7 +50,7 @@ public class WASDMenuAPI
         foreach (var player in Players.Values.Where(p => p.MainMenu != null && p.Player?.IsValid == true))
         {
             if (player.Paused)
-                return;
+                continue;
 
             if ((player.Buttons & PlayerButtons.Forward) == 0 && (player.Player.Buttons & PlayerButtons.Forward) != 0)
                 player.ScrollUp();

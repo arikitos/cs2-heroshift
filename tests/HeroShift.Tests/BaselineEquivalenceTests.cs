@@ -11,7 +11,7 @@ public class BaselineEquivalenceTests
     private static readonly HashSet<string> DisconnectCleanupSkills =
     [
         "BunnyHop", "Darkness", "Deaf", "ExpensiveAmmo", "Giant", "Glitch",
-        "Jammer", "Jester", "JumpBan", "JumpCurse", "Magnifier", "Nightmare",
+        "Jammer", "Jester", "JetKick", "JumpBan", "JumpCurse", "Magnifier", "Nightmare",
         "Phoenix", "Poison", "PrimaryBan", "Spectator", "ThrowingKnife",
         "Tripwire", "Wallhack",
     ];

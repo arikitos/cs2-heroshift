@@ -213,7 +213,7 @@ namespace src.player.skills
                 float reduction = Options.DmgReductionForTeamates;
                 param2.Damage *= 1f - Math.Clamp(reduction, 0f, 1f);
 
-                if (IsFriendlyFireOff())
+                if (SkillUtils.IsFriendlyFireOff())
                 {
                     int teamDamage = (int)param2.Damage;
                     param2.Damage = 0;
@@ -227,13 +227,6 @@ namespace src.player.skills
 
             if (owner != null && param2.Damage >= victimPawn.Health)
                 SkillUtils.RegisterKillCredit(victim.Index, owner.Index, KillfeedIcons.Explosion);
-        }
-
-        private static bool IsFriendlyFireOff()
-        {
-            bool ff = ConVar.Find("mp_friendlyfire")?.GetPrimitiveValue<bool>() ?? false;
-            bool tae = ConVar.Find("mp_teammates_are_enemies")?.GetPrimitiveValue<bool>() ?? false;
-            return !ff && !tae;
         }
 
         private static bool NearlyEquals(float a, float b, float epsilon = 0.001f) => Math.Abs(a - b) < epsilon;

@@ -48,6 +48,19 @@ namespace src.player.skills
             SkillUtils.RegisterSkill(skillName, SkillRuntime.GetMetadata(skillName).Color);
         }
 
+        public static void PlayerDisconnect(uint playerIndex)
+        {
+            lock (setLock)
+            {
+                targetedPlayers.TryRemove(playerIndex, out _);
+                playersToTarget.TryRemove(playerIndex, out _);
+
+                foreach (var kvp in playersToTarget)
+                    if (kvp.Value == playerIndex)
+                        playersToTarget.TryRemove(kvp.Key, out _);
+            }
+        }
+
         public static void NewRound()
         {
             lock (setLock)
@@ -105,7 +118,7 @@ namespace src.player.skills
 
             var enemy = Utilities.GetPlayerFromIndex((int)enemyIndex);
 
-            if (enemy == null)
+            if (enemy == null || enemy.Team == player.Team)
             {
                 playerEvent.PrintToChat($" {ChatColors.Red}" + playerEvent.GetTranslation("selectplayerskill_incorrect_enemy_index"));
                 return;

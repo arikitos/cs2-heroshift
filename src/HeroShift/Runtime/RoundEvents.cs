@@ -224,7 +224,16 @@ namespace src.player
                 // nobody drew now would otherwise never clear state left over from an earlier round.
                 // Skills that never ran cannot hold state, so they stay out of the sweep.
                 foreach (var skill in SkillsUsedThisMap.Keys)
-                    Instance.InvokeNewRoundSkill(skill);
+                {
+                    try
+                    {
+                        Instance.InvokeNewRoundSkill(skill);
+                    }
+                    catch (Exception ex)
+                    {
+                        Server.PrintToConsole($"[HeroShift] {skill}.NewRound failed, cleanup continues: {ex.InnerException?.Message ?? ex.Message}");
+                    }
+                }
                 ActiveSkillsThisRound.Clear();
                 tickFailuresLogged.Clear();
             }
@@ -246,10 +255,25 @@ namespace src.player
                 Fortnite.skillInThisRound = false;
 
                 EntityManager.SuppressKills = true;
-                EntityManager.DestroyAllTracked();
-                foreach (var skill in SkillData.Skills)
-                    Instance.InvokeNewRoundSkill(skill.Skill);
-                EntityManager.SuppressKills = false;
+                try
+                {
+                    EntityManager.DestroyAllTracked();
+                    foreach (var skill in SkillData.Skills)
+                    {
+                        try
+                        {
+                            Instance.InvokeNewRoundSkill(skill.Skill);
+                        }
+                        catch (Exception ex)
+                        {
+                            Server.PrintToConsole($"[HeroShift] {skill.Skill}.NewRound failed, cleanup continues: {ex.InnerException?.Message ?? ex.Message}");
+                        }
+                    }
+                }
+                finally
+                {
+                    EntityManager.SuppressKills = false;
+                }
 
                 ActiveSkillsThisRound.Clear();
                 SkillsUsedThisMap.Clear();
