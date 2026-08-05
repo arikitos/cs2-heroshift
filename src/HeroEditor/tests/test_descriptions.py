@@ -21,6 +21,10 @@ TECHNICAL_NUMERIC_OPTIONS = {
     "colorB",
     "blindAlpha",
 }
+SEMANTIC_NUMERIC_DESCRIPTIONS = {
+    # Zeus x27 is the weapon name, not a configurable gameplay quantity.
+    "zeus",
+}
 
 
 def load_json(path: Path):
@@ -67,7 +71,9 @@ class DescriptionBindingTests(unittest.TestCase):
         missing = [
             skill["id"]
             for skill in self.skills
-            if NUMBER_RE.search(skill.get("description", "")) and skill["id"] not in self.bindings
+            if NUMBER_RE.search(skill.get("description", ""))
+            and skill["id"] not in self.bindings
+            and skill["id"] not in SEMANTIC_NUMERIC_DESCRIPTIONS
         ]
         self.assertEqual([], missing, "Numeric descriptions without bindings: " + ", ".join(missing))
 
