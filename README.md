@@ -21,7 +21,6 @@ src/WASDMenuAPI
 tests/HeroShift.Tests
 config/heroshift.json
 docs/dispatch-semantics.md
-licenses
 release.ps1
 ```
 
@@ -52,8 +51,6 @@ addons/counterstrikesharp/shared/RayTraceApi
 addons/metamod/RayTrace.vdf
 addons/RayTrace
 package-manifest.json
-THIRD_PARTY_NOTICES.md
-licenses/RayTrace-GPL-3.0.txt
 ```
 
 ## Configuration

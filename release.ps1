@@ -33,8 +33,6 @@ $targetFramework = 'net10.0'
 $buildOutput = Join-Path $repoRoot "src/HeroShift/bin/$Configuration/$targetFramework"
 $gamedata = Join-Path $repoRoot 'src/HeroShift/Gamedata/HeroShift.gamedata.json'
 $defaultConfig = Join-Path $repoRoot 'config/heroshift.json'
-$thirdPartyNotices = Join-Path $repoRoot 'THIRD_PARTY_NOTICES.md'
-$rayTraceLicense = Join-Path $repoRoot 'licenses/RayTrace-GPL-3.0.txt'
 $tag = "v$Version"
 $zipPath = Join-Path $repoRoot "HeroShift-$tag.zip"
 
@@ -184,8 +182,6 @@ $requiredSources = [ordered]@{
     'addons/counterstrikesharp/plugins/HeroShift/Newtonsoft.Json.dll' = Join-Path $buildOutput 'Newtonsoft.Json.dll'
     'addons/counterstrikesharp/plugins/HeroShift/configs/heroshift.json' = $defaultConfig
     'addons/counterstrikesharp/gamedata/HeroShift.gamedata.json' = $gamedata
-    'THIRD_PARTY_NOTICES.md' = $thirdPartyNotices
-    'licenses/RayTrace-GPL-3.0.txt' = $rayTraceLicense
 }
 
 foreach ($source in $requiredSources.Values) {
