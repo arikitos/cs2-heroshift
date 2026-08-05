@@ -17,6 +17,7 @@ const state = {
   defaultBindings: {},
   drafts: {},
   nextVersion: null,
+  sessionToken: null,
   dirty: false,
   busy: false,
 };
@@ -118,6 +119,7 @@ async function loadFromFolder(root) {
     config: await readJson(handles.config),
     bindings: await readJson(handles.bindings),
     nextVersion: null,
+    sessionToken: null,
   });
 }
 
@@ -137,6 +139,7 @@ function initialize(payload) {
   state.bindings = payload.bindings || {};
   state.defaultBindings = clone(state.bindings);
   state.nextVersion = payload.nextVersion || null;
+  state.sessionToken = payload.sessionToken || null;
   state.drafts = {};
   for (const skill of state.skills) {
     state.drafts[skill.id] = state.bindings[skill.id] || state.localization[`${skill.id}_desc`] || skill.description || '';
@@ -447,7 +450,9 @@ async function saveAll() {
     const value = payload();
     if (state.mode === 'api') {
       const response = await fetch('/api/save', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(value),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-HeroEditor-Token': state.sessionToken },
+        body: JSON.stringify(value),
       });
       const result = await response.json();
       if (!response.ok || !result.ok) throw new Error(result.error || 'Save failed');
@@ -488,7 +493,9 @@ async function publishLocal() {
   status(`Building ${state.nextVersion}`);
   try {
     const response = await fetch('/api/publish', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload()),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-HeroEditor-Token': state.sessionToken },
+      body: JSON.stringify(payload()),
     });
     const result = await response.json();
     if (!response.ok || !result.ok) throw new Error(result.error || 'Packaging failed');
