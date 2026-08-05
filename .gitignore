@@ -31,3 +31,5 @@ dist/
 .env
 
 /HeroShift-v*.zip
+
+/base-project
