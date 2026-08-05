@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import secrets
 import shutil
 import subprocess
 import threading
@@ -21,6 +22,7 @@ BINDINGS_PATH = EDITOR_DIR / "description.bindings.json"
 PROJECT_PATH = REPO_ROOT / "src" / "HeroShift" / "HeroShift.csproj"
 RELEASE_SCRIPT = REPO_ROOT / "release.ps1"
 VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
+SESSION_TOKEN = secrets.token_urlsafe(32)
 
 
 def read_json(path: Path) -> Any:
@@ -111,6 +113,7 @@ def project_payload() -> dict[str, Any]:
         "config": read_json(CONFIG_PATH),
         "bindings": read_json(BINDINGS_PATH),
         "nextVersion": calculate_next_version(),
+        "sessionToken": SESSION_TOKEN,
     }
 
 
@@ -171,15 +174,8 @@ class HeroEditorHandler(SimpleHTTPRequestHandler):
         super().__init__(*args, directory=str(EDITOR_DIR), **kwargs)
 
     def end_headers(self) -> None:
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Cache-Control", "no-store")
         super().end_headers()
-
-    def do_OPTIONS(self) -> None:
-        self.send_response(HTTPStatus.NO_CONTENT)
-        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.end_headers()
 
     def do_GET(self) -> None:
         if self.path == "/api/project":
@@ -191,6 +187,9 @@ class HeroEditorHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self) -> None:
         try:
+            if self.headers.get("X-HeroEditor-Token") != SESSION_TOKEN:
+                self.send_json({"ok": False, "error": "Invalid editor session"}, HTTPStatus.FORBIDDEN)
+                return
             payload = self.read_json_body()
             if self.path == "/api/save":
                 save_payload(payload)
