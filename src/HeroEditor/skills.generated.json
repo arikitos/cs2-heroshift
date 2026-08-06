@@ -549,6 +549,32 @@
     }
   },
   {
+    "id": "chameleon",
+    "className": "Chameleon",
+    "displayName": "Chameleon",
+    "description": "The first player you kill gives you their skill",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "NewRound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#5fd98a",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 2,
+      "rarity": "Rare"
+    },
+    "options": {}
+  },
+  {
     "id": "darkness",
     "className": "Darkness",
     "displayName": "Cloak",
@@ -1321,6 +1347,43 @@
     }
   },
   {
+    "id": "grapple",
+    "className": "Grapple",
+    "displayName": "Grapple Hook",
+    "description": "Press [css_useSkill] to fire a hook at the point you are aiming at and pull yourself there",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "UseSkill",
+      "OnTick",
+      "NewRound",
+      "RoundEnd",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#38e0c4",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": true,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": -1,
+      "rarity": "Rare"
+    },
+    "options": {
+      "cooldown": 10,
+      "maxDistance": 1500,
+      "minDistance": 150,
+      "stopDistance": 90,
+      "pullSpeed": 850,
+      "maxPullSeconds": 3,
+      "ropeWidth": 0.8
+    }
+  },
+  {
     "id": "magneticdecoy",
     "className": "MagneticDecoy",
     "displayName": "Graviton",
@@ -1688,6 +1751,33 @@
       "slownessMultiplier": 5,
       "grenadeLimit": 3
     }
+  },
+  {
+    "id": "inheritance",
+    "className": "Inheritance",
+    "displayName": "Inheritance",
+    "description": "When a teammate dies you can take over their skill",
+    "hooks": [
+      "LoadSkill",
+      "EnableSkill",
+      "DisableSkill",
+      "TypeSkill",
+      "NewRound",
+      "PlayerDeath"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#c9a227",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": true,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 2,
+      "rarity": "Rare"
+    },
+    "options": {}
   },
   {
     "id": "ghost",
@@ -3059,6 +3149,47 @@
     },
     "options": {
       "pushVelocity": 400
+    }
+  },
+  {
+    "id": "ricochet",
+    "className": "Ricochet",
+    "displayName": "Ricochet",
+    "description": "Your bullets bounce off walls and can still hit enemies",
+    "hooks": [
+      "LoadSkill",
+      "DisableSkill",
+      "OnTick",
+      "NewRound",
+      "RoundEnd",
+      "BulletImpact"
+    ],
+    "metadata": {
+      "active": true,
+      "color": "#ffd75e",
+      "onlyTeam": "None",
+      "disableOnFreezeTime": false,
+      "needsTeammates": false,
+      "requiredPermission": "",
+      "hudDuration": null,
+      "descriptionHudDuration": null,
+      "maxPerServer": 2,
+      "rarity": "Rare"
+    },
+    "options": {
+      "bounces": 3,
+      "segmentDistance": 1200,
+      "damageMultiplier": 0.5,
+      "fallbackDamage": 25,
+      "respectArmor": true,
+      "damageFalloff": 0.75,
+      "maxImpactsPerTick": 2,
+      "showTracer": true,
+      "tracerWidth": 0.5,
+      "tracerSpeed": 2600,
+      "tracerLength": 220,
+      "maxActiveTracers": 12,
+      "normalProbeOffset": 6
     }
   },
   {

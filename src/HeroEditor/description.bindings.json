@@ -98,5 +98,7 @@
   "behind": "Each hit has a chance, randomly set between {{chanceFrom|percent}} and {{chanceTo|percent}}, to turn the enemy in the opposite direction.",
   "regeneration": "Restore {{healthToAdd}} health every {{cooldown|seconds}}.",
   "homingnades": "Your grenades home toward enemies with {{strength}} strength, up to a maximum velocity of {{maxVelocity}}, and detonate when they are within {{detonationRange}} units of a target. You can carry up to {{grenadeLimit}} grenades.",
-  "rezombie": "After lethal damage, respawn as a zombie with {{zombieHealth}} health and no weapons."
+  "rezombie": "After lethal damage, respawn as a zombie with {{zombieHealth}} health and no weapons.",
+  "grapple": "Press [css_useSkill] to hook a surface between {{minDistance}} and {{maxDistance}} units away, then pull yourself toward it at {{pullSpeed}} units per second. The pull stops within {{stopDistance}} units or after {{maxPullSeconds|seconds}}. Rope width: {{ropeWidth}}. Cooldown: {{cooldown|seconds}}.",
+  "ricochet": "Your bullets bounce up to {{bounces}} times, tracing {{segmentDistance}} units per segment. Each ricochet deals {{damageMultiplier|multiplier}} base weapon damage, falls off by {{damageFalloff|multiplier}} per bounce, and uses {{fallbackDamage}} damage when weapon data is unavailable. Armor handling: {{respectArmor}}. Up to {{maxImpactsPerTick}} impacts are processed per tick. Tracers enabled: {{showTracer}}, width: {{tracerWidth}}, speed: {{tracerSpeed}}, length: {{tracerLength}}, maximum active tracers: {{maxActiveTracers}}. Surface probe offset: {{normalProbeOffset}}."
 }

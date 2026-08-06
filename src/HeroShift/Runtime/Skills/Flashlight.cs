@@ -90,7 +90,7 @@ namespace src.player.skills
                 if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo))
                     continue;
 
-                UpdateHUD(player, skillInfo);
+                if (SkillUtils.IsHudFrame()) UpdateHUD(player, skillInfo);
 
                 if (!skillInfo.IsActive || skillInfo.LightEntityIndex == 0)
                     continue;

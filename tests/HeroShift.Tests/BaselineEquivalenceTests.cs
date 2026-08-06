@@ -10,9 +10,9 @@ public class BaselineEquivalenceTests
 {
     private static readonly HashSet<string> DisconnectCleanupSkills =
     [
-        "BunnyHop", "Darkness", "Deaf", "ExpensiveAmmo", "Giant", "Glitch",
-        "Jammer", "Jester", "JetKick", "JumpBan", "JumpCurse", "Magnifier", "Nightmare",
-        "Phoenix", "Poison", "PrimaryBan", "Spectator", "ThrowingKnife",
+        "BunnyHop", "Chameleon", "Darkness", "Deaf", "ExpensiveAmmo", "Giant", "Glitch",
+        "Grapple", "Inheritance", "Jammer", "Jester", "JetKick", "JumpBan", "JumpCurse", "Magnifier", "Nightmare",
+        "Phoenix", "Ricochet", "Poison", "PrimaryBan", "Spectator", "ThrowingKnife",
         "Tripwire", "Wallhack",
     ];
 

@@ -49,7 +49,7 @@ namespace src
         internal ITraceService TraceService { get; private set; } = null!;
         internal SkillRegistry SkillRegistry { get; private set; } = null!;
         internal SkillDispatcher SkillDispatcher { get; private set; } = null!;
-        // Skills enabled at least once this round; used to reset only those on round change, not all 142 definitions.
+        // Skills enabled at least once this round; used to reset only those on round change, not all 146 definitions.
         public static readonly ConcurrentDictionary<SkillId, byte> ActiveSkillsThisRound = new();
         public static readonly ConcurrentDictionary<SkillId, byte> SkillsUsedThisMap = new();
 
@@ -467,6 +467,10 @@ namespace src
     {
         public static ConcurrentBag<SkillRuntimeInfo> Skills { get; } = [];
 
+        private static SkillRuntimeInfo[]? _snapshot;
+
+        public static SkillRuntimeInfo[] GetSnapshot() => _snapshot ??= [.. Skills];
+
         private static Dictionary<SkillId, SkillRuntimeInfo>? _bySkill;
 
         public static SkillRuntimeInfo? GetInfo(SkillId skill)
@@ -482,7 +486,11 @@ namespace src
             return map.TryGetValue(skill, out var info) ? info : null;
         }
 
-        public static void Invalidate() => _bySkill = null;
+        public static void Invalidate()
+        {
+            _bySkill = null;
+            _snapshot = null;
+        }
     }
 
     public enum CS2ConsoleColors

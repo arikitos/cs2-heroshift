@@ -41,9 +41,9 @@ public class SkillIdTests
     }
 
     [Fact]
-    public void BuiltInSkillIds_All_ContainsExactly142EntriesWithNoDuplicates()
+    public void BuiltInSkillIds_All_ContainsExactly146EntriesWithNoDuplicates()
     {
-        Assert.Equal(142, BuiltInSkillIds.All.Count);
+        Assert.Equal(146, BuiltInSkillIds.All.Count);
         Assert.Equal(BuiltInSkillIds.All.Count, BuiltInSkillIds.All.Distinct().Count());
     }
 

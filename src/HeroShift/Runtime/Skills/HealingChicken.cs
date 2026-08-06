@@ -115,10 +115,12 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (activeChickens.IsEmpty) return;
+
             int tickCooldown = Options.TickCooldown;
             if (Server.TickCount % tickCooldown == 0) return;
 
-            var players = PlayerManager.GetTickPlayers().ToArray();
+            var players = PlayerManager.GetTickPlayers();
             int healAmount = Options.Heal;
             float healRadius = Options.HealRadius;
 

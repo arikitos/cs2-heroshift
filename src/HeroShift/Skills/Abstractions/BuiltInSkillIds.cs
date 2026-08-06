@@ -32,6 +32,7 @@ public static class BuiltInSkillIds
     public static readonly SkillId C4Camouflage = SkillId.Create("c4camouflage");
     public static readonly SkillId CarefulBullets = SkillId.Create("carefulbullets");
     public static readonly SkillId Catapult = SkillId.Create("catapult");
+    public static readonly SkillId Chameleon = SkillId.Create("chameleon");
     public static readonly SkillId Chicken = SkillId.Create("chicken");
     public static readonly SkillId ChillOut = SkillId.Create("chillout");
     public static readonly SkillId Cutter = SkillId.Create("cutter");
@@ -67,6 +68,7 @@ public static class BuiltInSkillIds
     public static readonly SkillId Glitch = SkillId.Create("glitch");
     public static readonly SkillId Glue = SkillId.Create("glue");
     public static readonly SkillId GodMode = SkillId.Create("godmode");
+    public static readonly SkillId Grapple = SkillId.Create("grapple");
     public static readonly SkillId Grenadier = SkillId.Create("grenadier");
     public static readonly SkillId HealingChicken = SkillId.Create("healingchicken");
     public static readonly SkillId HealingSmoke = SkillId.Create("healingsmoke");
@@ -79,6 +81,7 @@ public static class BuiltInSkillIds
     public static readonly SkillId Illusionist = SkillId.Create("illusionist");
     public static readonly SkillId Impostor = SkillId.Create("impostor");
     public static readonly SkillId InfiniteAmmo = SkillId.Create("infiniteammo");
+    public static readonly SkillId Inheritance = SkillId.Create("inheritance");
     public static readonly SkillId Jackal = SkillId.Create("jackal");
     public static readonly SkillId Jammer = SkillId.Create("jammer");
     public static readonly SkillId Jester = SkillId.Create("jester");
@@ -126,6 +129,7 @@ public static class BuiltInSkillIds
     public static readonly SkillId Retreat = SkillId.Create("retreat");
     public static readonly SkillId ReturnToSender = SkillId.Create("returntosender");
     public static readonly SkillId RichBoy = SkillId.Create("richboy");
+    public static readonly SkillId Ricochet = SkillId.Create("ricochet");
     public static readonly SkillId RobinHood = SkillId.Create("robinhood");
     public static readonly SkillId Rubber = SkillId.Create("rubber");
     public static readonly SkillId Saper = SkillId.Create("saper");
@@ -155,21 +159,21 @@ public static class BuiltInSkillIds
     public static readonly SkillId WildThrow = SkillId.Create("wildthrow");
     public static readonly SkillId Zeus = SkillId.Create("zeus");
 
-    // All 142 built-in IDs, for validation, registration and translation checks.
+    // All 146 built-in IDs, for validation, registration and translation checks.
     public static IReadOnlyList<SkillId> All { get; } =
     [
         None, Aimbot, AimLock, Anomaly, AntyFlash, AntyHead, AreaReaper, Armored, Assassin, Astronaut,
-        Bankrupt, Baseball, Behind, Berserker, BladeMaster, BunnyHop, BlastShot, C4Camouflage, CarefulBullets, Catapult,
+        Bankrupt, Baseball, Behind, Berserker, BladeMaster, BunnyHop, BlastShot, C4Camouflage, CarefulBullets, Catapult, Chameleon,
         Chicken, ChillOut, Cutter, Cypher, Darkness, Deactivator, Deaf, DeathBomb, DemonEye, Disarmament,
         Distancer, Dash, Dracula, Duplicator, Dwarf, EnemySpawn, ExpensiveAmmo, ExplodingBarrel, ExplosiveShot, FalconEye,
         FastReload, FireRain, Flash, Flashlight, Fortnite, FragileBomb, FriendlyFire, FrozenDecoy, Gambler, Ghost,
-        Giant, Glaz, Glitch, Glue, GodMode, Grenadier, HealingChicken, HealingSmoke, Hermit, HolyHandGrenade,
-        HomingNades, HotBomb, Iana, Illiterate, Illusionist, Impostor, InfiniteAmmo, Jackal, Jammer, Jester,
+        Giant, Glaz, Glitch, Glue, GodMode, Grapple, Grenadier, HealingChicken, HealingSmoke, Hermit, HolyHandGrenade,
+        HomingNades, HotBomb, Iana, Illiterate, Illusionist, Impostor, InfiniteAmmo, Inheritance, Jackal, Jammer, Jester,
         JetKick, JumpBan, JumpCurse, JumpingJack, KillerFlash, Knockback, LastGasp, LifeSwap, LongKnife, LongZeus,
         MagneticDecoy, Magneto, Magnifier, Medic, Miner, MoneySwap, Nightmare, Ninja, NoNades, NoRecoil,
         Noclip, OneShot, OnlyHead, PawelJumper, Phoenix, PsychicDefusing, Pilot, Planter, Poison, PrimaryBan,
         Prosthesis, Push, Pyro, QuickShot, RadarHack, Rambo, RandomWeapon, ReZombie, ReactiveArmor, Regeneration,
-        Replicator, Retreat, ReturnToSender, RichBoy, RobinHood, Rubber, Saper, SecondLife, Shade, ShortBomb,
+        Replicator, Retreat, ReturnToSender, RichBoy, Ricochet, RobinHood, Rubber, Saper, SecondLife, Shade, ShortBomb,
         Silent, Smoker, SniperElite, Soldier, SoundMaker, Spectator, SwapPosition, TakeAmmo, TeamTeleport, Teleporter,
         Thief, ThirdEye, Thorns, ThrowingKnife, ToxicSmoke, Tripwire, Wallhack, Watchmaker, WeaponsSwap, Weightless,
         WildThrow, Zeus,

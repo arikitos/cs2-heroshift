@@ -28,6 +28,7 @@ public static class BuiltInSkillCatalog
         registry.Register(C4CamouflageDefinition.Create());
         registry.Register(CarefulBulletsDefinition.Create());
         registry.Register(CatapultDefinition.Create());
+        registry.Register(ChameleonDefinition.Create());
         registry.Register(ChickenDefinition.Create());
         registry.Register(ChillOutDefinition.Create());
         registry.Register(CutterDefinition.Create());
@@ -63,6 +64,7 @@ public static class BuiltInSkillCatalog
         registry.Register(GlitchDefinition.Create());
         registry.Register(GlueDefinition.Create());
         registry.Register(GodModeDefinition.Create());
+        registry.Register(GrappleDefinition.Create());
         registry.Register(GrenadierDefinition.Create());
         registry.Register(HealingChickenDefinition.Create());
         registry.Register(HealingSmokeDefinition.Create());
@@ -75,6 +77,7 @@ public static class BuiltInSkillCatalog
         registry.Register(IllusionistDefinition.Create());
         registry.Register(ImpostorDefinition.Create());
         registry.Register(InfiniteAmmoDefinition.Create());
+        registry.Register(InheritanceDefinition.Create());
         registry.Register(JackalDefinition.Create());
         registry.Register(JammerDefinition.Create());
         registry.Register(JesterDefinition.Create());
@@ -122,6 +125,7 @@ public static class BuiltInSkillCatalog
         registry.Register(RetreatDefinition.Create());
         registry.Register(ReturnToSenderDefinition.Create());
         registry.Register(RichBoyDefinition.Create());
+        registry.Register(RicochetDefinition.Create());
         registry.Register(RobinHoodDefinition.Create());
         registry.Register(RubberDefinition.Create());
         registry.Register(SaperDefinition.Create());

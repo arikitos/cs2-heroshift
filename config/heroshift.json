@@ -1,35 +1,3 @@
 {
-  "schemaVersion": 1,
-  "skills": {
-    "godmode": {
-      "options": {
-        "duration": 5
-      }
-    },
-    "flash": {
-      "options": {
-        "chanceFrom": 2,
-        "chanceTo": 2
-      }
-    },
-    "phoenix": {
-      "options": {
-        "chanceFrom": 0.5,
-        "chanceTo": 1
-      }
-    },
-    "richboy": {
-      "options": {
-        "minMoney": 16000,
-        "maxMoney": 16000
-      }
-    },
-    "tripwire": {
-      "options": {
-        "triggerRadius": 30,
-        "cooldown": 15,
-        "wireWidth": 0.5
-      }
-    }
-  }
+  "schemaVersion": 1
 }

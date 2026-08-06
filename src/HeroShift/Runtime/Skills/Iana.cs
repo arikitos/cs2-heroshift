@@ -122,6 +122,7 @@ namespace src.player.skills
                 KillClone(playerSkill);
             playersInfo.TryRemove(player.Index, out _);
             EntityManager.DestroyPlayerEntities(player.Index);
+            SkillUtils.ResetPrintHTML(player);
         }
 
         private static void UpdateWeapons(CCSPlayerController player, PlayerSkill playerSkill)
@@ -178,6 +179,7 @@ namespace src.player.skills
 
         public static void OnTick()
         {
+            if (!SkillUtils.IsHudFrame()) return;
             foreach (var playerSkill in playersInfo.Values)
                 UpdateHUD(playerSkill);
         }

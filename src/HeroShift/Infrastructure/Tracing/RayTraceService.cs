@@ -53,7 +53,7 @@ public sealed class RayTraceService : ITraceService
             if (Interlocked.Exchange(ref missingModuleLogged, 1) == 0)
             {
                 log("[HeroShift] RayTrace module not found - skills that need it do nothing: " +
-                    "LongZeus, LongKnife, Iana, Cypher, Noclip, Shade (and the skill-use button's aim check). " +
+                    "LongZeus, LongKnife, Iana, Cypher, Noclip, Shade, Grapple, Ricochet (and the skill-use button's aim check). " +
                     "Install RayTrace-CSS-API and RayTrace-MM: https://github.com/FUNPLAY-pro-CS2/Ray-Trace/releases");
             }
 

@@ -79,6 +79,8 @@ namespace src.player.skills
 
         public static void PlayerMakeSound(UserMessage um)
         {
+            if (SkillPlayerInfo.IsEmpty) return;
+
             var soundevent = um.ReadUInt("soundevent_hash");
             if (soundevent != soundEventHash) return;
 
@@ -125,7 +127,10 @@ namespace src.player.skills
 
         public static void OnTick()
         {
-            if (Server.TickCount % (60 * Options.Cooldown) != 0) return;
+            if (SkillPlayerInfo.IsEmpty) return;
+
+            int cooldown = Math.Max(Options.Cooldown, 1);
+            if (Server.TickCount % (60 * cooldown) != 0) return;
 
             foreach (var player in PlayerManager.GetTickPlayers()
                 .Where(p => p != null && p.IsValid && p.PlayerPawn.Value != null && p.PlayerPawn.Value.IsValid && p.PlayerPawn.Value.Health > 0))

@@ -1,12 +1,12 @@
 # HeroShift
 
-HeroShift is a Counter-Strike 2 plugin for CounterStrikeSharp that gives every player a random (or admin-assigned) hero skill each round, similar to a "wanted"/"hero" gamemode. It ships **142 built-in skills**, a WASD in-game skill menu, a configurable HUD, multi-language chat, and an admin/voting command system for match control.
+HeroShift is a Counter-Strike 2 plugin for CounterStrikeSharp that gives every player a random (or admin-assigned) hero skill each round, similar to a "wanted"/"hero" gamemode. It ships **146 built-in skills**, a WASD in-game skill menu, a configurable HUD, multi-language chat, and an admin/voting command system for match control.
 
 The runtime uses stable skill identifiers, typed options, explicit hook registration, immutable configuration snapshots, embedded English resources, and verified release packages — no reflection-based dispatch and no legacy `SkillsInfo`/`config.json`/`skillsInfo.json` files.
 
 ## Features
 
-* 142 built-in skills, each with its own enable/disable, use, tick, damage, round, and cleanup hooks
+* 146 built-in skills, each with its own enable/disable, use, tick, damage, round, and cleanup hooks
 * Multiple game modes: `Normal`, `TeamSkills`, `SameSkills`, `NoRepeat` (default), `FullRandom`, `Debug`
 * Per-round random skill assignment, plus admin-assigned skills that can be one-round (`setskill`) or persistent across rounds (`setstaticskill`)
 * In-game WASD menu for browsing the full skill list

@@ -4,7 +4,6 @@ using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
 using src.utils;
-using System.Collections.Concurrent;
 using static CounterStrikeSharp.API.Core.Listeners;
 using static src.HeroShift;
 
@@ -26,19 +25,8 @@ namespace src.player
      *
      * Beyond the log helper, Load() subscribes to the interesting game events
      * (connect/disconnect, round start/freeze end/end, deaths, bomb plant/defuse,
-     * map change, shots) and hooks CBaseEntity::TakeDamage in Pre mode so that
+     * map change) and hooks CBaseEntity::TakeDamage in Pre mode so that
      * every damage event is logged with the attacker's and victim's current hero.
-     *
-     * Two things here exist specifically to debug known CS2 pitfalls:
-     *   - The hitgroup cross-check: the native CTakeDamageInfo hitgroup is
-     *     recorded in OnTakeDamage and compared against the hitgroup reported by
-     *     the later EventPlayerHurt. A mismatch is logged as [HITGROUP], which is
-     *     how head/leg-based heroes are verified against what the engine reports.
-     *   - DescribeIdentitySplit: when a human is controlling a bot, the pawn taking
-     *     the damage and the controller owning the skill are different entity
-     *     indexes. Any such split is appended as SPLIT(...) with both indexes and
-     *     both skills, since that mismatch is a common source of "my skill did
-     *     nothing" reports.
      *
      * Unload() removes the TakeDamage hook and disposes the writer; the unhook is
      * wrapped in an empty catch so unloading still succeeds if the hook was never
@@ -136,40 +124,10 @@ namespace src.player
                 WriteToDebug($"Map changed: {mapName}.");
             });
 
-            Instance.RegisterEventHandler<EventPlayerShoot>((@event, info) =>
-            {
-                var player = PlayerManager.GetPlayerEvent(@event.Userid);
-                if (player == null || !player.IsValid) return HookResult.Continue;
-                WriteToDebug($"{(player.IsBot ? "Bot" : "Player")} {player.PlayerName} fired a shot.");
-                return HookResult.Continue;
-            });
-
-            // Hitgroup cross-check. OnTakeDamage recorded the hitgroup the engine put in
-            // CTakeDamageInfo; here we compare it with the hitgroup the player_hurt
-            // event reports and log only when the two disagree. TryRemove consumes the
-            // stored value so each damage instance is checked at most once.
-            Instance.RegisterEventHandler<EventPlayerHurt>((@event, info) =>
-            {
-                var victim = PlayerManager.GetPlayerEvent(@event.Userid);
-                if (victim == null || !victim.IsValid) return HookResult.Continue;
-
-                if (!lastNativeHitGroup.TryRemove(victim.Index, out var native)) return HookResult.Continue;
-                if (native.HitGroup == @event.Hitgroup) return HookResult.Continue;
-
-                WriteToDebug($"[HITGROUP] mismatch on {victim.PlayerName}: native={(HitGroup_t)native.HitGroup} event={(HitGroup_t)@event.Hitgroup} " +
-                    $"weapon={@event.Weapon} rawDmg={native.Damage:0.#} appliedDmg={@event.DmgHealth}");
-
-                return HookResult.Continue;
-            });
-
             // Pre mode: runs before the damage is applied, so the values logged are the
             // requested damage and the victim's health *before* the hit.
             VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(OnTakeDamage, HookMode.Pre);
         }
-
-        // Victim entity index -> the hitgroup and raw damage seen natively, waiting to
-        // be compared against the matching player_hurt event.
-        private static readonly ConcurrentDictionary<uint, (int HitGroup, float Damage)> lastNativeHitGroup = [];
 
         // Removes the native hook and closes the log file.
         public static void Unload()
@@ -178,19 +136,6 @@ namespace src.player
             catch { }
 
             lock (_writeLock) { _writer?.Dispose(); _writer = null; }
-        }
-
-        // Returns a SPLIT(...) fragment when the victim's own controller index differs
-        // from the index PlayerManager routes to (human controlling a bot). Empty string
-        // when there is no split, so it can be appended unconditionally.
-        private static string DescribeIdentitySplit(CCSPlayerController victim)
-        {
-            var routed = PlayerManager.GetPlayerEvent(victim);
-            uint routedIndex = routed?.Index ?? victim.Index;
-            if (routedIndex == victim.Index) return string.Empty;
-
-            return $" SPLIT(idx {victim.Index}->{routedIndex}, skill {PlayerManager.GetPlayerByIndex(victim.Index)?.Skill}" +
-                $"->{PlayerManager.GetPlayerByIndex(routedIndex)?.Skill}, controllingBot={victim.ControllingBot})";
         }
 
         // Logs one line per player-vs-player damage instance. Always returns Continue -
@@ -223,14 +168,11 @@ namespace src.player
             var playerInfo = PlayerManager.GetPlayerByIndex(attacker!.Index);
             if (playerInfo == null) return HookResult.Continue;
 
-            // Stashed for the EventPlayerHurt comparison registered in Load().
             var nativeHitGroup = SkillUtils.GetHitGroup(param2);
-            lastNativeHitGroup[victim.Index] = ((int)nativeHitGroup, param2.Damage);
 
             WriteToDebug($"{(victim.IsBot ? "Bot" : "Player")} {victim.PlayerName} took damage from {(attacker.IsBot ? "bot" : "player")} {attacker.PlayerName}. " +
                 $"[dmg={param2.Damage:0.#} hp={victimPawn.Health}/{victimPawn.MaxHealth} armor={victimPawn.ArmorValue} hitgroup={nativeHitGroup} " +
-                $"takes={victimPawn.TakesDamage} vskill={PlayerManager.GetPlayerByIndex(victim.Index)?.Skill} askill={playerInfo.Skill}" +
-                $"{DescribeIdentitySplit(victim)}]");
+                $"takes={victimPawn.TakesDamage} vskill={PlayerManager.GetPlayerByIndex(victim.Index)?.Skill} askill={playerInfo.Skill}]");
             return HookResult.Continue;
         }
 

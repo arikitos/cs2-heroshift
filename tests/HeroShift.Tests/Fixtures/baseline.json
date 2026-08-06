@@ -1,5 +1,5 @@
 {
-  "skillCount": 142,
+  "skillCount": 146,
   "skills": [
     {
       "name": "AimLock",
@@ -490,6 +490,29 @@
         "chanceFrom": ".2f",
         "chanceTo": ".4f"
       }
+    },
+    {
+      "name": "Chameleon",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "NewRound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#5fd98a\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "2",
+        "rarity": "Rarity.Rare"
+      },
+      "options": {}
     },
     {
       "name": "Chicken",
@@ -1405,6 +1428,40 @@
       }
     },
     {
+      "name": "Grapple",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "UseSkill",
+        "OnTick",
+        "NewRound",
+        "RoundEnd",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#38e0c4\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "true",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "-1",
+        "rarity": "Rarity.Rare"
+      },
+      "options": {
+        "cooldown": "10f",
+        "maxDistance": "1500f",
+        "minDistance": "150f",
+        "stopDistance": "90f",
+        "pullSpeed": "850f",
+        "maxPullSeconds": "3f",
+        "ropeWidth": "0.8f"
+      }
+    },
+    {
       "name": "Grenadier",
       "hooks": [
         "LoadSkill",
@@ -1725,6 +1782,30 @@
         "descriptionHudDuration": "null",
         "maxPerServer": "-1",
         "rarity": "Rarity.Common"
+      },
+      "options": {}
+    },
+    {
+      "name": "Inheritance",
+      "hooks": [
+        "LoadSkill",
+        "EnableSkill",
+        "DisableSkill",
+        "TypeSkill",
+        "NewRound",
+        "PlayerDeath"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#c9a227\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "true",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "2",
+        "rarity": "Rarity.Rare"
       },
       "options": {}
     },
@@ -2954,6 +3035,44 @@
       }
     },
     {
+      "name": "Ricochet",
+      "hooks": [
+        "LoadSkill",
+        "DisableSkill",
+        "OnTick",
+        "NewRound",
+        "RoundEnd",
+        "BulletImpact"
+      ],
+      "metadata": {
+        "active": "true",
+        "color": "\u0022#ffd75e\u0022",
+        "onlyTeam": "CsTeam.None",
+        "disableOnFreezeTime": "false",
+        "needsTeammates": "false",
+        "requiredPermission": "\u0022\u0022",
+        "hudDuration": "null",
+        "descriptionHudDuration": "null",
+        "maxPerServer": "2",
+        "rarity": "Rarity.Rare"
+      },
+      "options": {
+        "bounces": "3",
+        "segmentDistance": "1200f",
+        "damageMultiplier": "0.5f",
+        "fallbackDamage": "25f",
+        "respectArmor": "true",
+        "damageFalloff": "0.75f",
+        "maxImpactsPerTick": "2",
+        "showTracer": "true",
+        "tracerWidth": "0.5f",
+        "tracerSpeed": "2600f",
+        "tracerLength": "220f",
+        "maxActiveTracers": "12",
+        "normalProbeOffset": "6f"
+      }
+    },
+    {
       "name": "RobinHood",
       "hooks": [
         "LoadSkill",
@@ -3678,7 +3797,7 @@
   ],
   "localization": {
     "sourceFile": "src/lang/en.json",
-    "keyCount": 459,
+    "keyCount": 473,
     "keys": [
       {
         "key": "active_hud_info",
@@ -3936,6 +4055,26 @@
       },
       {
         "key": "catapult_desc2",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "chameleon",
+        "placeholders": []
+      },
+      {
+        "key": "chameleon_copied_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "chameleon_desc",
+        "placeholders": []
+      },
+      {
+        "key": "chameleon_wrong_team_info",
         "placeholders": [
           0
         ]
@@ -4450,6 +4589,22 @@
         "placeholders": []
       },
       {
+        "key": "grapple",
+        "placeholders": []
+      },
+      {
+        "key": "grapple_desc",
+        "placeholders": []
+      },
+      {
+        "key": "grapple_no_anchor_info",
+        "placeholders": []
+      },
+      {
+        "key": "grapple_pulling_info",
+        "placeholders": []
+      },
+      {
         "key": "grenadier",
         "placeholders": []
       },
@@ -4573,6 +4728,24 @@
       },
       {
         "key": "infiniteammo_desc",
+        "placeholders": []
+      },
+      {
+        "key": "inheritance",
+        "placeholders": []
+      },
+      {
+        "key": "inheritance_desc",
+        "placeholders": []
+      },
+      {
+        "key": "inheritance_player_info",
+        "placeholders": [
+          0
+        ]
+      },
+      {
+        "key": "inheritance_select_info",
         "placeholders": []
       },
       {
@@ -5215,6 +5388,14 @@
       },
       {
         "key": "richboy_desc",
+        "placeholders": []
+      },
+      {
+        "key": "ricochet",
+        "placeholders": []
+      },
+      {
+        "key": "ricochet_desc",
         "placeholders": []
       },
       {

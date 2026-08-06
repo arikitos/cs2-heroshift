@@ -80,7 +80,7 @@ namespace src.player.skills
                 if (!SkillPlayerInfo.TryGetValue(player.Index, out var skillInfo)) continue;
 
                 GetTeamate(player, skillInfo);
-                UpdateHUD(player, skillInfo);
+                if (SkillUtils.IsHudFrame()) UpdateHUD(player, skillInfo);
             }
         }
 

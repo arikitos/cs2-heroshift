@@ -28,11 +28,11 @@ namespace src.player.skills
             foreach (var player in PlayerManager.GetTickPlayers())
             {
                 var playerEvent = PlayerManager.GetPlayerEvent(player);
+                if (playerEvent == null) continue;
+                if (PlayerManager.GetPlayerByIndex(playerEvent.Index)?.Skill != skillName) continue;
                 if (!Instance.IsPlayerValid(playerEvent)) continue;
 
-                var playerInfo = PlayerManager.GetPlayerByIndex(playerEvent!.Index);
-                if (playerInfo?.Skill == skillName)
-                    SetEnemiesVisibleOnRadar(player);
+                SetEnemiesVisibleOnRadar(player);
             }
         }
 
@@ -43,8 +43,10 @@ namespace src.player.skills
             // SpottedByMask is indexed by player slot (0-63), not entity index.
             int slot = player.Slot;
 
-            foreach (var enemy in PlayerManager.GetTickPlayers().FindAll(p => p.Team != player.Team))
+            foreach (var enemy in PlayerManager.GetTickPlayers())
             {
+                if (enemy == null || enemy.Team == player.Team) continue;
+
                 var enemyEvent = PlayerManager.GetPlayerEvent(enemy);
                 if (enemyEvent == null || !enemyEvent.IsValid) continue;
 

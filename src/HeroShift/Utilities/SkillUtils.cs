@@ -45,7 +45,7 @@ namespace src.utils
      *     Look(), GetSpawnPointVector()
      *
      *   VISUALS AND ENTITIES
-     *     CreateLine(), CreateTrigger(), ApplyScreenColor(),
+     *     CreateTrigger(), ApplyScreenColor(),
      *     ChangePlayerScale(), SetPlayerInvisibility(), HideCarriedEntities(),
      *     SafeKillEntity(), SetPlayerCollisions()
      *     CreateHEGrenadeProjectile()/Smoke/Molotov - spawn a live projectile
@@ -116,10 +116,15 @@ namespace src.utils
             return HeroShift.Instance?.GameRules?.FreezePeriod == true;
         }
 
+        public static bool IsHudFrame() => Server.TickCount % 4 == 0;
+
         public static void RegisterSkill(SkillId skill, string color, bool display = true)
         {
             if (!SkillData.Skills.Any(s => s.Skill == skill))
+            {
                 SkillData.Skills.Add(new SkillRuntimeInfo(skill, color, display));
+                SkillData.Invalidate();
+            }
         }
 
         public static void UpdateGrenadeCount(CCSPlayerController player, CsItem item, int ammo)
@@ -236,11 +241,6 @@ namespace src.utils
         {
             if (pawn == null || !pawn.IsValid) return;
             SnapViewAngles.Value?.Invoke(pawn, angle);
-        }
-
-        public static CBeam? CreateLine(Vector start, Vector end, Color color, uint ownerPlayerIndex = EntityManager.SystemOwnerIndex)
-        {
-            return EntityManager.CreateTrackedBeam(ownerPlayerIndex, start, end, color);
         }
 
         public static void SetPlayerCollisions(CCSPlayerController? player, bool enable)
@@ -751,6 +751,54 @@ namespace src.utils
                     targetPawn.Look(item.LastAngle);
                 }
             });
+        }
+
+        public static void ForceFullUpdateToAllChunked(int clientsPerFrame = 2)
+        {
+            if (!ConfigurationStore.Settings.General.EnableFullForceUpdate) return;
+
+            var pending = Utilities.GetPlayers()
+                .Where(player => player != null && player.IsValid && !player.IsBot)
+                .Select(player => player.Index)
+                .ToList();
+
+            if (pending.Count == 0) return;
+
+            ForceFullUpdateChunk(pending, 0, Math.Max(clientsPerFrame, 1));
+        }
+
+        private static void ForceFullUpdateChunk(List<uint> pending, int start, int clientsPerFrame)
+        {
+            if (start >= pending.Count) return;
+
+            int end = Math.Min(start + clientsPerFrame, pending.Count);
+            var playersToRestore = new List<(uint PlayerIndex, QAngle LastAngle)>();
+            INetworkGameServer networkGameServer = new INetworkServerService().GetIGameServer();
+
+            for (int index = start; index < end; index++)
+            {
+                var player = Utilities.GetPlayerFromIndex((int)pending[index]);
+                if (player == null || !player.IsValid) continue;
+
+                ForceFullUpdate(player, playersToRestore, networkGameServer);
+            }
+
+            if (playersToRestore.Count > 0)
+                HeroShift.Instance.AddTickTimer(3, () =>
+                {
+                    foreach (var item in playersToRestore)
+                    {
+                        var target = Utilities.GetPlayerFromIndex((int)item.PlayerIndex);
+                        if (target == null || !target.IsValid) continue;
+
+                        var targetPawn = target.PlayerPawn?.Value;
+                        if (targetPawn == null || !targetPawn.IsValid || targetPawn.AbsOrigin == null) continue;
+
+                        targetPawn.Look(item.LastAngle);
+                    }
+                });
+
+            Server.NextFrame(() => ForceFullUpdateChunk(pending, end, clientsPerFrame));
         }
 
         public static bool SetHealth(CCSPlayerPawn? pawn, int newHealth, int? maxHealth = null)

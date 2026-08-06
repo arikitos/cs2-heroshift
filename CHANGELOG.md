@@ -4,6 +4,15 @@ All notable changes to this project are documented in this file.
 
 ## Unreleased
 
+### Added
+
+* Add the Chameleon, Grapple, Inheritance, and Ricochet skills from jRandomSkills 1.2.3.b5.
+
+### Fixed
+
+* Align existing skill behavior with the jRandomSkills 1.2.3.b5 delta, including HUD cadence, state cleanup, transmit filtering, Wallhack glow creation, FalconEye weapon blocking, and spectator camera restoration.
+* Cache the registered skill snapshot used by the HUD and spread full client updates across frames.
+
 ### Changed
 
 * Normalize the repository into root solution, source, test, configuration, documentation, and license directories.

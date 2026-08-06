@@ -21,7 +21,7 @@ namespace src.player
      *
      * TICK BUDGET
      *   The listener runs at the full tick rate (64/s) but the HUD work is gated to
-     *   every SECOND tick (TickCount % 2), which is still far faster than a client can
+     *   every FOURTH tick (SkillUtils.IsHudFrame), which is still far faster than a client can
      *   perceive and halves the cost. Entity statistics are logged only every 1920
      *   ticks (~30s) and only when the perf log is on. The player list comes from
      *   PlayerManager.GetTickPlayers(), the per-tick cached snapshot - the hero OnTick
@@ -70,9 +70,9 @@ namespace src.player
         private static void Tick()
         {
             // GameRules is checked every tick (cheap, and other code depends on it);
-            // the HUD itself only refreshes on even ticks.
+            // the HUD itself only refreshes every fourth tick.
             UpdateGameRules();
-            if (Server.TickCount % 2 != 0) return;
+            if (!SkillUtils.IsHudFrame()) return;
 
             // ~every 30 seconds at 64 tick: entity leak watchdog. Compares the total
             // live server entities against what EntityManager believes it owns.
@@ -177,9 +177,9 @@ namespace src.player
             bool showDescriptionHUD = skillPlayer.SkillDescriptionHudExpired >= now || ConfigurationStore.Settings.General.DisplayAlwaysDescription;
             bool isDescription = true;
 
-            var skills = SkillData.Skills;
+            var skills = SkillData.GetSnapshot();
 
-            if (skills == null || skills.IsEmpty)
+            if (skills.Length == 0)
             {
                 infoLine = player.GetTranslation("your_skill");
                 skillLine = player.GetTranslation("none");
@@ -189,16 +189,10 @@ namespace src.player
             // RoundEvents.SetSkillCore.
             else if (skillPlayer.IsDrawing && player.PawnIsAlive)
             {
-                int skillCount = skills.Count;
+                var randomSkill = skills[Instance.Random.Next(skills.Length)];
 
-                if (skillCount > 0)
-                {
-                    var skillsArray = skills.ToArray();
-                    var randomSkill = skillsArray[Instance.Random.Next(skillCount)];
-
-                    infoLine = player.GetTranslation("drawing_skill");
-                    skillLine = $"<font color='{randomSkill.Color}'>{player.GetSkillName(randomSkill.Skill)}</font>";
-                }
+                infoLine = player.GetTranslation("drawing_skill");
+                skillLine = $"<font color='{randomSkill.Color}'>{player.GetSkillName(randomSkill.Skill)}</font>";
             }
             else
             {

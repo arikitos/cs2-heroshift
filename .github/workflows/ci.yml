@@ -60,7 +60,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(grep -c 'registry.Register(' src/HeroShift/Skills/BuiltInSkillCatalog.cs)" -eq 142
+          test "$(grep -c 'registry.Register(' src/HeroShift/Skills/BuiltInSkillCatalog.cs)" -eq 146
           test ! -e scripts
           test ! -e packaging
           test ! -e REFACTOR.md
